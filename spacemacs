@@ -226,6 +226,21 @@ layers configuration."
   ;; My middle click should:
   ;; 1. If click is not inside region, paste first kill-ring entry at location of click.
   ;; 2. If click is inside region, delete region and paste second kill-ring entry at point.
+  (defun k-swap-kill-region (click)
+    "Replace region with the second element of the kill ring. (The first element will be a copy of the region.)"
+    (interactive "e")
+    (let ((es (event-start) click))
+      (select-window (posn-window es))
+      (if (and (use-region-p)
+               (<= (region-beginning) (posn-point es) (region-end)))
+          (progn
+            (kill-region)
+            (insert (current-kill 1 t)))
+        (insert current-kill 0 t)))
+  )
+
+  (global-set-key (kbd "<mouse-2>") 'k-swap-kill-region)
+
 ;  (defun k-swap-kill-region ()
 ;                                        ;  (if mouse-drag-copy-region ))
 ;    (interactive e)
