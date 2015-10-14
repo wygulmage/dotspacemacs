@@ -19,7 +19,7 @@
      ;; ----------------------------------------------------------------
      auto-completion
      better-defaults
-     company-mode
+     ;; company-mode
      ;; dash
      emacs-lisp
      git
@@ -28,11 +28,11 @@
      latex
      ;; markdown
      org
-     powerline
+     ;; powerline
      (shell :variables
             shell-default-height 30
             shell-default-position 'bottom)
-     slime
+     ;; slime
      syntax-checking
      version-control
      )
@@ -188,6 +188,17 @@ layers configuration."
               buffer-name))
     "Show the filename if there is one; otherwise, the buffer name.")
   (put 'my-buffer-or-file-name-string 'risky-local-variable t)
+  (defvar my-vc-string
+    '(eval (when (and vc-mode buffer-file-name)
+      (let ((backend (vc-backend buffer-file-name)))
+        (when backend
+          (concat (powerline-raw "[" mode-line 'l)
+                  (powerline-raw (format "%s / %s" backend (vc-working-revision buffer-file-name backend)))
+                  (powerline-raw "]" mode-line))))))
+    ;; '(:eval (let ((backend symbol-name (vc-backend (buffer-file-name)))
+    ;;               (substring vc-mode (+ (length backend) 2)))))
+    "Strip backend from vc-mode. Courtesy of https://github.com/lunaryorn/blog/blob/master/posts/make-your-emacs-mode-line-more-useful.md ")
+  (put 'my-vc-string 'risky-local-variable t)
   (defun my-style-modeline ()
      (setq mode-line-format
            (list
@@ -199,7 +210,7 @@ layers configuration."
             "(%l,%c)  " ;; (line,column)
             mode-name ;; major mode
             "  "
-            vc-mode ;; version control state
+            my-vc-string ;; version control state (broken)
   )))
   (add-hook 'after-change-major-mode-hook 'my-style-modeline)
   (defun spacemacs//restore-powerline (ignored_value)
@@ -255,24 +266,3 @@ layers configuration."
    ;;         <kill and paste>)))
 )
 
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(ahs-case-fold-search nil)
- '(ahs-default-range (quote ahs-range-whole-buffer))
- '(ahs-idle-interval 0.25)
- '(ahs-idle-timer 0 t)
- '(ahs-inhibit-face-list nil)
- '(package-selected-packages
-   (quote
-    (auto-complete avy names auctex ghc dash-functional tern company anzu iedit smartparens highlight flx flycheck haskell-mode popup pos-tip guide-key popwin request gitignore-mode projectile helm helm-core parent-mode yasnippet multiple-cursors s js2-mode json-snatcher json-reformat magit-popup git-commit with-editor async alert log4e gntp spinner pkg-info epl dash evil-leader evil bind-key hexrgb window-numbering web-beautify volatile-highlights vi-tilde-fringe use-package toc-org smooth-scrolling smeargle slime shm shell-pop rfringe rainbow-delimiters powerline pcre2el paradox page-break-lines org-repo-todo org-present org-pomodoro org-bullets open-junk-file neotree multi-term move-text magit macrostep linum-relative leuven-theme json-mode js2-refactor js-doc info+ indent-guide ido-vertical-mode hungry-delete htmlize hl-anything hindent highlight-parentheses highlight-numbers highlight-indentation helm-themes helm-swoop helm-projectile helm-mode-manager helm-make helm-gitignore helm-flyspell helm-descbinds helm-c-yasnippet helm-ag haskell-snippets guide-key-tip google-translate golden-ratio gitconfig-mode gitattributes-mode git-timemachine git-messenger gh-md fringe-helper flycheck-pos-tip flycheck-haskell flx-ido fill-column-indicator fancy-battery expand-region exec-path-from-shell evil-visualstar evil-tutor evil-terminal-cursor-changer evil-surround evil-search-highlight-persist evil-org evil-numbers evil-nerd-commenter evil-matchit evil-lisp-state evil-jumper evil-indent-textobject evil-iedit-state evil-exchange evil-escape evil-args evil-anzu eval-sexp-fu elisp-slime-nav diff-hl company-tern company-statistics company-quickhelp company-ghc company-cabal company-auctex coffee-mode cmm-mode clean-aindent-mode buffer-move auto-yasnippet auto-highlight-symbol auto-dictionary aggressive-indent adaptive-wrap ace-window ace-link ace-jump-mode ac-ispell)))
- '(ring-bell-function (quote ignore)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(company-tooltip-common ((t (:inherit company-tooltip :weight bold :underline nil))))
- '(company-tooltip-common-selection ((t (:inherit company-tooltip-selection :weight bold :underline nil)))))
