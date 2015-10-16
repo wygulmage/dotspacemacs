@@ -192,9 +192,7 @@ layers configuration."
     '(eval (when (and vc-mode buffer-file-name)
       (let ((backend (vc-backend buffer-file-name)))
         (when backend
-          (concat (powerline-raw "[" mode-line 'l)
-                  (powerline-raw (format "%s / %s" backend (vc-working-revision buffer-file-name backend)))
-                  (powerline-raw "]" mode-line))))))
+          (format "%s / %s" backend (vc-working-revision buffer-file-name backend))))))
     ;; '(:eval (let ((backend symbol-name (vc-backend (buffer-file-name)))
     ;;               (substring vc-mode (+ (length backend) 2)))))
     "Strip backend from vc-mode. Courtesy of https://github.com/lunaryorn/blog/blob/master/posts/make-your-emacs-mode-line-more-useful.md ")
