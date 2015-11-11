@@ -3,8 +3,14 @@
 ;; It must be stored in your home directory.
 
 (defun dotspacemacs/layers ()
-  "Configuration Layers declaration."
+  "Configuration Layers declaration.
+You should not put any user code in this function besides modifying the variable
+values."
   (setq-default
+   ;; Base distribution to use. This is a layer contained in the directory
+   ;; `+distribution'. For now available distributions are `spacemacs-base'
+   ;; or `spacemacs'. (default 'spacemacs)
+   dotspacemacs-distribution 'spacemacs
    ;; List of additional paths where to look for configuration layers.
    ;; Paths must have a trailing slash (i.e. `~/.mycontribs/')
    dotspacemacs-configuration-layer-path '()
@@ -19,8 +25,6 @@
      ;; ----------------------------------------------------------------
      auto-completion
      better-defaults
-     ;; company-mode
-     ;; dash
      emacs-lisp
      git
      haskell
@@ -28,11 +32,10 @@
      latex
      ;; markdown
      org
-     ;; powerline
      (shell :variables
             shell-default-height 30
             shell-default-position 'bottom)
-     ;; slime
+     spell-checking
      syntax-checking
      version-control
      )
@@ -45,38 +48,43 @@
    dotspacemacs-excluded-packages '()
    ;; If non-nil spacemacs will delete any orphan packages, i.e. packages that
    ;; are declared in a layer which is not a member of
-   ;; the list `dotspacemacs-configuration-layers'
+   ;; the list `dotspacemacs-configuration-layers'. (default t)
    dotspacemacs-delete-orphan-packages t))
 
 (defun dotspacemacs/init ()
   "Initialization function.
 This function is called at the very startup of Spacemacs initialization
-before layers configuration."
+before layers configuration.
+You should not put any user code in there besides modifying the variable
+values."
   ;; This setq-default sexp is an exhaustive list of all the supported
   ;; spacemacs settings.
   (setq-default
-   ;; Either `vim' or `emacs'. Evil is always enabled but if the variable
-   ;; is `emacs' then the `holy-mode' is enabled at startup.
+   ;; One of `vim', `emacs' or `hybrid'. Evil is always enabled but if the
+   ;; variable is `emacs' then the `holy-mode' is enabled at startup. `hybrid'
+   ;; uses emacs key bindings for vim's insert mode, but otherwise leaves evil
+   ;; unchanged. (default 'vim)
    dotspacemacs-editing-style 'vim
-   ;; If non nil output loading progress in `*Messages*' buffer.
+   ;; If non nil output loading progress in `*Messages*' buffer. (default nil)
    dotspacemacs-verbose-loading nil
    ;; Specify the startup banner. Default value is `official', it displays
    ;; the official spacemacs logo. An integer value is the index of text
    ;; banner, `random' chooses a random text banner in `core/banners'
    ;; directory. A string value must be a path to an image format supported
    ;; by your Emacs build.
-   ;; If the value is nil then no banner is displayed.
+   ;; If the value is nil then no banner is displayed. (default 'official)
    dotspacemacs-startup-banner 'official
    ;; List of items to show in the startup buffer. If nil it is disabled.
-   ;; Possible values are: `recents' `bookmarks' `projects'."
+   ;; Possible values are: `recents' `bookmarks' `projects'.
+   ;; (default '(recents projects))
    dotspacemacs-startup-lists '(recents projects)
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press <SPC> T n to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
-   dotspacemacs-themes '(solarized-light
-                         solarized-dark
+   dotspacemacs-themes '(spacemacs-dark
                          spacemacs-light
-                         spacemacs-dark
+                         solarized-light
+                         solarized-dark
                          leuven
                          monokai
                          zenburn)
@@ -85,96 +93,122 @@ before layers configuration."
    ;; Default font. `powerline-scale' allows to quickly tweak the mode-line
    ;; size to make separators look not too crappy.
    dotspacemacs-default-font '("Source Code Pro"
-                               :size 13.0 ; Use floating point for point size; integer for pixel.
+                               :size 13.0
                                :weight normal
                                :width normal
                                :powerline-scale 1.1)
    ;; The leader key
    dotspacemacs-leader-key "SPC"
    ;; The leader key accessible in `emacs state' and `insert state'
+   ;; (default "M-m")
    dotspacemacs-emacs-leader-key "M-m"
    ;; Major mode leader key is a shortcut key which is the equivalent of
-   ;; pressing `<leader> m`. Set it to `nil` to disable it.
+   ;; pressing `<leader> m`. Set it to `nil` to disable it. (default ",")
    dotspacemacs-major-mode-leader-key ","
-   ;; Major mode leader key accessible in `emacs state' and `insert state'
+   ;; Major mode leader key accessible in `emacs state' and `insert state'.
+   ;; (default "C-M-m)
    dotspacemacs-major-mode-emacs-leader-key "C-M-m"
    ;; The command key used for Evil commands (ex-commands) and
    ;; Emacs commands (M-x).
    ;; By default the command key is `:' so ex-commands are executed like in Vim
    ;; with `:' and Emacs commands are executed with `<leader> :'.
    dotspacemacs-command-key ":"
+   ;; If non nil `Y' is remapped to `y$'. (default t)
+   dotspacemacs-remap-Y-to-y$ t
    ;; Location where to auto-save files. Possible values are `original' to
    ;; auto-save the file in-place, `cache' to auto-save the file to another
    ;; file stored in the cache directory and `nil' to disable auto-saving.
-   ;; Default value is `cache'.
+   ;; (default 'cache)
    dotspacemacs-auto-save-file-location 'cache
    ;; If non nil then `ido' replaces `helm' for some commands. For now only
-   ;; `find-files' (SPC f f) is replaced.
+   ;; `find-files' (SPC f f), `find-spacemacs-file' (SPC f e s), and
+   ;; `find-contrib-file' (SPC f e c) are replaced. (default nil)
    dotspacemacs-use-ido nil
+   ;; If non nil, `helm' will try to miminimize the space it uses. (default nil)
+   dotspacemacs-helm-resize nil
+   ;; if non nil, the helm header is hidden when there is only one source.
+   ;; (default nil)
+   dotspacemacs-helm-no-header nil
+   ;; define the position to display `helm', options are `bottom', `top',
+   ;; `left', or `right'. (default 'bottom)
+   dotspacemacs-helm-position 'bottom
    ;; If non nil the paste micro-state is enabled. When enabled pressing `p`
-   ;; several times cycle between the kill ring content.
+   ;; several times cycle between the kill ring content. (default nil)
    dotspacemacs-enable-paste-micro-state nil
-   ;; Guide-key delay in seconds. The Guide-key is the popup buffer listing
-   ;; the commands bound to the current keystrokes.
-   dotspacemacs-guide-key-delay 0.4
+   ;; Which-key delay in seconds. The which-key buffer is the popup listing
+   ;; the commands bound to the current keystroke sequence. (default 0.4)
+   dotspacemacs-which-key-delay 0.4
+   ;; Which-key frame position. Possible values are `right', `bottom' and
+   ;; `right-then-bottom'. right-then-bottom tries to display the frame to the
+   ;; right; if there is insufficient space it displays it at the bottom.
+   ;; (default 'bottom)
+   dotspacemacs-which-key-position 'bottom
    ;; If non nil a progress bar is displayed when spacemacs is loading. This
    ;; may increase the boot time on some systems and emacs builds, set it to
-   ;; nil ;; to boost the loading time.
+   ;; nil to boost the loading time. (default t)
    dotspacemacs-loading-progress-bar t
-   ;; If non nil the frame is fullscreen when Emacs starts up.
+   ;; If non nil the frame is fullscreen when Emacs starts up. (default nil)
    ;; (Emacs 24.4+ only)
    dotspacemacs-fullscreen-at-startup nil
    ;; If non nil `spacemacs/toggle-fullscreen' will not use native fullscreen.
-   ;; Use to disable fullscreen animations in OSX."
+   ;; Use to disable fullscreen animations in OSX. (default nil)
    dotspacemacs-fullscreen-use-non-native nil
    ;; If non nil the frame is maximized when Emacs starts up.
    ;; Takes effect only if `dotspacemacs-fullscreen-at-startup' is nil.
-   ;; (Emacs 24.4+ only)
+   ;; (default nil) (Emacs 24.4+ only)
    dotspacemacs-maximized-at-startup nil
    ;; A value from the range (0..100), in increasing opacity, which describes
    ;; the transparency level of a frame when it's active or selected.
-   ;; Transparency can be toggled through `toggle-transparency'.
+   ;; Transparency can be toggled through `toggle-transparency'. (default 90)
    dotspacemacs-active-transparency 90
    ;; A value from the range (0..100), in increasing opacity, which describes
    ;; the transparency level of a frame when it's inactive or deselected.
-   ;; Transparency can be toggled through `toggle-transparency'.
+   ;; Transparency can be toggled through `toggle-transparency'. (default 90)
    dotspacemacs-inactive-transparency 90
-   ;; If non nil unicode symbols are displayed in the mode line.
+   ;; If non nil unicode symbols are displayed in the mode line. (default t)
    dotspacemacs-mode-line-unicode-symbols t
    ;; If non nil smooth scrolling (native-scrolling) is enabled. Smooth
    ;; scrolling overrides the default behavior of Emacs which recenters the
-   ;; point when it reaches the top or bottom of the screen.
+   ;; point when it reaches the top or bottom of the screen. (default t)
    dotspacemacs-smooth-scrolling t
    ;; If non-nil smartparens-strict-mode will be enabled in programming modes.
+   ;; (default nil)
    dotspacemacs-smartparens-strict-mode nil
-   ;; Select a scope to highlight delimiters. Possible value is `all',
-   ;; `current' or `nil'. Default is `all'
+   ;; Select a scope to highlight delimiters. Possible values are `any',
+   ;; `current', `all' or `nil'. Default is `all' (highlight any scope and
+   ;; emphasis the current one). (default 'all)
    dotspacemacs-highlight-delimiters 'all
    ;; If non nil advises quit functions to keep server open when quitting.
-   dotspacemacs-persistent-server t
+   ;; (default nil)
+   dotspacemacs-persistent-server nil
    ;; List of search tool executable names. Spacemacs uses the first installed
    ;; tool of the list. Supported tools are `ag', `pt', `ack' and `grep'.
+   ;; (default '("ag" "pt" "ack" "grep"))
    dotspacemacs-search-tools '("ag" "pt" "ack" "grep")
    ;; The default package repository used if no explicit repository has been
    ;; specified with an installed package.
-   ;; Not used for now.
+   ;; Not used for now. (default nil)
    dotspacemacs-default-package-repository nil
-   )
-  ;; User initialization goes here
-  (setq-default spacemacs-mode-line-minor-modesp nil)
-)
+   ))
 
-(defun dotspacemacs/config ()
-  "Configuration function.
+(defun dotspacemacs/user-init ()
+  "Initialization function for user code.
+It is called immediately after `dotspacemacs/init'.  You are free to put any
+user code."
+  (setq-default spacemacs-mode-line-minor-modesp nil)
+  )
+
+(defun dotspacemacs/user-config ()
+  "Configuration function for user code.
  This function is called at the very end of Spacemacs initialization after
-layers configuration."
-  (global-hl-line-mode -1) ; Disable current line highlight
-  (add-hook 'visual-line-mode-hook 'adaptive-wrap-prefix-mode) ; Match indentation levels and comments with wrapped lines.
-  (global-visual-line-mode) ; Always wrap lines to window.
-  ;; Navigate wrapped lines.
-  (define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
-  (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line)
-  (add-hook 'prog-mode-hook 'linum-mode) ; Show line numbers for code.
+layers configuration. You are free to put any user code."
+(global-hl-line-mode -1) ; Disable current line highlight
+(add-hook 'visual-line-mode-hook 'adaptive-wrap-prefix-mode) ; Match indentation levels and comments with wrapped lines.
+(global-visual-line-mode) ; Always wrap lines to window.
+;; Navigate wrapped lines:
+(define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
+(define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line)
+(add-hook 'prog-mode-hook 'linum-mode) ; Show line numbers for code.
 
   ;; Set up the modeline and frame title. Right now this overrides, but does not disable, the powerline.
   (defvar my-buffer-modified-string
@@ -195,72 +229,37 @@ layers configuration."
           (format "%s / %s" backend (vc-working-revision buffer-file-name backend))))))
     ;; '(:eval (let ((backend symbol-name (vc-backend (buffer-file-name)))
     ;;               (substring vc-mode (+ (length backend) 2)))))
-    "Strip backend from vc-mode. Courtesy of https://github.com/lunaryorn/blog/blob/master/posts/make-your-emacs-mode-line-more-useful.md ")
+    "Strip backend from vc-mode. Courtesy of https://github.com/lunaryorn/blog/blob/master/posts/make-your-emacs-mode-line-more-useful.md (Not working. Use powerline-vc instead?)")
   (put 'my-vc-string 'risky-local-variable t)
-  (defun my-style-modeline ()
-     (setq mode-line-format
-           (list
-            " %[" ;; Show recursive editing.
-            "%b%" ;; buffer
-            " "
-            my-buffer-modified-string
-            "%]  " ;; Show recursive editing.
-            "(%l,%c)  " ;; (line,column)
-            mode-name ;; major mode
-            "  "
-            my-vc-string ;; version control state (broken)
-  )))
-  (add-hook 'after-change-major-mode-hook 'my-style-modeline)
-  (defun spacemacs//restore-powerline (ignored_value)
-    "Replace the built-in restore-powerline function"
-    (my-style-modeline)) 
 
-  (defun my-style-frame-title ()
-    (setq frame-title-format
-          (list
-           my-buffer-or-file-name-string ;; file location
-           " "
-           my-buffer-modified-string
-  )))
-  (add-hook 'after-change-major-mode-hook 'my-style-frame-title)
+(defun my-style-modeline ()
+  (setq mode-line-format
+        (list
+         " %[" ;; Show recursive editing.
+         "%b%" ;; buffer
+         " "
+         my-buffer-modified-string
+         "%]  " ;; Show recursive editing.
+         "(%l,%c)  " ;; (line,column)
+         mode-name ;; major mode
+         "  "
+         (powerline-vc) ;; version control state 
+         )))
+(add-hook 'after-change-major-mode-hook 'my-style-modeline)
+(defun spacemacs//restore-powerline (ignored_value)
+  "Replace the built-in restore-powerline function"
+  (my-style-modeline)) 
 
-  ;; Configure mouse/touchpad.
-  ;; My left click should:
-  ;; 1. Move mark to location of down-click.
-  ;; 2. Move point to location of up-click.
-  ;; 3. If mark =/= point, copy region to kill-ring.
-  ;; This is already implimented by `mouse-set-region' when the variable `mouse-drag-copy-region' is true.
-  (setq mouse-drag-copy-region t)
-  (setq kill-do-not-save-duplicates t) ; Don't copy identical text twice.
-  ;; My middle click should:
-  ;; 1. If click is not inside region, paste first kill-ring entry at location of click.
-  ;; 2. If click is inside region, delete region and paste second kill-ring entry at point.
-  (defun k-swap-kill-region (click)
-    "Replace region with the second element of the kill ring. (The first element will be a copy of the region.)"
-    (interactive "e")
-    (let ((es (event-start) click))
-      (select-window (posn-window es))
-      (if (and (use-region-p)
-               (<= (region-beginning) (posn-point es) (region-end)))
-          (progn
-            (kill-region)
-            (insert (current-kill 1 t)))
-        (insert current-kill 0 t)))
-  )
+(defun my-style-frame-title ()
+  (setq frame-title-format
+        (list
+         my-buffer-or-file-name-string ;; file location
+         " "
+         my-buffer-modified-string
+         )))
+(add-hook 'after-change-major-mode-hook 'my-style-frame-title)
 
-  (global-set-key (kbd "<mouse-2>") 'k-swap-kill-region)
-
-;  (defun k-swap-kill-region ()
-;                                        ;  (if mouse-drag-copy-region ))
-;    (interactive e)
-;    (current-kill 1 t) ; Get the second kill-ring entry.
-;    )
-   ;; (defun paste-or-swap (event)
-   ;;   "If clicking in the region, swap region with previously yanked text; otherwise, paste yanked text at clicked point."
-   ;;   (interactive "e")
-   ;;   (let ((es (event-start event)))
-   ;;     (select-window (posn-window es))
-   ;;     (if (and mark-active (<= (region-beginning) (posn-point es) (region-end)))
-   ;;         <kill and paste>)))
 )
 
+;; Do not write anything past this comment. This is where Emacs will
+;; auto-generate custom variable definitions.
