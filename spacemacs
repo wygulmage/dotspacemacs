@@ -223,7 +223,7 @@ layers configuration. You are free to put any user code."
     "Show the filename if there is one; otherwise, the buffer name.")
   (put 'my-buffer-or-file-name-string 'risky-local-variable t)
   (defvar my-vc-string
-    '(eval (when (and vc-mode buffer-file-name)
+    '(:eval (when (and vc-mode buffer-file-name)
       (let ((backend (vc-backend buffer-file-name)))
         (when backend
           (format "%s / %s" backend (vc-working-revision buffer-file-name backend))))))
