@@ -19,7 +19,9 @@ values."
      ;; ----------------------------------------------------------------
      auto-completion
      better-defaults
+     colors ; Used only for color strings (no nyancat or rainbow identifiers).
      emacs-lisp
+     ; fasd ; Not installed in Windows.
      git
      haskell
      javascript
@@ -32,9 +34,12 @@ values."
             shell-default-position 'bottom)
      spell-checking
      syntax-checking
-     version-control)
+     unimpaired ; paired bracket bindings
+     version-control
+     vinegar ; dired-related bindings.
+     )
 
-   dotspacemacs-additional-packages '() ;; List of packages that will be installed without being wrapped in a layer. If you need configuration for these packages then create a layer or put the configuration in `dotspacemacs/config' (`dotspacemacs/user-config'?).
+   dotspacemacs-additional-packages '(paren-face) ;; List of packages that will be installed without being wrapped in a layer. If you need configuration for these packages then create a layer or put the configuration in `dotspacemacs/config' (`dotspacemacs/user-config'?).
    dotspacemacs-excluded-packages '() ;; A list of packages and/or extensions that will not be installed and loaded.
    spacemacs-delete-orphan-packages t ;; If non-nil, spacemacs will delete any orphan packages, i.e. packages that are declared in a layer which is not a member of the list `dotspacemacs-configuration-layers'. (default t)
    ))
@@ -51,9 +56,9 @@ values."
 
    dotspacemacs-verbose-loading nil ;; If non-nil, output loading progress in `*Messages*' buffer. (default nil)
 
-   dotspacemacs-startup-banner 'official ;; Specify the startup banner. `official', displays the official spacemacs logo. An integer value is the index of text banner; `random' chooses a random text banner in `core/banners' directory. A string value must be a path to an image format supported by your Emacs build. If nil, no banner is displayed. (default 'official)
+   dotspacemacs-startup-banner nil ;; Specify the startup banner. `official', displays the official spacemacs logo. An integer value is the index of text banner; `random' chooses a random text banner in `core/banners' directory. A string value must be a path to an image format supported by your Emacs build. If nil, no banner is displayed. (default 'official)
 
-   dotspacemacs-loading-progress-bar t ;; If non-nil, a progress bar is displayed when spacemacs is loading. This may increase the boot time on some systems and emacs builds, set it to nil to boost the loading time. (default t)
+   dotspacemacs-loading-progress-bar nil ;; If non-nil, a progress bar is displayed when spacemacs is loading. This may increase the boot time on some systems and emacs builds, set it to nil to boost the loading time. (default t)
 
    dotspacemacs-startup-lists '(recents projects) ;; List of items to show in the startup buffer. If nil it is disabled. Possible values are: `recents' `bookmarks' `projects'. (default '(recents projects))
 
@@ -106,7 +111,7 @@ values."
    dotspacemacs-smooth-scrolling t ;; If non-nil, smooth scrolling (native-scrolling) is enabled. Smooth scrolling overrides the default behavior of Emacs which recenters the point when it reaches the top or bottom of the screen. (default t)
 
    dotspacemacs-smartparens-strict-mode nil ;; If non-nil, smartparens-strict-mode will be enabled in programming modes. (default nil)
-   dotspacemacs-highlight-delimiters 'all ;; The scope for highlighting delimiters. Possible values are `any',`current', `all' or `nil'. (`all' highlights any scope and emphasis the current one.) (default 'all)
+   dotspacemacs-highlight-delimiters 'current ;; The scope for highlighting delimiters. Possible values are `any',`current', `all' or `nil'. (`all' highlights any scope and emphasis the current one.) (default 'all)
 
    dotspacemacs-persistent-server nil ;; If non-nil, advises quit functions to keep server open when quitting. (default nil)
 
@@ -125,6 +130,7 @@ It is called immediately after `dotspacemacs/init'.  You are free to put any use
   "Configuration function for user code.
  This function is called at the very end of Spacemacs initialization after layers configuration. You are free to put any user code."
   (global-hl-line-mode -1) ; Disable current line highlight.
+  (add-hook 'emacs-lisp-mode-hook 'paren-face-mode) ; Fade parentheses in elisp mode.
   (add-hook 'visual-line-mode-hook 'adaptive-wrap-prefix-mode) ; Match indentation levels and comments with wrapped lines.
   (global-visual-line-mode) ; Always wrap lines to window.
   ;; Navigate wrapped lines:
