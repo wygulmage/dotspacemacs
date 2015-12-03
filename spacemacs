@@ -17,26 +17,31 @@ values."
      ;; Uncomment some layer names and press <SPC f e R> (Vim style) or
      ;; <M-m f e R> (Emacs style) to install them.
      ;; ----------------------------------------------------------------
-     auto-completion
      better-defaults
      colors ; Used only for color strings (no nyancat or rainbow identifiers).
-     emacs-lisp
      ; fasd ; Not installed in Windows.
-     git
+     org
+     (shell :variables
+            shell-default-height 30
+            shell-default-position 'bottom)
+     themes-megapack
+     ;; Checking & completion:
+     auto-completion
+     semantic ; Source code formatting in elisp. It seems to be dumber than the built-in formatting tools, but what can you do?
+     spell-checking
+     syntax-checking
+     ;; Key bindings:
+     unimpaired ; paired bracket bindings
+     vinegar ; dired-related bindings.
+     ;; Languages:
+     emacs-lisp
      haskell
      javascript
      latex
      ; markdown
-     org
-     semantic ;; Source code formatting in elisp. It seems to be dumber than the built-in formatting tools, but what can you do?
-     (shell :variables
-            shell-default-height 30
-            shell-default-position 'bottom)
-     spell-checking
-     syntax-checking
-     unimpaired ; paired bracket bindings
+     ;; Version Control
+     git
      version-control
-     vinegar ; dired-related bindings.
      )
 
    dotspacemacs-additional-packages '(paren-face) ;; List of packages that will be installed without being wrapped in a layer. If you need configuration for these packages then create a layer or put the configuration in `dotspacemacs/config' (`dotspacemacs/user-config'?).
@@ -63,12 +68,7 @@ values."
    dotspacemacs-startup-lists '(recents projects) ;; List of items to show in the startup buffer. If nil it is disabled. Possible values are: `recents' `bookmarks' `projects'. (default '(recents projects))
 
    dotspacemacs-themes ;; List of themes; the first of the list is loaded when spacemacs starts. Press <SPC> T n to cycle to the next theme in the list (works great with 2 themes variants, one dark and one light).
-   '(spacemacs-dark spacemacs-light
-                    solarized-light
-                    solarized-dark
-                    leuven
-                    monokai
-                    zenburn)
+   '(spacemacs-dark spacemacs-light solarized-light solarized-dark leuven monokai zenburn sanityinc-tomorrow-eighties)
 
    dotspacemacs-colorize-cursor-according-to-state t ;; If non nil the cursor color matches the state color.
 
@@ -148,7 +148,7 @@ It is called immediately after `dotspacemacs/init'.  You are free to put any use
   ;;       helm-ff-search-library-in-sexp t
   ;;       helm-ff-file-name-history-use-recentf t)
 
-  ;; Set up the modeline and frame title. Right now this overrides, but does not disable, the powerline.
+  ;; Set up the modeline and frame title. Right now this overrides--but does not disable--the powerline.
   (defvar my-buffer-modified-string '(:eval (cond
                                              (buffer-read-only "🔒")
                                              ((buffer-modified-p) "◆")
