@@ -45,7 +45,7 @@ values."
      )
 
    dotspacemacs-additional-packages '(paren-face) ;; List of packages that will be installed without being wrapped in a layer. If you need configuration for these packages then create a layer or put the configuration in `dotspacemacs/config' (`dotspacemacs/user-config'?).
-   dotspacemacs-excluded-packages '() ;; A list of packages and/or extensions that will not be installed and loaded.
+   dotspacemacs-excluded-packages '(powerline) ;; A list of packages and/or extensions that will not be installed and loaded.
    spacemacs-delete-orphan-packages t ;; If non-nil, spacemacs will delete any orphan packages, i.e. packages that are declared in a layer which is not a member of the list `dotspacemacs-configuration-layers'. (default t)
    ))
 
@@ -113,7 +113,7 @@ values."
    dotspacemacs-smartparens-strict-mode nil ;; If non-nil, smartparens-strict-mode will be enabled in programming modes. (default nil)
    dotspacemacs-highlight-delimiters 'current ;; The scope for highlighting delimiters. Possible values are `any',`current', `all' or `nil'. (`all' highlights any scope and emphasis the current one.) (default 'all)
 
-   dotspacemacs-persistent-server nil ;; If non-nil, advises quit functions to keep server open when quitting. (default nil)
+   dotspacemacs-persistent-server t ;; If non-nil, advises quit functions to keep server open when quitting. (default nil)
 
    dotspacemacs-search-tools '("ag" "pt" "ack" "grep") ;; List of search tool executable names. Spacemacs uses the first installed tool of the list. Supported tools are `ag', `pt', `ack' and `grep'. (default '("ag" "pt" "ack" "grep"))
 
@@ -124,30 +124,6 @@ values."
   "Initialization function for user code.
 It is called immediately after `dotspacemacs/init'.  You are free to put any user code."
   (setq-default spacemacs-mode-line-minor-modesp nil) ; Hide minor modes from modeline.
-)
-
-(defun dotspacemacs/user-config ()
-  "Configuration function for user code.
- This function is called at the very end of Spacemacs initialization after layers configuration. You are free to put any user code."
-  (global-hl-line-mode -1) ; Disable current line highlight.
-  (add-hook 'emacs-lisp-mode-hook 'paren-face-mode) ; Fade parentheses in elisp mode.
-  (add-hook 'visual-line-mode-hook 'adaptive-wrap-prefix-mode) ; Match indentation levels and comments with wrapped lines.
-  (global-visual-line-mode) ; Always wrap lines to window.
-  ;; Navigate wrapped lines:
-  (define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
-  (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line)
-  (add-hook 'prog-mode-hook 'linum-mode) ; Show line numbers for code.
-
-  ;;   ;; Set up Helm keys (Courtesy of https://tuhdo.github.io/helm-intro.html):
-  ;; (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action) ;; Rebind tab to run persistent action
-  ;; (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action) ;; Make TAB work in terminal
-  ;; (define-key helm-map (kbd "C-z") 'helm-select-action) ;; List actions using C-z.
-  ;; ;; Set up Helm:
-  ;; (setq helm-split-window-in-side-p t
-  ;;       helm-move-to-line-cycle-in-source t
-  ;;       helm-ff-search-library-in-sexp t
-  ;;       helm-ff-file-name-history-use-recentf t)
-
   ;; Set up the modeline and frame title. Right now this overrides--but does not disable--the powerline.
   (defvar my-buffer-modified-string '(:eval (cond
                                              (buffer-read-only "🔒")
@@ -178,15 +154,40 @@ It is called immediately after `dotspacemacs/init'.  You are free to put any use
                                  my-vc-string ; branch
                                  )))
   (add-hook 'after-change-major-mode-hook 'my-style-modeline)
-  (defun spacemacs//restore-powerline (ignored_value)
-    "Replace the built-in restore-powerline function"
-    (my-style-modeline))
+  (add-hook 'buffer-list-update-hook 'my-style-modeline)
   (defun my-style-frame-title ()
     (setq frame-title-format (list
       my-buffer-or-file-name-string ;; file location
       " "
       my-buffer-modified-string)))
   (add-hook 'after-change-major-mode-hook 'my-style-frame-title)
+)
+
+(defun dotspacemacs/user-config ()
+  "Configuration function for user code.
+ This function is called at the very end of Spacemacs initialization after layers configuration. You are free to put any user code."
+;  (defun spacemacs//restore-powerline (ignored_value)
+;    "Replace the built-in restore-powerline function"
+;    (my-style-modeline))
+  (global-hl-line-mode -1) ; Disable current line highlight.
+  (add-hook 'emacs-lisp-mode-hook 'paren-face-mode) ; Fade parentheses in elisp mode.
+  (add-hook 'visual-line-mode-hook 'adaptive-wrap-prefix-mode) ; Match indentation levels and comments with wrapped lines.
+  (global-visual-line-mode) ; Always wrap lines to window.
+  ;; Navigate wrapped lines:
+  (define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
+  (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line)
+  (add-hook 'prog-mode-hook 'linum-mode) ; Show line numbers for code.
+
+  ;;   ;; Set up Helm keys (Courtesy of https://tuhdo.github.io/helm-intro.html):
+  ;; (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action) ;; Rebind tab to run persistent action
+  ;; (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action) ;; Make TAB work in terminal
+  ;; (define-key helm-map (kbd "C-z") 'helm-select-action) ;; List actions using C-z.
+  ;; ;; Set up Helm:
+  ;; (setq helm-split-window-in-side-p t
+  ;;       helm-move-to-line-cycle-in-source t
+  ;;       helm-ff-search-library-in-sexp t
+  ;;       helm-ff-file-name-history-use-recentf t)
+
   ;; Configure mouse/touchpad.
   ;; My left click should:
   ;; 1. Move mark to location of down-click.
