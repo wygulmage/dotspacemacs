@@ -123,7 +123,11 @@ values."
 (defun dotspacemacs/user-init ()
   "Initialization function for user code.
 It is called immediately after `dotspacemacs/init'.  You are free to put any user code."
-  (setq-default spacemacs-mode-line-minor-modesp nil) ; Hide minor modes from modeline.
+  (defun switch-from-scratch-to-spacemacs ()
+    "If the current buffer is *scratch*, switch to *spacemacs*. Used to circumvent obnoxious emacsclient defaults."
+    (when (string= (buffer-name) "*scratch*") (switch-to-buffer (get-buffer "*spacemacs*"))))
+  (add-hook 'after-make-frame-functions 'switch-from-scratch-to-spacemacs)
+ ; (setq-default spacemacs-mode-line-minor-modesp nil) ; Hide minor modes from modeline. Not needed, because modeline is totally redesigned.
   ;; Set up the modeline and frame title. Right now this overrides--but does not disable--the powerline.
   (defvar my-buffer-modified-string '(:eval (cond
                                              (buffer-read-only "🔒")
@@ -142,6 +146,8 @@ It is called immediately after `dotspacemacs/init'.  You are free to put any use
               (vc-working-revision buffer-file-name))))
   (put 'my-vc-string 'risky-local-variable t)
   (defun my-style-modeline ()
+    (if (string= (buffer-name) "*spacemacs*")
+        (setq mode-line-format nil)
     (setq mode-line-format (list " %[" ;; Show recursive editing.
                                  "%b%" ;; buffer
                                  " "
@@ -152,7 +158,7 @@ It is called immediately after `dotspacemacs/init'.  You are free to put any use
                                  "  "
                                         ;   (powerline-vc) ;; version control state
                                  my-vc-string ; branch
-                                 )))
+                                 ))))
   (add-hook 'after-change-major-mode-hook 'my-style-modeline)
   (add-hook 'buffer-list-update-hook 'my-style-modeline)
   (defun my-style-frame-title ()
