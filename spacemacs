@@ -19,7 +19,7 @@ values."
      ;; ----------------------------------------------------------------
      better-defaults
      colors ; Used only for color strings (no nyancat or rainbow identifiers).
-     ; fasd ; Not installed in Windows.
+                                        ; fasd ; Not installed in Windows.
      org
      (shell :variables
             shell-default-height 30
@@ -27,7 +27,7 @@ values."
      themes-megapack
      ;; Checking & completion:
      auto-completion
-     ; semantic ; Source code formatting in elisp. It seems to be dumber than the built-in formatting tools, but what can you do?
+                                        ; semantic ; Source code formatting in elisp. It seems to be dumber than the built-in formatting tools, but what can you do?
      spell-checking
      syntax-checking
      ;; Key bindings:
@@ -38,7 +38,7 @@ values."
      haskell
      javascript
      latex
-     ; markdown
+                                        ; markdown
      ;; Version Control
      git
      version-control
@@ -46,11 +46,13 @@ values."
 
    dotspacemacs-additional-packages '(paren-face) ;; List of packages that will be installed without being wrapped in a layer. If you need configuration for these packages then create a layer or put the configuration in `dotspacemacs/config' (`dotspacemacs/user-config'?).
    dotspacemacs-excluded-packages ;; A list of packages and/or extensions that will not be installed and loaded.
-   '(fancy-battery
-     highlight-indentation
-     powerline
-     rainbow-delimiters
-     vi-tilde-fringe
+   '(fancy-battery ; The GUI shell shows this.
+     highlight-indentation ; Indentation shows this.
+     highlight-parentheses ; Using `paren-face-mode'.
+     powerline ; Using a customized modeline.
+     rainbow-delimiters ; Using `paren-face-mode'.
+     spray ; Not currently using spacemacs for speed reading.
+     vi-tilde-fringe ; Line numbers show this.
      )
    spacemacs-delete-orphan-packages t ;; If non-nil, spacemacs will delete any orphan packages, i.e. packages that are declared in a layer which is not a member of the list `dotspacemacs-configuration-layers'. (default t)
    ))
