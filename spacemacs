@@ -27,7 +27,7 @@ values."
      themes-megapack
      ;; Checking & completion:
      auto-completion
-     semantic ; Source code formatting in elisp. It seems to be dumber than the built-in formatting tools, but what can you do?
+     ; semantic ; Source code formatting in elisp. It seems to be dumber than the built-in formatting tools, but what can you do?
      spell-checking
      syntax-checking
      ;; Key bindings:
@@ -45,7 +45,13 @@ values."
      )
 
    dotspacemacs-additional-packages '(paren-face) ;; List of packages that will be installed without being wrapped in a layer. If you need configuration for these packages then create a layer or put the configuration in `dotspacemacs/config' (`dotspacemacs/user-config'?).
-   dotspacemacs-excluded-packages '(powerline) ;; A list of packages and/or extensions that will not be installed and loaded.
+   dotspacemacs-excluded-packages ;; A list of packages and/or extensions that will not be installed and loaded.
+   '(fancy-battery
+     highlight-indentation
+     powerline
+     rainbow-delimiters
+     vi-tilde-fringe
+     )
    spacemacs-delete-orphan-packages t ;; If non-nil, spacemacs will delete any orphan packages, i.e. packages that are declared in a layer which is not a member of the list `dotspacemacs-configuration-layers'. (default t)
    ))
 
@@ -106,7 +112,7 @@ values."
    dotspacemacs-active-transparency 90 ;; A value from the range (0..100), in increasing opacity, which describes the transparency level of a frame when it's active or selected. Transparency can be toggled through `toggle-transparency'. (default 90)
    dotspacemacs-inactive-transparency 90 ;; A value from the range (0..100), in increasing opacity, which describes the transparency level of a frame when it's inactive or deselected. Transparency can be toggled through `toggle-transparency'. (default 90)
 
-   dotspacemacs-mode-line-unicode-symbols t ;; If non-nil, unicode symbols are displayed in the mode line. (default t)
+   dotspacemacs-mode-line-unicode-symbols nil ;; If non-nil, unicode symbols are displayed in the mode line. (default t) -- Still uses unicode if `nil', but no longer requires powerline.
 
    dotspacemacs-smooth-scrolling t ;; If non-nil, smooth scrolling (native-scrolling) is enabled. Smooth scrolling overrides the default behavior of Emacs which recenters the point when it reaches the top or bottom of the screen. (default t)
 
@@ -172,18 +178,28 @@ It is called immediately after `dotspacemacs/init'.  You are free to put any use
 (defun dotspacemacs/user-config ()
   "Configuration function for user code.
  This function is called at the very end of Spacemacs initialization after layers configuration. You are free to put any user code."
-;  (defun spacemacs//restore-powerline (ignored_value)
-;    "Replace the built-in restore-powerline function"
-;    (my-style-modeline))
+                                        ;  (defun spacemacs//restore-powerline (ignored_value)
+                                        ;    "Replace the built-in restore-powerline function"
+                                        ;    (my-style-modeline))
   (global-hl-line-mode -1) ; Disable current line highlight.
   (add-hook 'emacs-lisp-mode-hook 'paren-face-mode) ; Fade parentheses in elisp mode.
-  (add-hook 'visual-line-mode-hook 'adaptive-wrap-prefix-mode) ; Match indentation levels and comments with wrapped lines.
+                                        ;  (add-hook 'visual-line-mode-hook 'adaptive-wrap-prefix-mode) ; Match indentation levels and comments with wrapped lines. Already part of `spacemacs' distribution.
   (global-visual-line-mode) ; Always wrap lines to window.
   ;; Navigate wrapped lines:
   (define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
   (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line)
   (add-hook 'prog-mode-hook 'linum-mode) ; Show line numbers for code.
-
+  (add-hook 'prog-mode-hook 'aggressive-indent-mode) ; not sure if this is needed
+  ;; Allow the deletion of server files (courtesy of https://superuser.com/questions/176207/emacs-daemon-not-deleting-socket):
+  (defmacro bypass-trash-in-function (f)
+    "Make `f' use normal deletion, not send-to-trash."
+    `(defadvice ,f (around no-trash activate)
+       "Ignore `delete-by-moving-to-trash' in this function. See `bypass-trash-in-function'."
+       (let (delete-by-moving-to-trash)
+         ad-do-it)))
+  ;; Now apply it to the server functions:
+  (mapc (lambda (f) (eval `(bypass-trash-in-function ,f)))
+        '(server-start server-sentinel server-force-delete))
   ;;   ;; Set up Helm keys (Courtesy of https://tuhdo.github.io/helm-intro.html):
   ;; (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action) ;; Rebind tab to run persistent action
   ;; (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action) ;; Make TAB work in terminal
