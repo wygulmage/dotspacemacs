@@ -76,7 +76,7 @@ values."
    dotspacemacs-startup-lists '(recents projects) ;; List of items to show in the startup buffer. If nil it is disabled. Possible values are: `recents' `bookmarks' `projects'. (default '(recents projects))
 
    dotspacemacs-themes ;; List of themes; the first of the list is loaded when spacemacs starts. Press <SPC> T n to cycle to the next theme in the list (works great with 2 themes variants, one dark and one light).
-   '(spacemacs-dark spacemacs-light solarized-light solarized-dark leuven monokai zenburn sanityinc-tomorrow-eighties)
+   '(sanityinc-tomorrow-eighties sanityinc-tomorrow-night spacemacs-dark solarized-dark leuven monokai)
 
    dotspacemacs-colorize-cursor-according-to-state t ;; If non nil the cursor color matches the state color.
 
@@ -121,26 +121,29 @@ values."
    dotspacemacs-smartparens-strict-mode nil ;; If non-nil, smartparens-strict-mode will be enabled in programming modes. (default nil)
    dotspacemacs-highlight-delimiters 'current ;; The scope for highlighting delimiters. Possible values are `any',`current', `all' or `nil'. (`all' highlights any scope and emphasis the current one.) (default 'all)
 
-   dotspacemacs-persistent-server t ;; If non-nil, advises quit functions to keep server open when quitting. (default nil)
+   dotspacemacs-persistent-server nil ;; If non-nil, advises quit functions to keep server open when quitting. (default nil)
 
    dotspacemacs-search-tools '("ag" "pt" "ack" "grep") ;; List of search tool executable names. Spacemacs uses the first installed tool of the list. Supported tools are `ag', `pt', `ack' and `grep'. (default '("ag" "pt" "ack" "grep"))
 
    dotspacemacs-default-package-repository nil ;; The default package repository used if no explicit repository has been specified with an installed package. Not used for now. (default nil)
-  ))
+   ))
 
 (defun dotspacemacs/user-init ()
   "Initialization function for user code.
 It is called immediately after `dotspacemacs/init'.  You are free to put any user code."
+  (unless (and (fboundp 'server-running-p) (server-running-p)) (server-start)) ; Start server if it isn't started. If server.el isn't loaded, `server-running-p' won't be bound.
   (defun switch-from-scratch-to-spacemacs ()
     "If the current buffer is *scratch*, switch to *spacemacs*. Used to circumvent obnoxious emacsclient defaults."
     (when (string= (buffer-name) "*scratch*") (switch-to-buffer (get-buffer "*spacemacs*"))))
   (add-hook 'after-make-frame-functions 'switch-from-scratch-to-spacemacs)
- ; (setq-default spacemacs-mode-line-minor-modesp nil) ; Hide minor modes from modeline. Not needed, because modeline is totally redesigned.
+                                        ; (setq-default spacemacs-mode-line-minor-modesp nil) ; Hide minor modes from modeline. Not needed, because modeline is totally redesigned.
   ;; Set up the modeline and frame title. Right now this overrides--but does not disable--the powerline.
-  (defvar my-buffer-modified-string '(:eval (cond
-                                             (buffer-read-only "🔒")
-                                             ((buffer-modified-p) "◆")
-                                             (t " ")))
+  (setq-default mode-line-format nil) ; Hide modeline until it is properly formatted.
+  (defvar my-buffer-modified-string
+    '(:eval (cond
+             (buffer-read-only "🔒")
+             ((buffer-modified-p) "◆")
+             (t " ")))
     "Use in the modeline to show whether the buffer has been modified since its last save.")
   (put 'my-buffer-modified-string 'risky-local-variable
        t)
@@ -151,38 +154,36 @@ It is called immediately after `dotspacemacs/init'.  You are free to put any use
        t)
   (defvar my-vc-string
     '(:eval (when (and vc-mode buffer-file-name)
-              (vc-working-revision buffer-file-name))))
+              (vc-working-revision buffer-file-name)))
+    "Show the branch of a version-controlled file.")
   (put 'my-vc-string 'risky-local-variable t)
   (defun my-style-modeline ()
     (if (string= (buffer-name) "*spacemacs*")
         (setq mode-line-format nil)
-    (setq mode-line-format (list " %[" ;; Show recursive editing.
-                                 "%b%" ;; buffer
-                                 " "
-                                 my-buffer-modified-string
-                                 "%]  " ;; Show recursive editing.
-                                 "(%l,%c)  " ;; (line,column)
-                                 mode-name ;; major mode
-                                 "  "
-                                        ;   (powerline-vc) ;; version control state
-                                 my-vc-string ; branch
-                                 ))))
+      (setq mode-line-format
+            (list " %[" ;; Show recursive editing.
+                  "%b%" ;; buffer
+                  " "
+                  my-buffer-modified-string
+                  "%]  " ;; Show recursive editing.
+                  "(%l,%c)  " ;; (line,column)
+                  mode-name ;; major mode
+                  "  "
+                  my-vc-string ; branch
+                  ))))
   (add-hook 'after-change-major-mode-hook 'my-style-modeline)
   (add-hook 'buffer-list-update-hook 'my-style-modeline)
   (defun my-style-frame-title ()
-    (setq frame-title-format (list
-      my-buffer-or-file-name-string ;; file location
-      " "
-      my-buffer-modified-string)))
+    (setq frame-title-format
+          (list my-buffer-or-file-name-string ;; file location
+                " "
+                my-buffer-modified-string)))
   (add-hook 'after-change-major-mode-hook 'my-style-frame-title)
-)
+  )
 
 (defun dotspacemacs/user-config ()
   "Configuration function for user code.
  This function is called at the very end of Spacemacs initialization after layers configuration. You are free to put any user code."
-                                        ;  (defun spacemacs//restore-powerline (ignored_value)
-                                        ;    "Replace the built-in restore-powerline function"
-                                        ;    (my-style-modeline))
   (global-hl-line-mode -1) ; Disable current line highlight.
   (add-hook 'emacs-lisp-mode-hook 'paren-face-mode) ; Fade parentheses in elisp mode.
                                         ;  (add-hook 'visual-line-mode-hook 'adaptive-wrap-prefix-mode) ; Match indentation levels and comments with wrapped lines. Already part of `spacemacs' distribution.
