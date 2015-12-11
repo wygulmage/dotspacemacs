@@ -19,7 +19,6 @@ values."
      ;; ----------------------------------------------------------------
      better-defaults
      colors ; Used only for color strings (no nyancat or rainbow identifiers).
-                                        ; fasd ; Not installed in Windows.
      org
      (shell :variables
             shell-default-height 30
@@ -27,18 +26,16 @@ values."
      themes-megapack
      ;; Checking & completion:
      auto-completion
-                                        ; semantic ; Source code formatting in elisp. It seems to be dumber than the built-in formatting tools, but what can you do?
      spell-checking
      syntax-checking
      ;; Key bindings:
      unimpaired ; paired bracket bindings
-     vinegar ; dired-related bindings.
+     vinegar ; dired-related bindings
      ;; Languages:
      emacs-lisp
      haskell
      javascript
      latex
-                                        ; markdown
      ;; Version Control
      git
      version-control
@@ -91,7 +88,7 @@ values."
    dotspacemacs-emacs-leader-key "M-m" ;; The leader key accessible in `emacs state' and `insert state'. (default "M-m")
    dotspacemacs-major-mode-leader-key "," ;; Major mode leader key is a shortcut key equivalent to pressing `<leader> m'. Set it to `nil' to disable it. (default ",")
    dotspacemacs-major-mode-emacs-leader-key "C-M-m" ;; Major mode leader key accessible in `emacs state' and `insert state'. (default "C-M-m")
-   dotspacemacs-command-key ":" ;; The command key used for Evil commands (ex-commands) and Emacs commands (M-x). By default the command key is `:' so ex-commands are executed with `:' and Emacs commands are executed with `<leader> :'.
+   dotspacemacs-command-key ":" ;; The command key used for Evil commands (ex-commands) and Emacs commands (M-x). Emacs commands are executed with `<leader> :'. (default ":")
 
    dotspacemacs-remap-Y-to-y$ t ;; If non-nil, `Y' is remapped to `y$'. (default t)
 
@@ -99,7 +96,7 @@ values."
 
    dotspacemacs-use-ido nil ;; If non nil then `ido' replaces `helm' for some commands. For now only `find-files' (SPC f f), `find-spacemacs-file' (SPC f e s), and `find-contrib-file' (SPC f e c) are replaced. (default nil)
    dotspacemacs-helm-resize nil ;; If non nil, `helm' will try to miminimize the space it uses. (default nil)
-   dotspacemacs-helm-no-header t ;; if non nil, the helm header is hidden when there is only one source. (default nil)
+   dotspacemacs-helm-no-header t ;; If non nil, the helm header is hidden when there is only one source. (default nil)
    dotspacemacs-helm-position 'bottom ;; define the position to display `helm', options are `bottom', `top', `left', or `right'. (default 'bottom)
 
    dotspacemacs-enable-paste-micro-state t ;; If non nil the paste micro-state is enabled. When enabled, pressing `p' several times cycle between the kill ring content. (default nil)
@@ -136,8 +133,7 @@ It is called immediately after `dotspacemacs/init'.  You are free to put any use
     "If the current buffer is *scratch*, switch to *spacemacs*. Used to circumvent obnoxious emacsclient defaults."
     (when (string= (buffer-name) "*scratch*") (switch-to-buffer (get-buffer "*spacemacs*"))))
   (add-hook 'after-make-frame-functions 'switch-from-scratch-to-spacemacs)
-                                        ; (setq-default spacemacs-mode-line-minor-modesp nil) ; Hide minor modes from modeline. Not needed, because modeline is totally redesigned.
-  ;; Set up the modeline and frame title. Right now this overrides--but does not disable--the powerline.
+  ;; Set up the modeline and frame title.
   (setq-default mode-line-format nil) ; Hide modeline until it is properly formatted.
   (defvar my-buffer-modified-string
     '(:eval (cond
@@ -186,14 +182,14 @@ It is called immediately after `dotspacemacs/init'.  You are free to put any use
  This function is called at the very end of Spacemacs initialization after layers configuration. You are free to put any user code."
   (global-hl-line-mode -1) ; Disable current line highlight.
   (add-hook 'emacs-lisp-mode-hook 'paren-face-mode) ; Fade parentheses in elisp mode.
-                                        ;  (add-hook 'visual-line-mode-hook 'adaptive-wrap-prefix-mode) ; Match indentation levels and comments with wrapped lines. Already part of `spacemacs' distribution.
   (global-visual-line-mode) ; Always wrap lines to window.
   ;; Navigate wrapped lines:
   (define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
   (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line)
   (add-hook 'prog-mode-hook 'linum-mode) ; Show line numbers for code.
   (add-hook 'prog-mode-hook 'aggressive-indent-mode) ; not sure if this is needed
-  ;; Allow the deletion of server files (courtesy of https://superuser.com/questions/176207/emacs-daemon-not-deleting-socket):
+  (add-hook 'prog-mode-hook 'rainbow-mode)
+  ;; Allow the deletion of server files (courtesy of https://superuser.com/questions/176207/emacs-daemon-not-deleting-socket ):
   (defmacro bypass-trash-in-function (f)
     "Make `f' use normal deletion, not send-to-trash."
     `(defadvice ,f (around no-trash activate)
@@ -203,16 +199,6 @@ It is called immediately after `dotspacemacs/init'.  You are free to put any use
   ;; Now apply it to the server functions:
   (mapc (lambda (f) (eval `(bypass-trash-in-function ,f)))
         '(server-start server-sentinel server-force-delete))
-  ;;   ;; Set up Helm keys (Courtesy of https://tuhdo.github.io/helm-intro.html):
-  ;; (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action) ;; Rebind tab to run persistent action
-  ;; (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action) ;; Make TAB work in terminal
-  ;; (define-key helm-map (kbd "C-z") 'helm-select-action) ;; List actions using C-z.
-  ;; ;; Set up Helm:
-  ;; (setq helm-split-window-in-side-p t
-  ;;       helm-move-to-line-cycle-in-source t
-  ;;       helm-ff-search-library-in-sexp t
-  ;;       helm-ff-file-name-history-use-recentf t)
-
   ;; Configure mouse/touchpad.
   ;; My left click should:
   ;; 1. Move mark to location of down-click.
@@ -224,19 +210,6 @@ It is called immediately after `dotspacemacs/init'.  You are free to put any use
   ;; My middle click should:
   ;; 1. If click is not inside region, paste first kill-ring entry at location of click.
   ;; 2. If click is inside region, delete region and paste second kill-ring entry at point.
-                                        ;  (defun k-swap-kill-region ()
-                                        ;                                        ;  (if mouse-drag-copy-region ))
-                                        ;    (interactive e)
-                                        ;    (current-kill 1 t) ; Get the second kill-ring entry.
-                                        ;    )
-  ;; (defun paste-or-swap (event)
-  ;;   "If clicking in the region, swap region with previously yanked text; otherwise, paste yanked text at clicked point."
-  ;;   (interactive "e")
-  ;;   (let ((es (event-start event)))
-  ;;     (select-window (posn-window es))
-  ;;     (if (and mark-active (<= (region-beginning) (posn-point es) (region-end)))
-  ;;         <kill and paste>)))
   )
-
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.
