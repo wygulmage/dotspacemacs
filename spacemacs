@@ -12,11 +12,7 @@ values."
    dotspacemacs-configuration-layer-path '() ;; List of additional paths where to look for configuration layers. Paths must have a trailing slash (i.e. `~/.mycontribs/').
    dotspacemacs-configuration-layers ;; List of configuration layers to load. If it is the symbol `all' instead of a list then all discovered layers will be installed.
    '(
-     ;; ----------------------------------------------------------------
-     ;; Example of useful layers you may want to use right away.
-     ;; Uncomment some layer names and press <SPC f e R> (Vim style) or
-     ;; <M-m f e R> (Emacs style) to install them.
-     ;; ----------------------------------------------------------------
+     ;; Press <SPC f e R> (Vim style) or <M-m f e R> (Emacs style) to load a new layer.
      better-defaults
      colors ; Used only for color strings (no nyancat or rainbow identifiers).
      org
@@ -45,9 +41,9 @@ values."
    dotspacemacs-excluded-packages ;; A list of packages and/or extensions that will not be installed and loaded.
    '(fancy-battery ; The GUI shell shows this.
      highlight-indentation ; Indentation shows this.
-     highlight-parentheses ; Using `paren-face-mode'.
-     powerline ; Using a customized modeline.
-     rainbow-delimiters ; Using `paren-face-mode'.
+     highlight-parentheses ; Use `paren-face-mode' instead.
+     powerline ; Use customized modeline instead.
+     rainbow-delimiters ; Use `paren-face-mode'.
      spray ; Not currently using spacemacs for speed reading.
      vi-tilde-fringe ; Line numbers show this.
      )
@@ -73,9 +69,13 @@ values."
    dotspacemacs-startup-lists '(recents projects) ;; List of items to show in the startup buffer. If nil it is disabled. Possible values are: `recents' `bookmarks' `projects'. (default '(recents projects))
 
    dotspacemacs-themes ;; List of themes; the first of the list is loaded when spacemacs starts. Press <SPC> T n to cycle to the next theme in the list (works great with 2 themes variants, one dark and one light).
-   '(sanityinc-tomorrow-eighties sanityinc-tomorrow-night spacemacs-dark solarized-dark leuven monokai)
+   '(sanityinc-tomorrow-eighties
+     spacemacs-dark
+     solarized-dark
+     leuven
+     monokai)
 
-   dotspacemacs-colorize-cursor-according-to-state t ;; If non nil the cursor color matches the state color.
+   dotspacemacs-colorize-cursor-according-to-state t ;; If non-nil the cursor color matches the state color.
 
    dotspacemacs-default-font ;; Default font. `powerline-scale' tweaks the mode-line size.
    '("Source Code Pro"
@@ -86,7 +86,7 @@ values."
 
    dotspacemacs-leader-key "SPC" ;; The leader key (default "SPC").
    dotspacemacs-emacs-leader-key "M-m" ;; The leader key accessible in `emacs state' and `insert state'. (default "M-m")
-   dotspacemacs-major-mode-leader-key "," ;; Major mode leader key is a shortcut key equivalent to pressing `<leader> m'. Set it to `nil' to disable it. (default ",")
+   dotspacemacs-major-mode-leader-key "," ;; Major mode leader key is a shortcut equivalent to pressing `<leader> m'. Set to `nil' to disable. (default ",")
    dotspacemacs-major-mode-emacs-leader-key "C-M-m" ;; Major mode leader key accessible in `emacs state' and `insert state'. (default "C-M-m")
    dotspacemacs-command-key ":" ;; The command key used for Evil commands (ex-commands) and Emacs commands (M-x). Emacs commands are executed with `<leader> :'. (default ":")
 
@@ -106,7 +106,7 @@ values."
 
    dotspacemacs-fullscreen-at-startup nil ;; Emacs 24.4+ only. If non-nil, the frame is fullscreen when Emacs starts up. (default nil)
    dotspacemacs-fullscreen-use-non-native nil ;; If non-nil, `spacemacs/toggle-fullscreen' will not use native fullscreen. Use to disable fullscreen animations in OSX. (default nil)
-   dotspacemacs-maximized-at-startup nil  ;; Emacs 24.4+ only. If non-nil, the frame is maximized when Emacs starts up. Takes effect only if `dotspacemacs-fullscreen-at-startup' is nil. (default nil) 
+   dotspacemacs-maximized-at-startup nil  ;; Emacs 24.4+ only. If non-nil, the frame is maximized when Emacs starts up. Takes effect only if `dotspacemacs-fullscreen-at-startup' is nil. (default nil)
 
    dotspacemacs-active-transparency 90 ;; A value from the range (0..100), in increasing opacity, which describes the transparency level of a frame when it's active or selected. Transparency can be toggled through `toggle-transparency'. (default 90)
    dotspacemacs-inactive-transparency 90 ;; A value from the range (0..100), in increasing opacity, which describes the transparency level of a frame when it's inactive or deselected. Transparency can be toggled through `toggle-transparency'. (default 90)
@@ -130,7 +130,7 @@ values."
 It is called immediately after `dotspacemacs/init'.  You are free to put any user code."
   (unless (and (fboundp 'server-running-p) (server-running-p)) (server-start)) ; Start server if it isn't started. If server.el isn't loaded, `server-running-p' won't be bound.
   (defun switch-from-scratch-to-spacemacs ()
-    "If the current buffer is *scratch*, switch to *spacemacs*. Used to circumvent obnoxious emacsclient defaults."
+    "If the current buffer is *scratch*, switch to *spacemacs*. Used to circumvent emacsclient defaults."
     (when (string= (buffer-name) "*scratch*") (switch-to-buffer (get-buffer "*spacemacs*"))))
   (add-hook 'after-make-frame-functions 'switch-from-scratch-to-spacemacs)
   ;; Set up the modeline and frame title.
@@ -188,7 +188,7 @@ It is called immediately after `dotspacemacs/init'.  You are free to put any use
   (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line)
   (add-hook 'prog-mode-hook 'linum-mode) ; Show line numbers for code.
   (add-hook 'prog-mode-hook 'aggressive-indent-mode) ; not sure if this is needed
-  (add-hook 'prog-mode-hook 'rainbow-mode)
+  (add-hook 'prog-mode-hook 'rainbow-mode) ; colored color strings
   ;; Allow the deletion of server files (courtesy of https://superuser.com/questions/176207/emacs-daemon-not-deleting-socket ):
   (defmacro bypass-trash-in-function (f)
     "Make `f' use normal deletion, not send-to-trash."
