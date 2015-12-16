@@ -73,7 +73,11 @@ values."
    dotspacemacs-startup-lists '(recents projects) ;; List of items to show in the startup buffer. If nil it is disabled. Possible values are: `recents' `bookmarks' `projects'. (default '(recents projects))
 
    dotspacemacs-themes ;; List of themes; the first of the list is loaded when spacemacs starts. Press <SPC> T n to cycle to the next theme in the list (works great with 2 themes variants, one dark and one light).
-   '(sanityinc-tomorrow-eighties sanityinc-tomorrow-night spacemacs-dark solarized-dark leuven monokai)
+   '(sanityinc-tomorrow-eighties
+     sanityinc-tomorrow-night
+     spacemacs-dark solarized-dark
+     leuven
+     monokai)
 
    dotspacemacs-colorize-cursor-according-to-state t ;; If non nil the cursor color matches the state color.
 
@@ -210,6 +214,14 @@ It is called immediately after `dotspacemacs/init'.  You are free to put any use
   ;; My middle click should:
   ;; 1. If click is not inside region, paste first kill-ring entry at location of click.
   ;; 2. If click is inside region, delete region and paste second kill-ring entry at point.
+
+  ;; Lastly, some hackish theming:
+  (custom-set-faces
+   '(font-lock-comment-face ((t (:slant normal))))
+   '(font-lock-string-face ((t (:slant italic))))
+   '(mode-line ((t (:box nil))))
+   '(fringe ((t (:background nil :inherit default))))
+   '(linum ((t (:background nil :foreground nil :inherit font-lock-comment-face)))))
   )
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.
