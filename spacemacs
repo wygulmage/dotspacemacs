@@ -12,11 +12,7 @@ values."
    dotspacemacs-configuration-layer-path '() ;; List of additional paths where to look for configuration layers. Paths must have a trailing slash (i.e. `~/.mycontribs/').
    dotspacemacs-configuration-layers ;; List of configuration layers to load. If it is the symbol `all' instead of a list then all discovered layers will be installed.
    '(
-     ;; ----------------------------------------------------------------
-     ;; Example of useful layers you may want to use right away.
-     ;; Uncomment some layer names and press <SPC f e R> (Vim style) or
-     ;; <M-m f e R> (Emacs style) to install them.
-     ;; ----------------------------------------------------------------
+     ;; Press <SPC f e R> (Vim style) or <M-m f e R> (Emacs style) to load a new layer.
      better-defaults
      colors ; Used only for color strings (no nyancat or rainbow identifiers).
      org
@@ -36,18 +32,19 @@ values."
      haskell
      javascript
      latex
-     ;; Version Control
+     ;; Version Control:
      git
      version-control
      )
 
    dotspacemacs-additional-packages '(paren-face) ;; List of packages that will be installed without being wrapped in a layer. If you need configuration for these packages then create a layer or put the configuration in `dotspacemacs/config' (`dotspacemacs/user-config'?).
    dotspacemacs-excluded-packages ;; A list of packages and/or extensions that will not be installed and loaded.
-   '(fancy-battery ; The GUI shell shows this.
+   '(
+     fancy-battery ; The GUI shell shows this.
      highlight-indentation ; Indentation shows this.
-     highlight-parentheses ; Using `paren-face-mode'.
-     powerline ; Using a customized modeline.
-     rainbow-delimiters ; Using `paren-face-mode'.
+     highlight-parentheses ; Use `paren-face-mode' instead.
+     powerline ; Use customized modeline instead.
+     rainbow-delimiters ; Use `paren-face-mode'.
      spray ; Not currently using spacemacs for speed reading.
      vi-tilde-fringe ; Line numbers show this.
      )
@@ -73,24 +70,28 @@ values."
    dotspacemacs-startup-lists '(recents projects) ;; List of items to show in the startup buffer. If nil it is disabled. Possible values are: `recents' `bookmarks' `projects'. (default '(recents projects))
 
    dotspacemacs-themes ;; List of themes; the first of the list is loaded when spacemacs starts. Press <SPC> T n to cycle to the next theme in the list (works great with 2 themes variants, one dark and one light).
-   '(sanityinc-tomorrow-eighties
-     sanityinc-tomorrow-night
-     spacemacs-dark solarized-dark
+   '(
+     sanityinc-tomorrow-eighties
+     spacemacs-dark
+     solarized-dark
      leuven
-     monokai)
+     monokai
+     )
 
-   dotspacemacs-colorize-cursor-according-to-state t ;; If non nil the cursor color matches the state color.
+   dotspacemacs-colorize-cursor-according-to-state t ;; If non-nil the cursor color matches the state color.
 
    dotspacemacs-default-font ;; Default font. `powerline-scale' tweaks the mode-line size.
-   '("Source Code Pro"
+   '(
+     "Source Code Pro"
      :size 13.0 ;; FP for point; Int for pixels.
      :weight normal
      :width normal
-     :powerline-scale 1.1)
+     :powerline-scale 1.1
+     )
 
    dotspacemacs-leader-key "SPC" ;; The leader key (default "SPC").
    dotspacemacs-emacs-leader-key "M-m" ;; The leader key accessible in `emacs state' and `insert state'. (default "M-m")
-   dotspacemacs-major-mode-leader-key "," ;; Major mode leader key is a shortcut key equivalent to pressing `<leader> m'. Set it to `nil' to disable it. (default ",")
+   dotspacemacs-major-mode-leader-key "," ;; Major mode leader key is a shortcut equivalent to pressing `<leader> m'. Set to `nil' to disable. (default ",")
    dotspacemacs-major-mode-emacs-leader-key "C-M-m" ;; Major mode leader key accessible in `emacs state' and `insert state'. (default "C-M-m")
    dotspacemacs-command-key ":" ;; The command key used for Evil commands (ex-commands) and Emacs commands (M-x). Emacs commands are executed with `<leader> :'. (default ":")
 
@@ -110,7 +111,7 @@ values."
 
    dotspacemacs-fullscreen-at-startup nil ;; Emacs 24.4+ only. If non-nil, the frame is fullscreen when Emacs starts up. (default nil)
    dotspacemacs-fullscreen-use-non-native nil ;; If non-nil, `spacemacs/toggle-fullscreen' will not use native fullscreen. Use to disable fullscreen animations in OSX. (default nil)
-   dotspacemacs-maximized-at-startup nil  ;; Emacs 24.4+ only. If non-nil, the frame is maximized when Emacs starts up. Takes effect only if `dotspacemacs-fullscreen-at-startup' is nil. (default nil) 
+   dotspacemacs-maximized-at-startup nil  ;; Emacs 24.4+ only. If non-nil, the frame is maximized when Emacs starts up. Takes effect only if `dotspacemacs-fullscreen-at-startup' is nil. (default nil)
 
    dotspacemacs-active-transparency 90 ;; A value from the range (0..100), in increasing opacity, which describes the transparency level of a frame when it's active or selected. Transparency can be toggled through `toggle-transparency'. (default 90)
    dotspacemacs-inactive-transparency 90 ;; A value from the range (0..100), in increasing opacity, which describes the transparency level of a frame when it's inactive or deselected. Transparency can be toggled through `toggle-transparency'. (default 90)
@@ -134,50 +135,56 @@ values."
 It is called immediately after `dotspacemacs/init'.  You are free to put any user code."
   (unless (and (fboundp 'server-running-p) (server-running-p)) (server-start)) ; Start server if it isn't started. If server.el isn't loaded, `server-running-p' won't be bound.
   (defun switch-from-scratch-to-spacemacs ()
-    "If the current buffer is *scratch*, switch to *spacemacs*. Used to circumvent obnoxious emacsclient defaults."
+    "If the current buffer is *scratch*, switch to *spacemacs*. Used to circumvent emacsclient defaults."
     (when (string= (buffer-name) "*scratch*") (switch-to-buffer (get-buffer "*spacemacs*"))))
   (add-hook 'after-make-frame-functions 'switch-from-scratch-to-spacemacs)
   ;; Set up the modeline and frame title.
   (setq-default mode-line-format nil) ; Hide modeline until it is properly formatted.
+  (setq-default major-mode 'text-mode) ; Use text instead of fundamental.
   (defvar my-buffer-modified-string
     '(:eval (cond
              (buffer-read-only "🔒")
              ((buffer-modified-p) "◆")
              (t " ")))
     "Use in the modeline to show whether the buffer has been modified since its last save.")
-  (put 'my-buffer-modified-string 'risky-local-variable
-       t)
+  (put 'my-buffer-modified-string 'risky-local-variable t)
+
   (defvar my-buffer-or-file-name-string
     '(:eval (if buffer-file-name buffer-file-name buffer-name))
     "Show the filename if there is one; otherwise, the buffer name.")
-  (put 'my-buffer-or-file-name-string 'risky-local-variable
-       t)
+  (put 'my-buffer-or-file-name-string 'risky-local-variable t)
+
   (defvar my-vc-string
     '(:eval (when (and vc-mode buffer-file-name)
               (vc-working-revision buffer-file-name)))
     "Show the branch of a version-controlled file.")
   (put 'my-vc-string 'risky-local-variable t)
+
   (defun my-style-modeline ()
     (if (string= (buffer-name) "*spacemacs*")
         (setq mode-line-format nil)
       (setq mode-line-format
-            (list " %[" ;; Show recursive editing.
-                  "%b%" ;; buffer
-                  " "
-                  my-buffer-modified-string
-                  "%]  " ;; Show recursive editing.
-                  "(%l,%c)  " ;; (line,column)
-                  mode-name ;; major mode
-                  "  "
-                  my-vc-string ; branch
-                  ))))
+            (list
+             " %[" ;; Show recursive editing.
+             "%b%" ;; buffer
+             " "
+             my-buffer-modified-string
+             "%]  " ;; Show recursive editing.
+             "(%l,%c)  " ;; (line,column)
+             mode-name ;; major mode
+             "  "
+             my-vc-string ; branch
+             ))))
   (add-hook 'after-change-major-mode-hook 'my-style-modeline)
   (add-hook 'buffer-list-update-hook 'my-style-modeline)
+
   (defun my-style-frame-title ()
     (setq frame-title-format
-          (list my-buffer-or-file-name-string ;; file location
-                " "
-                my-buffer-modified-string)))
+          (list
+           my-buffer-or-file-name-string ;; file location
+           " "
+           my-buffer-modified-string
+           )))
   (add-hook 'after-change-major-mode-hook 'my-style-frame-title)
   )
 
@@ -192,7 +199,7 @@ It is called immediately after `dotspacemacs/init'.  You are free to put any use
   (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line)
   (add-hook 'prog-mode-hook 'linum-mode) ; Show line numbers for code.
   (add-hook 'prog-mode-hook 'aggressive-indent-mode) ; not sure if this is needed
-  (add-hook 'prog-mode-hook 'rainbow-mode)
+  (add-hook 'prog-mode-hook 'rainbow-mode) ; colored color strings
   ;; Allow the deletion of server files (courtesy of https://superuser.com/questions/176207/emacs-daemon-not-deleting-socket ):
   (defmacro bypass-trash-in-function (f)
     "Make `f' use normal deletion, not send-to-trash."
@@ -219,6 +226,9 @@ It is called immediately after `dotspacemacs/init'.  You are free to put any use
   (custom-set-faces
    '(font-lock-comment-face ((t (:slant normal))))
    '(font-lock-string-face ((t (:slant italic))))
+   '(font-lock-keyword-face ((t (:foreground nil :inherit default))))
+   '(font-lock-function-name-face ((t (:foreground nil :inherit default))))
+   '(font-lock-variable-name-face ((t (:foreground nil :inherit default))))
    '(mode-line ((t (:box nil))))
    '(fringe ((t (:background nil :inherit default))))
    '(linum ((t (:background nil :foreground nil :inherit font-lock-comment-face)))))
