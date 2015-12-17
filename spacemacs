@@ -154,7 +154,12 @@ It is called immediately after `dotspacemacs/init'.  You are free to put any use
        t)
   (defvar my-vc-string
     '(:eval (when (and vc-mode buffer-file-name)
-              (vc-working-revision buffer-file-name)))
+              (propertize (vc-working-revision buffer-file-name)
+                          'foreground (pcase (vc-state)
+                                        ('edited "purple")
+                                        ('added "green")
+                                        ('removed "red")
+                                        (_ nil)))))
     "Show the branch of a version-controlled file.")
   (put 'my-vc-string 'risky-local-variable t)
   (defun my-style-modeline ()
