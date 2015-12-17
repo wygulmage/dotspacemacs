@@ -226,6 +226,9 @@ It is called immediately after `dotspacemacs/init'.  You are free to put any use
   (custom-set-faces
    '(font-lock-comment-face ((t (:slant normal))))
    '(font-lock-string-face ((t (:slant italic))))
+   '(font-lock-keyword-face ((t (:foreground nil :inherit default))))
+   '(font-lock-function-name-face ((t (:foreground nil :inherit default))))
+   '(font-lock-variable-name-face ((t (:foreground nil :inherit default))))
    '(mode-line ((t (:box nil))))
    '(fringe ((t (:background nil :inherit default))))
    '(linum ((t (:background nil :foreground nil :inherit font-lock-comment-face)))))
