@@ -14,7 +14,9 @@ values."
    '(
      ;; Press <SPC f e R> (Vim style) or <M-m f e R> (Emacs style) to load a new layer.
      better-defaults
-     colors ; Used only for color strings (no nyancat or rainbow identifiers).
+     (colors :variables ; Used only for color strings (no nyancat or rainbow identifiers).
+             rainbow-x-colors nil
+             rainbow-html-colors nil)
      org
      (shell :variables
             shell-default-height 30
