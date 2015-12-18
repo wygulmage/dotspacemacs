@@ -37,7 +37,7 @@ values."
      version-control
      )
 
-   dotspacemacs-additional-packages '(paren-face) ;; List of packages that will be installed without being wrapped in a layer. If you need configuration for these packages then create a layer or put the configuration in `dotspacemacs/config' (`dotspacemacs/user-config'?).
+   dotspacemacs-additional-packages '(highlight-stages paren-face) ;; List of packages that will be installed without being wrapped in a layer. If you need configuration for these packages then create a layer or put the configuration in `dotspacemacs/config' (`dotspacemacs/user-config'?).
    dotspacemacs-excluded-packages ;; A list of packages and/or extensions that will not be installed and loaded.
    '(
      fancy-battery ; The GUI shell shows this.
@@ -109,7 +109,7 @@ values."
    dotspacemacs-which-key-delay 0.4 ;; Which-key delay in seconds. The which-key buffer is the popup listing the commands bound to the current keystroke sequence. (default 0.4)
    dotspacemacs-which-key-position 'bottom ;; which-key frame position. Possible values are `right', `bottom' and `right-then-bottom'. right-then-bottom tries to display the frame to the right; if there is not enough space it is placed at the bottom. (default 'bottom)
 
-   dotspacemacs-fullscreen-at-startup nil ;; Emacs 24.4+ only. If non-nil, the frame is fullscreen when Emacs starts up. (default nil)
+   dotspacemacs-fullscreen-at-startup nil ;; Emacs 24.4+ only. If non-nil, the frame is full screen when Emacs starts up. (default nil)
    dotspacemacs-fullscreen-use-non-native nil ;; If non-nil, `spacemacs/toggle-fullscreen' will not use native fullscreen. Use to disable fullscreen animations in OSX. (default nil)
    dotspacemacs-maximized-at-startup nil  ;; Emacs 24.4+ only. If non-nil, the frame is maximized when Emacs starts up. Takes effect only if `dotspacemacs-fullscreen-at-startup' is nil. (default nil)
 
@@ -192,6 +192,7 @@ It is called immediately after `dotspacemacs/init'.  You are free to put any use
   "Configuration function for user code.
  This function is called at the very end of Spacemacs initialization after layers configuration. You are free to put any user code."
   (global-hl-line-mode -1) ; Disable current line highlight.
+  (add-hook 'emacs-lisp-mode-hook 'highlight-stages-mode)
   (add-hook 'emacs-lisp-mode-hook 'paren-face-mode) ; Fade parentheses in elisp mode.
   (global-visual-line-mode) ; Always wrap lines to window.
   ;; Navigate wrapped lines:
@@ -200,6 +201,7 @@ It is called immediately after `dotspacemacs/init'.  You are free to put any use
   (add-hook 'prog-mode-hook 'linum-mode) ; Show line numbers for code.
   (add-hook 'prog-mode-hook 'aggressive-indent-mode) ; not sure if this is needed
   (add-hook 'prog-mode-hook 'rainbow-mode) ; colored color strings
+  (customize-set-variable highlight-stages-highlight-priority nil) ; attempt to avoid overriding rainbow-mode.
   ;; Allow the deletion of server files (courtesy of https://superuser.com/questions/176207/emacs-daemon-not-deleting-socket ):
   (defmacro bypass-trash-in-function (f)
     "Make `f' use normal deletion, not send-to-trash."
