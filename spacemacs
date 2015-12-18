@@ -39,7 +39,11 @@ values."
      version-control
      )
 
-   dotspacemacs-additional-packages '(highlight-stages paren-face) ;; List of packages that will be installed without being wrapped in a layer. If you need configuration for these packages then create a layer or put the configuration in `dotspacemacs/config' (`dotspacemacs/user-config'?).
+   dotspacemacs-additional-packages  ;; List of packages that will be installed without being wrapped in a layer. If you need configuration for these packages then create a layer or put the configuration in `dotspacemacs/config' (`dotspacemacs/user-config'?).
+   '(
+     ; highlight-stages ; disabling until I can make colors appear over it.
+     paren-face
+     )
    dotspacemacs-excluded-packages ;; A list of packages and/or extensions that will not be installed and loaded.
    '(
      fancy-battery ; The GUI shell shows this.
@@ -194,7 +198,8 @@ It is called immediately after `dotspacemacs/init'.  You are free to put any use
   "Configuration function for user code.
  This function is called at the very end of Spacemacs initialization after layers configuration. You are free to put any user code."
   (global-hl-line-mode -1) ; Disable current line highlight.
-  (add-hook 'emacs-lisp-mode-hook 'highlight-stages-mode)
+  ;; (customize-set-variable 'highlight-stages-highlight-priority nil) ; attempt to avoid overriding rainbow-mode.
+  ;; (add-hook 'emacs-lisp-mode-hook 'highlight-stages-mode)
   (add-hook 'emacs-lisp-mode-hook 'paren-face-mode) ; Fade parentheses in elisp mode.
   (global-visual-line-mode) ; Always wrap lines to window.
   ;; Navigate wrapped lines:
@@ -202,8 +207,7 @@ It is called immediately after `dotspacemacs/init'.  You are free to put any use
   (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line)
   (add-hook 'prog-mode-hook 'linum-mode) ; Show line numbers for code.
   (add-hook 'prog-mode-hook 'aggressive-indent-mode) ; not sure if this is needed
-  (add-hook 'prog-mode-hook 'rainbow-mode) ; colored color strings
-  (customize-set-variable highlight-stages-highlight-priority nil) ; attempt to avoid overriding rainbow-mode.
+  (add-hook 'prog-mode-hook 'rainbow-mode) ; Color color strings like "#4971af".
   ;; Allow the deletion of server files (courtesy of https://superuser.com/questions/176207/emacs-daemon-not-deleting-socket ):
   (defmacro bypass-trash-in-function (f)
     "Make `f' use normal deletion, not send-to-trash."
