@@ -88,7 +88,7 @@ values."
      :size 13.0 ;; FP for point; Int for pixels.
      :weight normal
      :width normal
-     :powerline-scale 1.1
+                                        ;     :powerline-scale 1.1
      )
 
    dotspacemacs-leader-key "SPC" ;; The leader key (default "SPC").
