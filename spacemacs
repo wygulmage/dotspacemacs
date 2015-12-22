@@ -41,7 +41,7 @@ values."
 
    dotspacemacs-additional-packages  ;; List of packages that will be installed without being wrapped in a layer. If you need configuration for these packages then create a layer or put the configuration in `dotspacemacs/config' (`dotspacemacs/user-config'?).
    '(
-     ; highlight-stages ; disabling until I can make colors appear over it.
+                                        ; highlight-stages ; disabling until I can make colors appear over it.
      paren-face
      )
    dotspacemacs-excluded-packages ;; A list of packages and/or extensions that will not be installed and loaded.
@@ -92,7 +92,7 @@ values."
      :size 13.0 ;; FP for point; Int for pixels.
      :weight normal
      :width normal
-     :powerline-scale 1.1
+                                        ; :powerline-scale 1.1
      )
 
    dotspacemacs-leader-key "SPC" ;; The leader key (default "SPC").
@@ -144,6 +144,7 @@ It is called immediately after `dotspacemacs/init'.  You are free to put any use
     "If the current buffer is *scratch*, switch to *spacemacs*. Used to circumvent emacsclient defaults."
     (when (string= (buffer-name) "*scratch*") (switch-to-buffer (get-buffer "*spacemacs*"))))
   (add-hook 'after-make-frame-functions 'switch-from-scratch-to-spacemacs)
+
   ;; Set up the modeline and frame title.
   (setq-default mode-line-format nil) ; Hide modeline until it is properly formatted.
   (setq-default major-mode 'text-mode) ; Use text instead of fundamental.
@@ -162,7 +163,10 @@ It is called immediately after `dotspacemacs/init'.  You are free to put any use
 
   (defvar my-vc-string
     '(:eval (when (and vc-mode buffer-file-name)
-              (vc-working-revision buffer-file-name)))
+              (let ((branch (vc-working-revision buffer-file-name))
+                    (state (vc-state buffer-file-name)))
+                (cond ((eq state 'up-to-date) (propertize branch 'foreground-color "green")))
+                (t branch))))
     "Show the branch of a version-controlled file.")
   (put 'my-vc-string 'risky-local-variable t)
 
