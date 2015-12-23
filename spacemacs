@@ -176,7 +176,7 @@ It is called immediately after `dotspacemacs/init'.  You are free to put any use
 
   (defun my-refresh-all-modelines ()
     (force-mode-line-update t))
-  (add-hook 'magit-status-refresh-hook 'my-refresh-all-modelines)
+  (add-hook 'magit-refresh-buffer-hook 'my-refresh-all-modelines)
 
   (defun my-style-modeline ()
     (if (string= (buffer-name) "*spacemacs*")
