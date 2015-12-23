@@ -174,6 +174,10 @@ It is called immediately after `dotspacemacs/init'.  You are free to put any use
     "Show the branch of a version-controlled file, colored to indicate status.")
   (put 'my-vc-string 'risky-local-variable t)
 
+  (defun my-refresh-all-modelines ()
+    (force-mode-line-update t))
+  (add-hook 'magit-status-refresh-hook 'my-refresh-all-modelines)
+
   (defun my-style-modeline ()
     (if (string= (buffer-name) "*spacemacs*")
         (setq mode-line-format nil)
