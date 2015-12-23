@@ -165,8 +165,9 @@ It is called immediately after `dotspacemacs/init'.  You are free to put any use
     '(:eval (when (and vc-mode buffer-file-name)
               (let ((branch (vc-working-revision buffer-file-name))
                     (state (vc-state buffer-file-name)))
-                (cond ((eq state 'up-to-date) (propertize branch 'foreground-color "green")))
-                (t branch))))
+                (cond ((eq state 'up-to-date)
+                       (propertize branch 'face '(:foreground "green")))
+                      (t branch)))))
     "Show the branch of a version-controlled file.")
   (put 'my-vc-string 'risky-local-variable t)
 
