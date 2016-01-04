@@ -219,6 +219,7 @@ It is called immediately after `dotspacemacs/init'.  You are free to put any use
   ;; Navigate wrapped lines:
   (define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
   (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line)
+  (add-hook 'text-mode-hook 'variable-pitch-mode)
   (add-hook 'prog-mode-hook 'linum-mode) ; Show line numbers for code.
   (add-hook 'prog-mode-hook 'aggressive-indent-mode) ; not sure if this is needed
   (add-hook 'prog-mode-hook 'rainbow-mode) ; Color color strings like "#4971af".
