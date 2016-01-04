@@ -247,6 +247,7 @@ It is called immediately after `dotspacemacs/init'.  You are free to put any use
 
   ;; Lastly, some hackish theming:
   (custom-set-faces
+   '(variable-pitch ((t (:font "Garamond" :height 150))))
    '(font-lock-comment-face ((t (:slant normal))))
    '(font-lock-string-face ((t (:slant italic))))
    '(font-lock-keyword-face ((t (:foreground nil :inherit default))))
