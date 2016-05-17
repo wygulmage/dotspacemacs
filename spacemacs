@@ -4,8 +4,7 @@
 
 (defun dotspacemacs/layers ()
   "Configuration Layers declaration.
-You should not put any user code in this function besides modifying the variable
-values."
+You should not put any user code in this function besides modifying the variable values."
   (setq-default
    ;; Base distribution to use. This is a layer contained in the directory
    ;; `+distribution'. For now available distributions are `spacemacs-base'
@@ -14,8 +13,7 @@ values."
    ;; List of additional paths where to look for configuration layers.
    ;; Paths must have a trailing slash (i.e. `~/.mycontribs/')
    dotspacemacs-configuration-layer-path '()
-   ;; List of configuration layers to load. If it is the symbol `all' instead
-   ;; of a list then all discovered layers will be installed.
+   ;; List of configuration layers to load. If it is the symbol `all' instead of a list then all discovered layers will be installed.
    dotspacemacs-configuration-layers
    '(
      ;; ----------------------------------------------------------------
@@ -26,7 +24,7 @@ values."
      (colors :variables ; for color strings only
              rainbow-x-colors nil
              rainbow-html-colors nil)
-     ;; markdown
+     markdown
      org
      (shell :variables
             shell-default-height 30
@@ -92,9 +90,7 @@ values."
    ;; when the current branch is not `develop'. (default t)
    dotspacemacs-check-for-update t
    ;; One of `vim', `emacs' or `hybrid'. Evil is always enabled but if the
-   ;; variable is `emacs' then the `holy-mode' is enabled at startup. `hybrid'
-   ;; uses emacs key bindings for vim's insert mode, but otherwise leaves evil
-   ;; unchanged. (default 'vim)
+   ;; variable is `emacs' then the `holy-mode' is enabled at startup. `hybrid' uses emacs key bindings for vim's insert mode, but otherwise leaves evil unchanged. (default 'vim)
    dotspacemacs-editing-style 'vim
    ;; If non nil output loading progress in `*Messages*' buffer. (default nil)
    dotspacemacs-verbose-loading nil
@@ -143,18 +139,14 @@ values."
    ;; Major mode leader key accessible in `emacs state' and `insert state'.
    ;; (default "C-M-m)
    dotspacemacs-major-mode-emacs-leader-key "C-M-m"
-   ;; These variables control whether separate commands are bound in the GUI to
-   ;; the key pairs C-i, TAB and C-m, RET.
-   ;; Setting it to a non-nil value, allows for separate commands under <C-i>
-   ;; and TAB or <C-m> and RET.
-   ;; In the terminal, these pairs are generally indistinguishable, so this only
-   ;; works in the GUI. (default nil)
+   ;; These variables control whether separate commands are bound in the GUI to the key pairs C-i, TAB and C-m, RET.
+   ;; Setting it to a non-nil value, allows for separate commands under <C-i> and TAB or <C-m> and RET.
+   ;; In the terminal, these pairs are generally indistinguishable, so this only works in the GUI. (default nil)
    dotspacemacs-distinguish-gui-tab nil
    ;; (Not implemented) dotspacemacs-distinguish-gui-ret nil
    ;; The command key used for Evil commands (ex-commands) and
    ;; Emacs commands (M-x).
-   ;; By default the command key is `:' so ex-commands are executed like in Vim
-   ;; with `:' and Emacs commands are executed with `<leader> :'.
+   ;; By default the command key is `:' so ex-commands are executed like in Vim with `:' and Emacs commands are executed with `<leader> :'.
    dotspacemacs-command-key ":"
    ;; If non nil `Y' is remapped to `y$'. (default t)
    dotspacemacs-remap-Y-to-y$ t
@@ -192,8 +184,7 @@ values."
    ;; the commands bound to the current keystroke sequence. (default 0.4)
    dotspacemacs-which-key-delay 0.4
    ;; Which-key frame position. Possible values are `right', `bottom' and
-   ;; `right-then-bottom'. right-then-bottom tries to display the frame to the
-   ;; right; if there is insufficient space it displays it at the bottom.
+   ;; `right-then-bottom'. right-then-bottom tries to display the frame to the right; if there is insufficient space it displays it at the bottom.
    ;; (default 'bottom)
    dotspacemacs-which-key-position 'bottom
    ;; If non nil a progress bar is displayed when spacemacs is loading. This
@@ -214,8 +205,7 @@ values."
    ;; the transparency level of a frame when it's active or selected.
    ;; Transparency can be toggled through `toggle-transparency'. (default 90)
    dotspacemacs-active-transparency 90
-   ;; A value from the range (0..100), in increasing opacity, which describes
-   ;; the transparency level of a frame when it's inactive or deselected.
+   ;; A value from the range (0..100), in increasing opacity, which describes the transparency level of a frame when it's inactive or deselected.
    ;; Transparency can be toggled through `toggle-transparency'. (default 90)
    dotspacemacs-inactive-transparency 90
    ;; If non nil unicode symbols are displayed in the mode line. (default t)
@@ -224,8 +214,7 @@ values."
    ;; scrolling overrides the default behavior of Emacs which recenters the
    ;; point when it reaches the top or bottom of the screen. (default t)
    dotspacemacs-smooth-scrolling t
-   ;; If non nil line numbers are turned on in all `prog-mode' and `text-mode'
-   ;; derivatives. If set to `relative', also turns on relative line numbers.
+   ;; If non nil line numbers are turned on in all `prog-mode' and `text-mode' derivatives. If set to `relative', also turns on relative line numbers.
    ;; (default nil)
    dotspacemacs-line-numbers nil
    ;; If non-nil smartparens-strict-mode will be enabled in programming modes.
@@ -238,8 +227,7 @@ values."
    ;; If non nil advises quit functions to keep server open when quitting.
    ;; (default nil)
    dotspacemacs-persistent-server nil
-   ;; List of search tool executable names. Spacemacs uses the first installed
-   ;; tool of the list. Supported tools are `ag', `pt', `ack' and `grep'.
+   ;; List of search tool executable names. Spacemacs uses the first installed tool of the list. Supported tools are `ag', `pt', `ack' and `grep'.
    ;; (default '("ag" "pt" "ack" "grep"))
    dotspacemacs-search-tools '("ag" "pt" "ack" "grep")
    ;; The default package repository used if no explicit repository has been
@@ -256,11 +244,9 @@ values."
 
 (defun dotspacemacs/user-init ()
   "Initialization function for user code.
-It is called immediately after `dotspacemacs/init', before layer configuration
-executes.
+It is called immediately after `dotspacemacs/init', before layer configuration executes.
  This function is mostly useful for variables that need to be set
-before packages are loaded. If you are unsure, you should try in setting them in
-`dotspacemacs/user-config' first."
+before packages are loaded. If you are unsure, you should try in setting them in `dotspacemacs/user-config' first."
 ;;; Set up the modeline and frame title.
   (setq-default mode-line-format nil) ; Hide modeline until it is properly formatted.
   (setq-default major-mode 'text-mode) ; Use text instead of fundamental.
@@ -313,7 +299,7 @@ before packages are loaded. If you are unsure, you should try in setting them in
              ))))
   (add-hook 'after-change-major-mode-hook 'my-style-modeline)
   (add-hook 'buffer-list-update-hook 'my-style-modeline)
-  
+
   (defun my-style-frame-title ()
     (setq frame-title-format
           (list
@@ -328,13 +314,10 @@ before packages are loaded. If you are unsure, you should try in setting them in
   "Configuration function for user code.
 This function is called at the very end of Spacemacs initialization after
 layers configuration.
-This is the place where most of your configurations should be done. Unless it is
-explicitly specified that a variable should be set before a package is loaded,
-you should place your code here."
+This is the place where most of your configurations should be done. Unless it is explicitly specified that a variable should be set before a package is loaded, you should place your code here."
   (global-hl-line-mode -1) ; Disable current line highlight.
-  ;; (customize-set-variable 'highlight-stages-highlight-priority nil) ; attempt to avoid overriding rainbow-mode.
-  ;; (add-hook 'emacs-lisp-mode-hook 'highlight-stages-mode)
   (add-hook 'emacs-lisp-mode-hook 'paren-face-mode) ; Fade parentheses in elisp mode.
+  (add-hook 'emacs-lisp-mode-hook 'aggressive-indent-mode)
   ;; Set up elm autocompletion.
   (defun my-elm-mode-hook ()
     "elm setup adapted from http://www.lambdacat.com/post-modern-emacs-setup-for-elm/"
@@ -342,18 +325,17 @@ you should place your code here."
     (elm-oracle-setup-completion))
   (add-hook 'elm-mode-hook 'my-elm-mode-hook)
   (global-visual-line-mode) ; Always wrap lines to window.
+  (add-hook 'visual-line-mode-hook 'adaptive-wrap-prefix-mode)
   ;; Navigate wrapped lines:
   (define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
   (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line)
   (add-hook 'text-mode-hook 'variable-pitch-mode)
   (add-hook 'prog-mode-hook 'linum-mode) ; Show line numbers for code.
-  (add-hook 'prog-mode-hook 'aggressive-indent-mode) ; not sure if this is needed
-  (add-hook 'visual-line-mode-hook 'adaptive-wrap-prefix-mode)
   (add-hook 'prog-mode-hook 'rainbow-mode) ; Color color strings like "#4971af".
+  (setq vc-follow-symlinks t)
   ;; Mouse copy stuff
   (setq mouse-drag-copy-region t)
   (setq kill-do-not-save-duplicates t) ; Don't copy identical text twice.
-  
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
