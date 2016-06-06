@@ -25,17 +25,17 @@ You should not put any user code in this function besides modifying the variable
              rainbow-x-colors nil
              rainbow-html-colors nil)
      markdown
-     org
      (shell :variables
             shell-default-height 30
             shell-default-position 'bottom)
      spacemacs-editing
-     spacemacs-helm
+     themes-megapack
      ;;; Bindings:
      better-defaults
      ;; unimpaired ; paired brackets; not present in develop branch?
-     spacemacs-evil
      vinegar ; dired
+     (spacemacs-evil :variables
+                     global-vi-tilde-fringe-mode -1)
      ;;; Checking & Completion:
      auto-completion
      spell-checking
@@ -45,7 +45,8 @@ You should not put any user code in this function besides modifying the variable
      emacs-lisp
      haskell
      javascript
-     latex
+     ;; latex ; breaks spacemacs if latex is not installed.
+     vimscript
      ;;; VC:
      git
      github
@@ -113,7 +114,8 @@ values."
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press <SPC> T n to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
-   dotspacemacs-themes '(spacemacs-dark
+   dotspacemacs-themes '(sanityinc-tomorrow-eighties
+                         spacemacs-dark
                          solarized-light
                          solarized-dark
                          leuven
@@ -277,11 +279,11 @@ before packages are loaded. If you are unsure, you should try in setting them in
                 (propertize branch 'face `(:foreground ,color)))))
     "Show the branch of a version-controlled file, colored to indicate status.")
   (put 'my-vc-string 'risky-local-variable t)
-  
+
   (defun my-refresh-all-modelines ()
     (force-mode-line-update t))
   (add-hook 'magit-refresh-buffer-hook 'my-refresh-all-modelines)
-  
+
   (defun my-style-modeline ()
     (if (string= (buffer-name) "*spacemacs*")
         (setq mode-line-format nil)
