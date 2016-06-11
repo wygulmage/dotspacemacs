@@ -34,8 +34,8 @@ You should not put any user code in this function besides modifying the variable
      better-defaults
      ;; unimpaired ; paired brackets; not present in develop branch?
      vinegar ; dired
-     (spacemacs-evil :variables
-                     global-vi-tilde-fringe-mode -1)
+     spacemacs-evil
+     helm
      ;;; Checking & Completion:
      auto-completion
      spell-checking
@@ -63,7 +63,7 @@ You should not put any user code in this function besides modifying the variable
      paren-face
      )
    ;; A list of packages and/or extensions that will not be install and loaded.
-   dotspacemacs-excluded-packages '()
+   dotspacemacs-excluded-packages '(vi-tilde-fringe)
    ;; If non-nil spacemacs will delete any orphan packages, i.e. packages that
    ;; are declared in a layer which is not a member of
    ;; the list `dotspacemacs-configuration-layers'. (default t)
