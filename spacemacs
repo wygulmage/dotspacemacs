@@ -35,7 +35,7 @@ You should not put any user code in this function besides modifying the variable
      ;; unimpaired ; paired brackets; not present in develop branch?
      vinegar ; dired
      spacemacs-evil
-     helm
+     ivy
      ;;; Checking & Completion:
      auto-completion
      spell-checking
