@@ -90,8 +90,7 @@ You should not put any user code in this function besides modifying the variable
 
 (defun dotspacemacs/init ()
   "Initialization function.
-This function is called at the very startup of Spacemacs initialization
-before layers configuration.
+This function is called at the very startup of Spacemacs initialization before layers configuration.
 You should not put any user code in there besides modifying the variable
 values."
   ;; This setq-default sexp is an exhaustive list of all the supported
@@ -105,6 +104,8 @@ values."
    dotspacemacs-elpa-timeout 5
    ;; If non nil then spacemacs will check for updates at startup when the current branch is not `develop'. (default t)
    dotspacemacs-check-for-update t
+   ;; If non-nil, a form that evaluates to a package directory. For example, to use different package directories for different Emacs versions, set this to `emacs-version'.
+   dotspacemacs-elpa-subdirectory nil
    ;; One of `vim', `emacs' or `hybrid'.
    ;; `hybrid' is like `vim' except that `insert state' is replaced by the `hybrid state' with `emacs' key bindings. The value can also be a list with `:variables' keyword (similar to layers). Check the editing styles section of the documentation for details on available variables.
    ;; (default 'vim)
@@ -200,6 +201,9 @@ values."
    ;; define the position to display `helm', options are `bottom', `top',
    ;; `left', or `right'. (default 'bottom)
    dotspacemacs-helm-position 'bottom
+   ;; Controls fuzzy matching in helm. If set to `always', force fuzzy matching in all non-asynchronous sources. If set to `source', preserve individual source settings. Else, disable fuzzy matching in all sources.
+   ;; (default 'always)
+   dotspacemacs-helm-use-fuzzy 'always
    ;; If non nil the paste micro-state is enabled. When enabled pressing `p`
    ;; several times cycle between the kill ring content. (default nil)
    dotspacemacs-enable-paste-transient-state t
@@ -255,7 +259,7 @@ values."
    dotspacemacs-highlight-delimiters 'current
    ;; If non nil advises quit functions to keep server open when quitting.
    ;; (default nil)
-   dotspacemacs-persistent-server nil
+   dotspacemacs-persistent-server t
    ;; List of search tool executable names. Spacemacs uses the first installed tool of the list. Supported tools are `ag', `pt', `ack' and `grep'.
    ;; (default '("ag" "pt" "ack" "grep"))
    dotspacemacs-search-tools '("ag" "pt" "ack" "grep")
@@ -345,6 +349,7 @@ before packages are loaded. If you are unsure, you should try in setting them in
 This function is called at the very end of Spacemacs initialization after
 layers configuration.
 This is the place where most of your configurations should be done. Unless it is explicitly specified that a variable should be set before a package is loaded, you should place your code here."
+  (set-face-font 'variable-pitch "Adobe Garamond Pro-14")
   (global-hl-line-mode -1) ; Disable current line highlight.
   (add-hook 'emacs-lisp-mode-hook 'paren-face-mode) ; Fade parentheses in elisp mode.
   (add-hook 'emacs-lisp-mode-hook 'aggressive-indent-mode)
@@ -355,7 +360,7 @@ This is the place where most of your configurations should be done. Unless it is
     (elm-oracle-setup-completion))
   (add-hook 'elm-mode-hook 'my-elm-mode-hook)
   (global-visual-line-mode) ; Always wrap lines to window.
-  (add-hook 'visual-line-mode-hook 'adaptive-wrap-prefix-mode)
+  (add-hook 'prog-mode-hook 'adaptive-wrap-prefix-mode) ; Indent wrapped lines in source code.
   ;; Navigate wrapped lines:
   (define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
   (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line)
@@ -367,6 +372,7 @@ This is the place where most of your configurations should be done. Unless it is
   ;; Mouse copy stuff
   (setq mouse-drag-copy-region t)
   (setq kill-do-not-save-duplicates t) ; Don't copy identical text twice.
+  (setq-default read-quoted-char-radix 16) ; Use hex for unicode character input.
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
