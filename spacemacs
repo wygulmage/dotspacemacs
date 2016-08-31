@@ -53,7 +53,7 @@ This function should include only set values."
      emacs-lisp
      haskell
      javascript
-     ;;; latex ; breaks spacemacs if latex is not installed.
+;;;  latex ; breaks spacemacs if latex is not installed.
      markdown
      vimscript
      ;;; VC:
@@ -62,9 +62,8 @@ This function should include only set values."
      version-control
      )
 
-   ;;; List of additional packages that will be installed without being wrapped in a layer:
-   ;; If you need configuration for these packages, then consider creating a layer. You can also put the
-   ;; configuration in `dotspacemacs/user-config'.
+   ;;; Additional packages that will be installed without being wrapped in a layer:
+   ;; If you need configuration for these packages, then consider creating a layer. You can also put the configuration in `dotspacemacs/user-config'.
    dotspacemacs-additional-packages
    '(
      adaptive-wrap
@@ -94,8 +93,7 @@ This function is called at the very startup of Spacemacs initialization before l
 values."
   ;;; An exhaustive list of all the supported spacemacs settings:
   (setq-default
-   ;; If non-nil, ELPA repositories are contacted via HTTPS whenever possible. Set to nil if you have no way to use HTTPS in your environment, otherwise set to t.
-   ;; This variable has no effect if Emacs is launched with the parameter `--insecure', which forces the value of this variable to nil.
+   ;; If non-nil, ELPA repositories are contacted via HTTPS whenever possible. Set to nil if you have no way to use HTTPS in your environment, otherwise set to t. This variable has no effect if Emacs is launched with the parameter `--insecure', which forces the value of this variable to nil.
    ;; (default t)
    dotspacemacs-elpa-https t
 
@@ -149,7 +147,7 @@ values."
      zenburn
      )
 
-   ;; If non nil the cursor color matches the state color in GUI Emacs.
+   ;; If non-nil, the cursor color matches the state color in GUI Emacs.
    dotspacemacs-colorize-cursor-according-to-state t
 
    ;;; Default font or prioritized list of fonts:
@@ -309,8 +307,7 @@ values."
    ;; If non-nil, smartparens-strict-mode will be enabled in programming modes. (default nil)
    dotspacemacs-smartparens-strict-mode nil
 
-   ;; If non-nil, pressing the closing parenthesis `)' key in insert mode passes over any automatically added closing parenthesis, bracket, quote, etc…
-   ;; This can be temporary disabled by pressing `C-q' before `)'. (default nil)
+   ;; If non-nil, pressing the closing parenthesis `)' key in insert mode passes over any automatically added closing parenthesis, bracket, quote, etc… This can be temporary disabled by pressing `C-q' before `)'. (default nil)
    dotspacemacs-smart-closing-parenthesis nil
 
    ;; Delete whitespace while saving buffer. Possible values are `all'
