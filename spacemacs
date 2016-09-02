@@ -11,16 +11,16 @@ This function should only set values."
 
    ;; Package downloading and retention:
    ;; Possible values are `used', `used-but-keep-unused' and `all'.
-   ;; `used' will download only explicitly used packages and remove any unused packages as well as their dependencies.
-   ;; `used-but-keep-unused' will download only used packages but won't delete them if they become unused.
-   ;; `all' will download all the packages regardless of whether they are used or not, and packages won't be deleted by Spacemacs.
+   ;; * `used' will download only explicitly used packages and remove any unused packages as well as their dependencies.
+   ;; * `used-but-keep-unused' will download only used packages but won't delete them if they become unused.
+   ;; * `all' will download all the packages regardless of whether they are used or not, and packages won't be deleted by Spacemacs.
    dotspacemacs-download-packages 'used ; default 'used
 
    ;;; Deferred layer installation
    ;; Delay layer installation until opening a file with a supported type. Layers will be added to `dotspacemacs-configuration-layers' when they are installed.
-   ;; `unused' will wait to install layers not listed in `dotspacemacs-configuration-layers'.
-   ;; `all' will wait to install any layer that supports lazy installation, even those listed in `dotspacemacs-configuration-layers'.
-   ;; `nil' disables lazy installation.
+   ;; * `unused' will wait to install layers not listed in  `dotspacemacs-configuration-layers'.
+   ;; * `all' will wait to install any layer that supports lazy installation, even those listed in `dotspacemacs-configuration-layers'.
+   ;; * `nil' disables lazy installation.
    dotspacemacs-enable-lazy-installation 'unused ; default 'unused
    ;; Will Spacemacs ask before lazily installing layers?
    dotspacemacs-ask-for-lazy-installation t ; default t
@@ -111,11 +111,11 @@ This function is called at the very startup of Spacemacs initialization before l
    dotspacemacs-loading-progress-bar nil ; default t
 
    ;; The startup banner:
-   ;; `official' displays the official spacemacs logo.
-   ;; `random' chooses a random text banner in `core/banners' directory.
-   ;; An integer value is the index of text banner.
-   ;; A string value must be a path to an image format supported by your Emacs build.
-   ;; If nil then no banner is displayed.
+   ;; * `official' displays the official spacemacs logo.
+   ;; * `random' chooses a random text banner in `core/banners' directory.
+   ;; * An integer value is the index of text banner.
+   ;; * A string value must be a path to an image format supported by your Emacs build.
+   ;; * If nil then no banner is displayed.
    dotspacemacs-startup-banner nil ; default 'official
    ;; Items to show in startup buffer:
    ;; A list or an association list of of the form `(list-type . list-size)`. If nil it is disabled. Possible values for list-type are: `recents' `bookmarks' `projects' `agenda' `todos'.
@@ -191,9 +191,9 @@ This function is called at the very startup of Spacemacs initialization before l
    dotspacemacs-large-file-size 1 ; default 1
 
    ;; Where to auto-save files:
-   ;; `original' auto-saves the file in-place.
-   ;; `cache' auto-saves the file to another file stored in the cache directory.
-   ;; `nil' disables auto-saving.
+   ;; * `original' auto-saves the file in-place.
+   ;; * `cache' auto-saves the file to another file stored in the cache directory.
+   ;; * `nil' disables auto-saving.
    dotspacemacs-auto-save-file-location 'cache ; default 'cache
 
    ;;; Maximum number of rollback slots to keep in the cache:
@@ -252,9 +252,9 @@ This function is called at the very startup of Spacemacs initialization before l
    dotspacemacs-smooth-scrolling t ; default t
 
    ;; Line numbers:
-   ;; `t' turns on line numbers in all `prog-mode' and `text-mode' derivatives.
-   ;; `relative' turns on relative line numbers also.
-   ;; `nil' disables line numbers.
+   ;; * `t' turns on line numbers in all `prog-mode' and `text-mode' derivatives.
+   ;; * `relative' turns on relative line numbers also.
+   ;; * `nil' disables line numbers.
    dotspacemacs-line-numbers nil ; default nil
 
    ;; Code folding:
@@ -272,10 +272,10 @@ This function is called at the very startup of Spacemacs initialization before l
    dotspacemacs-smart-closing-parenthesis nil ; default nil
 
    ;; Whitespace cleanup on save:
-   ;; `all' aggressively deletes empty lines and long sequences of whitespace.
-   ;; `trailing' deletes only the whitespace at end of lines.
-   ;; `changed' deletes only whitespace for changed lines.
-   ;; `nil' disables cleanup.
+   ;; * `all' aggressively deletes empty lines and long sequences of whitespace.
+   ;; * `trailing' deletes only the whitespace at end of lines.
+   ;; * `changed' deletes only whitespace for changed lines.
+   ;; * `nil' disables cleanup.
    dotspacemacs-whitespace-cleanup 'trailing ; default nil
 
    ;; Server:
@@ -290,6 +290,8 @@ This function is called at the very startup of Spacemacs initialization before l
 (defun dotspacemacs/user-init ()
   "Initialization function for user code.
 This function is called immediately after `dotspacemacs/init', before layer configuration. It is mostly useful for variables that must be set before packages are loaded. If you are unsure, try setting them in `dotspacemacs/user-config' first."
+
+  (customize-set-variable 'adaptive-fill-regexp (purecopy "[ \t]*\\([-–!|#%;>·•‣⁃◦]+[ \t]*\\)*")) ; Removed '*' so I can make non-unicode bullet lists. Ideally there should be two separate variables: adaptive-fill-regexp and adaptive-indent-regexp. The first would indent with the 'whitespace' character, but the second would indent with actual whitespace.
 
   ;;; Mode line and frame title:
   (setq-default mode-line-format nil) ; Hide modeline until it is properly formatted.
