@@ -43,16 +43,23 @@ This function should only set values."
      ;;; Bindings:
      better-defaults
      vinegar ; dired
-     ivy
      ;;; Checking & Completion:
      auto-completion
-     helm
-     spell-checking
-     syntax-checking
+     ;; helm ; Use ivy instead.
+     ivy
+     (spell-checking :variables
+                     spell-checking-enable-by-default nil
+                     flyspell-sort-corrections nil)
+     (syntax-checking :variables
+                      syntax-checking-enable-by-default nil)
      ;;; Languages:
      elm
      emacs-lisp
      haskell
+     (html :variables ;for CSS
+           web-mode-css-indent-offset 2
+           web-mode-enable-css-colorization nil ; already done with colors
+           )
      javascript
      markdown
      vimscript
@@ -121,6 +128,8 @@ This function is called at the very startup of Spacemacs initialization before l
    ;; A list or an association list of of the form `(list-type . list-size)`. If nil it is disabled. Possible values for list-type are: `recents' `bookmarks' `projects' `agenda' `todos'.
    dotspacemacs-startup-lists '((recents . 7)
                                 (projects . 7))
+   ;; Will the startup buffer resize?
+   dotspacemacs-startup-buffer-responsive t ; default t
 
    ;; Default major mode of the scratch buffer:
    dotspacemacs-scratch-mode 'text-mode ; default 'text-mode
@@ -152,17 +161,17 @@ This function is called at the very startup of Spacemacs initialization before l
 
    ;; The leader key:
    dotspacemacs-leader-key "SPC"
-   ;; The leader key accessible in `emacs state' and `insert state':
-   dotspacemacs-emacs-leader-key "M-m" ; default "M-m"
+   ;; The command key used for Vim Ex commands (ex-commands):
+   dotspacemacs-ex-command-key ":"
    ;; Major mode leader key:
-   ;; A shortcut key which is the equivalent of pressing `<leader> m`. Set it to `nil` to disable it.
+   ;; Equivalent to pressing `<leader> m`. Disabled when nil.
    dotspacemacs-major-mode-leader-key "," ; default ","
-   ;; Major mode leader key accessible in `emacs state' and `insert state':
-   dotspacemacs-major-mode-emacs-leader-key "C-M-m" ; default "C-M-m"
+   ;; The leader key in `emacs state' and `insert state':
+   dotspacemacs-emacs-leader-key "M-m" ; default "M-m"
    ;; The key used for Emacs commands (M-x) after pressing on the leader key:
    dotspacemacs-emacs-command-key "SPC" ; default "SPC"
-   ;; The command key used for Evil commands (ex-commands) and Emacs commands (M-x):
-   dotspacemacs-command-key ":" ; By default the command key is `:' so ex-commands are executed like in Vim, and Emacs commands are executed with `<leader> :'.
+   ;; Major mode leader key accessible in `emacs state' and `insert state':
+   dotspacemacs-major-mode-emacs-leader-key "C-M-m" ; default "C-M-m"
 
    ;;; Vim keybindings
    ;; Will `Y' be remapped to `y$'?
@@ -360,7 +369,10 @@ This function is called immediately after `dotspacemacs/init', before layer conf
   "Configuration function for user code.
 This function is called at the very end of Spacemacs initialization, after layers configuration. Put your configuration code--except for variables that should be set before a package is loaded--here."
 
-  (set-face-font 'variable-pitch "Adobe Garamond Pro-14")
+  (set-face-font 'variable-pitch
+                 "Adobe Garamond Pro-14"
+                 ;; "Bembo Book MT-14"
+                 )
   (global-hl-line-mode -1) ; Disable current line highlight.
   (global-visual-line-mode) ; Always wrap lines to window.
   (setq-default major-mode 'text-mode) ; Use text instead of fundamental.
