@@ -368,8 +368,15 @@ This function is called immediately after `dotspacemacs/init', before layer conf
 (defun dotspacemacs/user-config ()
   "Configuration function for user code.
 This function is called at the very end of Spacemacs initialization, after layers configuration. Put your configuration code--except for variables that should be set before a package is loaded--here."
-
-  (set-face-font 'variable-pitch "Garamond Premier Pro-14")
+  (defun my-select-font (fonts)
+    (cond ((null fonts) (face-attribute 'default :font))
+          ((member (car fonts) (font-family-list)) (car fonts))
+          (t (my-select-font (cdr fonts)))))
+  (set-face-font 'variable-pitch (my-select-font
+                                  '("Garamond Premier Pro"
+                                    "Bembo MT Book Std"
+                                    "ET Book"
+                                    "Garamond")))
   (global-hl-line-mode -1) ; Disable current line highlight.
   (global-visual-line-mode) ; Always wrap lines to window.
   (setq-default major-mode 'text-mode) ; Use text instead of fundamental.
@@ -387,6 +394,16 @@ This function is called at the very end of Spacemacs initialization, after layer
   (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line)
 
   (define-key evil-insert-state-map (kbd "<backspace>") 'evil-delete-backward-word) ; Make backspace delete the whole word.
+
+  ;;; Zoom with Ctrl + mouse wheel.
+  (defun my-zoom-in ()
+    (interactive)
+    (text-scale-increase 1.1))
+  (defun my-zoom-out ()
+    (interactive)
+    (text-scale-decrease 1.1))
+  (global-set-key (kbd "<C-wheel-up>") 'my-zoom-in)
+  (global-set-key (kbd "<C-wheel-down>") 'my-zoom-out)
 
   ;;; Mouse copy:
   (setq mouse-drag-copy-region t)
