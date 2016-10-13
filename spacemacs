@@ -11,16 +11,16 @@ This function should only set values."
 
    ;; Package downloading and retention:
    ;; Possible values are `used', `used-but-keep-unused' and `all'.
-   ;; `used' will download only explicitly used packages and remove any unused packages as well as their dependencies.
-   ;; `used-but-keep-unused' will download only used packages but won't delete them if they become unused.
-   ;; `all' will download all the packages regardless of whether they are used or not, and packages won't be deleted by Spacemacs.
+   ;; * `used' will download only explicitly used packages and remove any unused packages as well as their dependencies.
+   ;; * `used-but-keep-unused' will download only used packages but won't delete them if they become unused.
+   ;; * `all' will download all the packages regardless of whether they are used or not, and packages won't be deleted by Spacemacs.
    dotspacemacs-download-packages 'used ; default 'used
 
    ;;; Deferred layer installation
    ;; Delay layer installation until opening a file with a supported type. Layers will be added to `dotspacemacs-configuration-layers' when they are installed.
-   ;; `unused' will wait to install layers not listed in `dotspacemacs-configuration-layers'.
-   ;; `all' will wait to install any layer that supports lazy installation, even those listed in `dotspacemacs-configuration-layers'.
-   ;; `nil' disables lazy installation.
+   ;; * `unused' will wait to install layers not listed in  `dotspacemacs-configuration-layers'.
+   ;; * `all' will wait to install any layer that supports lazy installation, even those listed in `dotspacemacs-configuration-layers'.
+   ;; * `nil' disables lazy installation.
    dotspacemacs-enable-lazy-installation 'unused ; default 'unused
    ;; Will Spacemacs ask before lazily installing layers?
    dotspacemacs-ask-for-lazy-installation t ; default t
@@ -43,16 +43,23 @@ This function should only set values."
      ;;; Bindings:
      better-defaults
      vinegar ; dired
-     ivy
      ;;; Checking & Completion:
      auto-completion
-     helm
-     spell-checking
-     syntax-checking
+     ;; helm ; Use ivy instead.
+     ivy
+     (spell-checking :variables
+                     spell-checking-enable-by-default nil
+                     flyspell-sort-corrections nil)
+     (syntax-checking :variables
+                      syntax-checking-enable-by-default nil)
      ;;; Languages:
      elm
      emacs-lisp
      haskell
+     (html :variables ;for CSS
+           web-mode-css-indent-offset 2
+           web-mode-enable-css-colorization nil ; already done with colors
+           )
      javascript
      markdown
      vimscript
@@ -111,16 +118,18 @@ This function is called at the very startup of Spacemacs initialization before l
    dotspacemacs-loading-progress-bar nil ; default t
 
    ;; The startup banner:
-   ;; `official' displays the official spacemacs logo.
-   ;; `random' chooses a random text banner in `core/banners' directory.
-   ;; An integer value is the index of text banner.
-   ;; A string value must be a path to an image format supported by your Emacs build.
-   ;; If nil then no banner is displayed.
+   ;; * `official' displays the official spacemacs logo.
+   ;; * `random' chooses a random text banner in `core/banners' directory.
+   ;; * An integer value is the index of text banner.
+   ;; * A string value must be a path to an image format supported by your Emacs build.
+   ;; * If nil then no banner is displayed.
    dotspacemacs-startup-banner nil ; default 'official
    ;; Items to show in startup buffer:
    ;; A list or an association list of of the form `(list-type . list-size)`. If nil it is disabled. Possible values for list-type are: `recents' `bookmarks' `projects' `agenda' `todos'.
    dotspacemacs-startup-lists '((recents . 7)
                                 (projects . 7))
+   ;; Will the startup buffer resize?
+   dotspacemacs-startup-buffer-responsive t ; default t
 
    ;; Default major mode of the scratch buffer:
    dotspacemacs-scratch-mode 'text-mode ; default 'text-mode
@@ -152,17 +161,17 @@ This function is called at the very startup of Spacemacs initialization before l
 
    ;; The leader key:
    dotspacemacs-leader-key "SPC"
-   ;; The leader key accessible in `emacs state' and `insert state':
-   dotspacemacs-emacs-leader-key "M-m" ; default "M-m"
+   ;; The command key used for Vim Ex commands (ex-commands):
+   dotspacemacs-ex-command-key ":"
    ;; Major mode leader key:
-   ;; A shortcut key which is the equivalent of pressing `<leader> m`. Set it to `nil` to disable it.
+   ;; Equivalent to pressing `<leader> m`. Disabled when nil.
    dotspacemacs-major-mode-leader-key "," ; default ","
-   ;; Major mode leader key accessible in `emacs state' and `insert state':
-   dotspacemacs-major-mode-emacs-leader-key "C-M-m" ; default "C-M-m"
+   ;; The leader key in `emacs state' and `insert state':
+   dotspacemacs-emacs-leader-key "M-m" ; default "M-m"
    ;; The key used for Emacs commands (M-x) after pressing on the leader key:
    dotspacemacs-emacs-command-key "SPC" ; default "SPC"
-   ;; The command key used for Evil commands (ex-commands) and Emacs commands (M-x):
-   dotspacemacs-command-key ":" ; By default the command key is `:' so ex-commands are executed like in Vim, and Emacs commands are executed with `<leader> :'.
+   ;; Major mode leader key accessible in `emacs state' and `insert state':
+   dotspacemacs-major-mode-emacs-leader-key "C-M-m" ; default "C-M-m"
 
    ;;; Vim keybindings
    ;; Will `Y' be remapped to `y$'?
@@ -191,9 +200,9 @@ This function is called at the very startup of Spacemacs initialization before l
    dotspacemacs-large-file-size 1 ; default 1
 
    ;; Where to auto-save files:
-   ;; `original' auto-saves the file in-place.
-   ;; `cache' auto-saves the file to another file stored in the cache directory.
-   ;; `nil' disables auto-saving.
+   ;; * `original' auto-saves the file in-place.
+   ;; * `cache' auto-saves the file to another file stored in the cache directory.
+   ;; * `nil' disables auto-saving.
    dotspacemacs-auto-save-file-location 'cache ; default 'cache
 
    ;;; Maximum number of rollback slots to keep in the cache:
@@ -252,9 +261,9 @@ This function is called at the very startup of Spacemacs initialization before l
    dotspacemacs-smooth-scrolling t ; default t
 
    ;; Line numbers:
-   ;; `t' turns on line numbers in all `prog-mode' and `text-mode' derivatives.
-   ;; `relative' turns on relative line numbers also.
-   ;; `nil' disables line numbers.
+   ;; * `t' turns on line numbers in all `prog-mode' and `text-mode' derivatives.
+   ;; * `relative' turns on relative line numbers also.
+   ;; * `nil' disables line numbers.
    dotspacemacs-line-numbers nil ; default nil
 
    ;; Code folding:
@@ -272,10 +281,10 @@ This function is called at the very startup of Spacemacs initialization before l
    dotspacemacs-smart-closing-parenthesis nil ; default nil
 
    ;; Whitespace cleanup on save:
-   ;; `all' aggressively deletes empty lines and long sequences of whitespace.
-   ;; `trailing' deletes only the whitespace at end of lines.
-   ;; `changed' deletes only whitespace for changed lines.
-   ;; `nil' disables cleanup.
+   ;; * `all' aggressively deletes empty lines and long sequences of whitespace.
+   ;; * `trailing' deletes only the whitespace at end of lines.
+   ;; * `changed' deletes only whitespace for changed lines.
+   ;; * `nil' disables cleanup.
    dotspacemacs-whitespace-cleanup 'trailing ; default nil
 
    ;; Server:
@@ -290,6 +299,8 @@ This function is called at the very startup of Spacemacs initialization before l
 (defun dotspacemacs/user-init ()
   "Initialization function for user code.
 This function is called immediately after `dotspacemacs/init', before layer configuration. It is mostly useful for variables that must be set before packages are loaded. If you are unsure, try setting them in `dotspacemacs/user-config' first."
+
+  (customize-set-variable 'adaptive-fill-regexp (purecopy "[ \t]*\\([-–!|#%;>·•‣⁃◦]+[ \t]*\\)*")) ; Removed '*' so I can make non-unicode bullet lists. Ideally there should be two separate variables: adaptive-fill-regexp and adaptive-indent-regexp. The first would indent with the 'whitespace' character, but the second would indent with actual whitespace.
 
   ;;; Mode line and frame title:
   (setq-default mode-line-format nil) ; Hide modeline until it is properly formatted.
