@@ -27,7 +27,7 @@ This function should only set values."
 
    ;; Additional paths for configuration layers:
    ;; Paths must have a trailing slash (e.g. `~/.mycontribs/').
-   dotspacemacs-configuration-layer-path '()
+   dotspacemacs-configuration-layer-path '() ; default '()
 
    ;; Configuration layers to load:
    dotspacemacs-configuration-layers
@@ -73,7 +73,7 @@ This function should only set values."
      )
 
    ;; Packages that will not be updated:
-   dotspacemacs-frozen-packages '()
+   dotspacemacs-frozen-packages '() ; default '()
 
    ;; Packages and extensions that will not be installed or loaded:
    dotspacemacs-excluded-packages '(vi-tilde-fringe)
@@ -358,7 +358,7 @@ This function is called immediately after `dotspacemacs/init', before layer conf
   "Configuration function for user code.
 This function is called at the very end of Spacemacs initialization, after layers configuration. Put your configuration code--except for variables that should be set before a package is loaded--here."
 
-  (set-face-font 'variable-pitch "Adobe Garamond Pro-14")
+  (set-face-font 'variable-pitch "Garamond Premier Pro-14")
   (global-hl-line-mode -1) ; Disable current line highlight.
   (global-visual-line-mode) ; Always wrap lines to window.
   (setq-default major-mode 'text-mode) ; Use text instead of fundamental.
