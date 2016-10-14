@@ -76,7 +76,7 @@ This function should only set values."
      adaptive-wrap
      aggressive-indent
      paren-face
-     popwin ; so helm [space] b b works
+     ;; popwin ; so helm [space] b b works
      )
 
    ;; Packages that will not be updated:
