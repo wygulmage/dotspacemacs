@@ -83,7 +83,11 @@ This function should only set values."
    dotspacemacs-frozen-packages '() ; default '()
 
    ;; Packages and extensions that will not be installed or loaded:
-   dotspacemacs-excluded-packages '(vi-tilde-fringe)
+   dotspacemacs-excluded-packages
+   '(
+     company-mode
+     vi-tilde-fringe
+     )
    ))
 
 (defun dotspacemacs/init ()
@@ -157,7 +161,7 @@ This function is called at the very startup of Spacemacs initialization before l
      :size 13.0
      :weight normal
      :width normal
-     :powerline-scale 1.1)
+     :powerline-scale 1.0)
 
    ;; The leader key:
    dotspacemacs-leader-key "SPC"
@@ -369,14 +373,29 @@ This function is called immediately after `dotspacemacs/init', before layer conf
   "Configuration function for user code.
 This function is called at the very end of Spacemacs initialization, after layers configuration. Put your configuration code--except for variables that should be set before a package is loaded--here."
   (defun my-select-font (fonts)
-    (cond ((null fonts) (face-attribute 'default :font))
+    (cond ((null fonts) (face-attribute 'default :family))
           ((member (car fonts) (font-family-list)) (car fonts))
           (t (my-select-font (cdr fonts)))))
-  (set-face-font 'variable-pitch (my-select-font
-                                  '("Garamond Premier Pro"
-                                    "Bembo MT Book Std"
-                                    "ET Book"
-                                    "Garamond")))
+
+  (set-face-attribute 'fixed-pitch nil
+                      :family (my-select-font
+                               '("Source Code Pro"
+                                 "IBM 3720"
+                                 "DejaVu Sans Mono"
+                                 "Monaco"
+                                 "Lucida Console")))
+
+  (set-face-attribute 'variable-pitch nil
+                      :family (my-select-font
+                               '("ET Book"
+                                 "ETBembo"
+                                 "Bembo Book MT Std"
+                                 "Bembo MT Book Std"
+                                 "Garamond Premier Pro"
+                                 "Garamond Premr Pro"
+                                 "Adobe Garamond Expert"
+                                 "Garamond")))
+
   (global-hl-line-mode -1) ; Disable current line highlight.
   (global-visual-line-mode) ; Always wrap lines to window.
   (setq-default major-mode 'text-mode) ; Use text instead of fundamental.
@@ -418,6 +437,10 @@ This function is called at the very end of Spacemacs initialization, after layer
   (setq kill-do-not-save-duplicates t) ; Don't copy identical text twice.
   (setq-default read-quoted-char-radix 16) ; Use hex for unicode character input.
 
+  ;;; Git
+  ;; Use spacemacs for editing git commit messages.
+  (global-git-commit-mode t)
+
   ;;; Elisp:
   (add-hook 'emacs-lisp-mode-hook 'paren-face-mode) ; Fade parentheses in elisp mode.
   (add-hook 'emacs-lisp-mode-hook 'aggressive-indent-mode)
@@ -425,7 +448,7 @@ This function is called at the very end of Spacemacs initialization, after layer
   ;;; Elm:
   (defun my-elm-mode-hook ()
     "elm setup adapted from http://www.lambdacat.com/post-modern-emacs-setup-for-elm/"
-    (setq company-backends '(company-elm))
+    ;; (setq company-backends '(company-elm))
     (elm-oracle-setup-completion))
   (add-hook 'elm-mode-hook 'my-elm-mode-hook)
   )
