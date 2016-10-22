@@ -417,10 +417,10 @@ This function is called at the very end of Spacemacs initialization, after layer
   ;;; Zoom with Ctrl + mouse wheel.
   (defun my-zoom-in ()
     (interactive)
-    (text-scale-increase 1.1))
+    (text-scale-increase 1.01))
   (defun my-zoom-out ()
     (interactive)
-    (text-scale-decrease 1.1))
+    (text-scale-decrease 1.01))
   (mapcar (lambda (x)
             (global-set-key
              (kbd (if (string-equal system-type "gnu/linux")
