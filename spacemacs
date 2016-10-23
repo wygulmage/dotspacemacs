@@ -85,8 +85,13 @@ This function should only set values."
    ;; Packages and extensions that will not be installed or loaded:
    dotspacemacs-excluded-packages
    '(
-     company-mode
-     vi-tilde-fringe
+     fancy-battery ; The GUI shell shows this.
+     highlight-indentation ; Indentation shows this.
+     highlight-parentheses ; Use `paren-face-mode' instead.
+     powerline ; Use customized modeline instead.
+     rainbow-delimiters ; Use `paren-face-mode'.
+     spray ; Not currently using spacemacs for speed reading.
+     vi-tilde-fringe ; Line numbers show this.
      )
    ))
 
@@ -449,6 +454,17 @@ This function is called at the very end of Spacemacs initialization, after layer
     ;; (setq company-backends '(company-elm))
     (elm-oracle-setup-completion))
   (add-hook 'elm-mode-hook 'my-elm-mode-hook)
+
+  ;; Lastly, some hackish theming:
+  (custom-set-faces
+   '(font-lock-comment-face ((t (:slant normal))))
+   '(font-lock-string-face ((t (:slant italic))))
+   '(font-lock-keyword-face ((t (:foreground nil :inherit default))))
+   '(font-lock-function-name-face ((t (:foreground nil :inherit default))))
+   '(font-lock-variable-name-face ((t (:foreground nil :inherit default))))
+   '(mode-line ((t (:box nil))))
+   '(fringe ((t (:background nil :inherit default))))
+   '(linum ((t (:background nil :foreground nil :inherit font-lock-comment-face)))))
   )
 
 ;; Do not write anything past this comment. This is where Emacs will auto-generate custom variable definitions.
