@@ -429,8 +429,6 @@ This function is called at the very end of Spacemacs initialization, after layer
              (car x)))
           '((my-zoom-in "<C-mouse-4>"  "<C-wheel-up>")
             (my-zoom-out "<C-mouse-5>" "<C-wheel-down>")))
-  (progn (global-set-key (kbd "<C-wheel-up>") 'my-zoom-in)
-         (global-set-key (kbd "<C-wheel-down>") 'my-zoom-out))
 
   ;;; Mouse copy:
   (setq mouse-drag-copy-region t)
