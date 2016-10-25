@@ -432,8 +432,11 @@ This function is called at the very end of Spacemacs initialization, after layer
                       (cadr x)
                     (caddr x)))
              (car x)))
-          '((my-zoom-in "<C-mouse-4>"  "<C-wheel-up>")
-            (my-zoom-out "<C-mouse-5>" "<C-wheel-down>")))
+          '((my-zoom-in "C-<mouse-4>"  "C-<wheel-up>")
+            (my-zoom-out "C-<mouse-5>" "C-<wheel-down>")))
+
+  ;;; Insert unicode character with Ctrl Shift u.
+  (global-set-key (kbd "C-S-u") 'insert-char)
 
   ;;; Mouse copy:
   (setq mouse-drag-copy-region t)
