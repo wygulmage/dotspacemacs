@@ -73,10 +73,11 @@ This function should only set values."
    ;; If you need configuration for these packages, consider creating a layer. You can also put the configuration in `dotspacemacs/user-config'.
    dotspacemacs-additional-packages
    '(
+     ;; (acme-mouse :location (recipe :fetcher github :repo "akrito/acme-mouse")) ; does not work in Spacemacs.
      adaptive-wrap
      aggressive-indent
      paren-face
-     ;; popwin ; so helm [space] b b works
+     ;; popwin ; so helm [space] b b works (not using Helm).
      )
 
    ;; Packages that will not be updated:
@@ -437,11 +438,14 @@ This function is called at the very end of Spacemacs initialization, after layer
 
   ;;; Insert unicode character with Ctrl Shift u.
   (global-set-key (kbd "C-S-u") 'insert-char)
-
-  ;;; Mouse copy:
-  (setq mouse-drag-copy-region t)
-  (setq kill-do-not-save-duplicates t) ; Don't copy identical text twice.
   (setq-default read-quoted-char-radix 16) ; Use hex for unicode character input.
+
+  ;;; Paste with Ctrl p.
+  (define-key evil-insert-state-map (kbd "C-p") 'evil-paste-after)
+
+  ;;; Mouse & copy / paste / delete
+  (setq mouse-drag-copy-region t) ; Copy on select. -- disable for acme-mouse
+  (setq kill-do-not-save-duplicates t) ; Don't copy identical text twice.
 
   ;;; Git
   ;; Use spacemacs for editing git commit messages.
