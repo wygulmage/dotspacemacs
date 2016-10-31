@@ -324,7 +324,9 @@ This function is called immediately after `dotspacemacs/init', before layer conf
   (put 'my-buffer-modified-string 'risky-local-variable t)
 
   (defvar my-buffer-or-file-name-string
-    '(:eval (if buffer-file-name buffer-file-name buffer-name))
+    '(:eval (if buffer-file-name
+                buffer-file-name
+              (buffer-name)))
     "The filename if there is one; otherwise, the buffer name")
   (put 'my-buffer-or-file-name-string 'risky-local-variable t)
 
@@ -342,6 +344,22 @@ This function is called immediately after `dotspacemacs/init', before layer conf
                 (propertize branch 'face `(:foreground ,color)))))
     "The branch of a version-controlled file, colored to indicate status")
   (put 'my-vc-string 'risky-local-variable t)
+
+  (defvar my-text-vc-string
+    '(:eval (when (and vc-mode buffer-file-name)
+              (concat
+               "("
+               (vc-working-revision buffer-file-name)
+               (pcase (vc-state buffer-file-name)
+                 (`up-to-date "")
+                 (`added ", ready")
+                 (`edited "")
+                 (`needs-merge ", merge")
+                 (`removed ", removed")
+                 (`ignored ", ignored")
+                 (_ nil))
+               ")"))))
+  (put 'my-text-vc-string 'risky-local-variable t)
 
   (defun my-refresh-all-modelines ()
     (force-mode-line-update t))
@@ -365,14 +383,24 @@ This function is called immediately after `dotspacemacs/init', before layer conf
   (add-hook 'after-change-major-mode-hook 'my-style-modeline)
   (add-hook 'buffer-list-update-hook 'my-style-modeline)
 
+  ;;(defun my-style-frame-title ()
+  ;;  (setq frame-title-format
+  ;;  (list
+  ;;  my-buffer-or-file-name-string
+  ;; " "
+  ;; my-buffer-modified-string
+  ;; )))
   (defun my-style-frame-title ()
     (setq frame-title-format
           (list
            my-buffer-or-file-name-string
            " "
+           my-text-vc-string
+           " "
            my-buffer-modified-string
            )))
-  (add-hook 'after-change-major-mode-hook 'my-style-frame-title)
+  (when (display-graphic-p) (add-hook 'after-change-major-mode-hook 'my-style-frame-title))
+
   )
 
 (defun dotspacemacs/user-config ()
