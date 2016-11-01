@@ -312,8 +312,14 @@ This function is called immediately after `dotspacemacs/init', before layer conf
 
   (customize-set-variable 'adaptive-fill-regexp (purecopy "[ \t]*\\([-–!|#%;>·•‣⁃◦]+[ \t]*\\)*")) ; Removed '*' so I can make non-unicode bullet lists. Ideally there should be two separate variables: adaptive-fill-regexp and adaptive-indent-regexp. The first would indent with the 'whitespace' character, but the second would indent with actual whitespace.
 
-  ;;; Mode line and frame title:
+  ;;; Mode Line and Frame Title
+  ;;; Hooks
+  ;;; * first-change-hook is called immediately before changing an unmodified buffer.
+  ;;; * after-change-major-mode-hook
+  ;;; * buffer-list-update-hook
+  ;;; * magit-refresh-buffer-hook
   (setq-default mode-line-format nil) ; Hide modeline until it is properly formatted.
+  (setq-default frame-title-format nil) ; Hide frame title until it is properly formatted.
 
   (defvar my-buffer-modified-string
     '(:eval (cond
@@ -325,10 +331,14 @@ This function is called immediately after `dotspacemacs/init', before layer conf
 
   (defvar my-buffer-or-file-name-string
     '(:eval (if buffer-file-name
-                (abbreviate-file-name buffer-file-name)
+                (file-name-nondirectory buffer-file-truename)
               (buffer-name)))
     "The filename if there is one; otherwise, the buffer name")
   (put 'my-buffer-or-file-name-string 'risky-local-variable t)
+
+  (defvar my-file-directory-string
+    '(:eval (when buffer-file-truename
+              (file-name-directory (abbreviate-file-name buffer-file-truename)))))
 
   (defvar my-vc-string
     '(:eval (when (and vc-mode buffer-file-name)
@@ -366,8 +376,10 @@ This function is called immediately after `dotspacemacs/init', before layer conf
   (add-hook 'magit-refresh-buffer-hook 'my-refresh-all-modelines)
 
   (defun my-style-modeline ()
-    (if (string= (buffer-name) "*spacemacs*")
-        (setq mode-line-format nil) ; Hide mode line on start page.
+    (unless (or (string= (buffer-name) "*spacemacs*")
+                (string= mode-name "Magit")
+                (string= mode-name "Help"))
+      (setq mode-line-format nil) ; Hide mode line on start page.
       (setq mode-line-format
             (list
              " %[" ; Show recursive editing.
@@ -375,13 +387,27 @@ This function is called immediately after `dotspacemacs/init', before layer conf
              " "
              my-buffer-modified-string
              "%]  " ; Show recursive editing.
-             "(%l,%c)  " ; (line,column)
+             "(%l, %c)  " ; (line,column)
              mode-name ; major mode
              "  "
              my-vc-string ; branch
              ))))
-  (add-hook 'after-change-major-mode-hook 'my-style-modeline)
-  (add-hook 'buffer-list-update-hook 'my-style-modeline)
+
+  (defun my-style-header-line ()
+    (if (string= (buffer-name) "*spacemacs*")
+        (setq header-line-format nil)
+      (setq header-line-format
+            (list
+             " "
+             my-buffer-or-file-name-string
+             "  (%l,%c)  " ; (line,column)
+             mode-name ; major mode
+             "  "
+             my-vc-string ; branch
+             ))))
+
+  (add-hook 'after-change-major-mode-hook 'my-style-header-line)
+  (add-hook 'buffer-list-update-hook 'my-style-header-line)
 
   ;;(defun my-style-frame-title ()
   ;;  (setq frame-title-format
@@ -393,11 +419,10 @@ This function is called immediately after `dotspacemacs/init', before layer conf
   (defun my-style-frame-title ()
     (setq frame-title-format
           (list
-           my-buffer-or-file-name-string
-           " "
-           my-text-vc-string
-           " "
            my-buffer-modified-string
+           " "
+           my-file-directory-string
+           my-buffer-or-file-name-string
            )))
   (when (display-graphic-p) (add-hook 'after-change-major-mode-hook 'my-style-frame-title))
 
@@ -437,7 +462,7 @@ This function is called at the very end of Spacemacs initialization, after layer
   (add-hook 'text-mode-hook 'variable-pitch-mode)
 
   (add-hook 'prog-mode-hook 'adaptive-wrap-prefix-mode) ; Indent wrapped lines in source code.
-  (add-hook 'prog-mode-hook 'linum-mode) ; Show line numbers in source code.
+  ;; (add-hook 'prog-mode-hook 'linum-mode) ; Show line numbers in source code.
   (add-hook 'prog-mode-hook 'rainbow-mode) ; Color color strings like "#4971af" in source code.
 
   (setq vc-follow-symlinks t)
