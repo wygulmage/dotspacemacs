@@ -325,7 +325,7 @@ This function is called immediately after `dotspacemacs/init', before layer conf
 
   (defvar my-buffer-or-file-name-string
     '(:eval (if buffer-file-name
-                buffer-file-name
+                (abbreviate-file-name buffer-file-name)
               (buffer-name)))
     "The filename if there is one; otherwise, the buffer name")
   (put 'my-buffer-or-file-name-string 'risky-local-variable t)
