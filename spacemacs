@@ -318,7 +318,7 @@ This function is called immediately after `dotspacemacs/init', before layer conf
   ;;; * after-change-major-mode-hook
   ;;; * buffer-list-update-hook
   ;;; * magit-refresh-buffer-hook
-  (setq-default mode-line-format nil) ; Hide modeline until it is properly formatted.
+  (setq-default mode-line-format nil)
   ;; (setq-default frame-title-format nil) ; Hide frame title until it is properly formatted.
 
   (defvar my-buffer-modified-string
@@ -326,6 +326,7 @@ This function is called immediately after `dotspacemacs/init', before layer conf
              (buffer-read-only "🔒")
              ((buffer-modified-p) "◆")
              (t " ")))
+
     "Show whether the buffer has been modified since its last save.")
   (put 'my-buffer-modified-string 'risky-local-variable t)
 
@@ -376,46 +377,39 @@ This function is called immediately after `dotspacemacs/init', before layer conf
     (force-mode-line-update t))
   (add-hook 'magit-refresh-buffer-hook 'my-refresh-all-modelines)
 
-  (defun my-prog-mode-gui-header-line ()
-    (setq header-line-format
-          (list
-           " (%l, %c) "
-           mode-name
-           " "
-           my-vc-string
-           )))
-
-  (defun my-prog-mode-cli-header-line ()
-    (setq header-line-format
-          (list
-           my-buffer-modified-string
-           " "
-           my-buffer-or-file-name-string
-           " (5l, %c) "
-           mode-name
-           " "
-           my-vc-string
-           )))
-
-  (if (display-graphic-p)
-      (add hook 'prog-mode-hook 'my-prog-mode-gui-header-line)
-    (add-hook 'prog-mode-hook 'my-prog-mode-cli-header-line))
+  (defun my-header-line ()
+    (cond
+     ((not (display-graphic-p))
+      (setq header-line-format
+            (list
+             my-buffer-modified-string
+             " "
+             my-buffer-or-file-name-string
+             " (%l, %c) "
+             mode-name
+             " "
+             my-vc-string
+             )))
+     ((derived-mode-p 'prog-mode)
+      (setq header-line-format
+            (list
+             " (%l, %c) "
+             mode-name
+             " "
+             my-vc-string
+             )))
+     (t (setq header-line-format mode-line-format))))
 
   (defun my-frame-title ()
-    (setq frame-title-format
-          (list
-           my-buffer-modified-string
-           " "
-           my-file-directory-string
-           my-buffer-or-file-name-string
-           "  "
-           )))
-
-  (when (display-graphic-p)
-    (dolist (hook
-             '(buffer-list-update-hook after-change-major-mode-hook first-change-hook))
-      (my-frame-title)))
-
+    (when (display-graphic-p)
+      (setq frame-title-format
+            (list
+             my-buffer-modified-string
+             " "
+             my-file-directory-string
+             my-buffer-or-file-name-string
+             "  "
+             ))))
   )
 
 (defun dotspacemacs/user-config ()
@@ -448,6 +442,16 @@ This function is called at the very end of Spacemacs initialization, after layer
   (global-hl-line-mode -1) ; Disable current line highlight.
   (global-visual-line-mode) ; Always wrap lines to window.
   (setq-default major-mode 'text-mode) ; Use text instead of fundamental.
+
+  (defun my-add-hooks (mode-hooks hook-functions)
+    "Add all hook-functions to all made-hooks."
+    (dolist (mode-hook mode-hooks)
+      (dolist (hook-function hook-functions)
+        (add-hook mode-hook hook-function))))
+
+  (my-add-hooks
+   '(buffer-list-update-hook after-change-major-mode-hook first-change-hook)
+   '(my-frame-title my-header-line))
 
   (add-hook 'text-mode-hook 'variable-pitch-mode)
 
