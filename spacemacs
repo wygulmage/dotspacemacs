@@ -319,7 +319,7 @@ This function is called immediately after `dotspacemacs/init', before layer conf
   ;;; * buffer-list-update-hook
   ;;; * magit-refresh-buffer-hook
   (setq-default mode-line-format nil) ; Hide modeline until it is properly formatted.
-  (setq-default frame-title-format nil) ; Hide frame title until it is properly formatted.
+  ;; (setq-default frame-title-format nil) ; Hide frame title until it is properly formatted.
 
   (defvar my-buffer-modified-string
     '(:eval (cond
@@ -339,6 +339,7 @@ This function is called immediately after `dotspacemacs/init', before layer conf
   (defvar my-file-directory-string
     '(:eval (when buffer-file-truename
               (file-name-directory (abbreviate-file-name buffer-file-truename)))))
+  (put 'my-file-directory-string 'risky-local-variable t)
 
   (defvar my-vc-string
     '(:eval (when (and vc-mode buffer-file-name)
@@ -375,56 +376,45 @@ This function is called immediately after `dotspacemacs/init', before layer conf
     (force-mode-line-update t))
   (add-hook 'magit-refresh-buffer-hook 'my-refresh-all-modelines)
 
-  (defun my-style-modeline ()
-    (unless (or (string= (buffer-name) "*spacemacs*")
-                (string= mode-name "Magit")
-                (string= mode-name "Help"))
-      (setq mode-line-format nil) ; Hide mode line on start page.
-      (setq mode-line-format
-            (list
-             " %[" ; Show recursive editing.
-             "%b%" ; buffer
-             " "
-             my-buffer-modified-string
-             "%]  " ; Show recursive editing.
-             "(%l, %c)  " ; (line,column)
-             mode-name ; major mode
-             "  "
-             my-vc-string ; branch
-             ))))
+  (defun my-prog-mode-gui-header-line ()
+    (setq header-line-format
+          (list
+           " (%l, %c) "
+           mode-name
+           " "
+           my-vc-string
+           )))
 
-  (defun my-style-header-line ()
-    (if (string= (buffer-name) "*spacemacs*")
-        (setq header-line-format nil)
-      (setq header-line-format
-            (list
-             " "
-             my-buffer-or-file-name-string
-             "  (%l,%c)  " ; (line,column)
-             mode-name ; major mode
-             "  "
-             my-vc-string ; branch
-             ))))
+  (defun my-prog-mode-cli-header-line ()
+    (setq header-line-format
+          (list
+           my-buffer-modified-string
+           " "
+           my-buffer-or-file-name-string
+           " (5l, %c) "
+           mode-name
+           " "
+           my-vc-string
+           )))
 
-  (add-hook 'after-change-major-mode-hook 'my-style-header-line)
-  (add-hook 'buffer-list-update-hook 'my-style-header-line)
+  (if (display-graphic-p)
+      (add hook 'prog-mode-hook 'my-prog-mode-gui-header-line)
+    (add-hook 'prog-mode-hook 'my-prog-mode-cli-header-line))
 
-  ;;(defun my-style-frame-title ()
-  ;;  (setq frame-title-format
-  ;;  (list
-  ;;  my-buffer-or-file-name-string
-  ;; " "
-  ;; my-buffer-modified-string
-  ;; )))
-  (defun my-style-frame-title ()
+  (defun my-frame-title ()
     (setq frame-title-format
           (list
            my-buffer-modified-string
            " "
            my-file-directory-string
            my-buffer-or-file-name-string
+           "  "
            )))
-  (when (display-graphic-p) (add-hook 'after-change-major-mode-hook 'my-style-frame-title))
+
+  (when (display-graphic-p)
+    (dolist (hook
+             '(buffer-list-update-hook after-change-major-mode-hook first-change-hook))
+      (my-frame-title)))
 
   )
 
