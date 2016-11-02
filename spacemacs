@@ -377,10 +377,10 @@ This function is called immediately after `dotspacemacs/init', before layer conf
     (force-mode-line-update t))
   (add-hook 'magit-refresh-buffer-hook 'my-refresh-all-modelines)
 
-  (defun my-header-line ()
+  (defun my-mode-line ()
     (cond
      ((not (display-graphic-p))
-      (setq header-line-format
+      (setq mode-line-format
             (list
              my-buffer-modified-string
              " "
@@ -391,14 +391,14 @@ This function is called immediately after `dotspacemacs/init', before layer conf
              my-vc-string
              )))
      ((derived-mode-p 'prog-mode)
-      (setq header-line-format
+      (setq mode-line-format
             (list
              " (%l, %c) "
              mode-name
              " "
              my-vc-string
              )))
-     (t (setq header-line-format mode-line-format))))
+     (t (setq mode-line-format mode-line-format))))
 
   (defun my-frame-title ()
     (when (display-graphic-p)
@@ -451,7 +451,7 @@ This function is called at the very end of Spacemacs initialization, after layer
 
   (my-add-hooks
    '(buffer-list-update-hook after-change-major-mode-hook first-change-hook)
-   '(my-frame-title my-header-line))
+   '(my-frame-title my-mode-line))
 
   (add-hook 'text-mode-hook 'variable-pitch-mode)
 
