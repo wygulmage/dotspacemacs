@@ -39,7 +39,7 @@ This function should only set values."
             shell-default-height 30
             shell-default-position 'bottom)
      spacemacs-editing
-     spacemacs-evil
+     spacemacs-evil ; This pulls in a lot of packages; figure out a way to pare them down.
      themes-megapack
      ;;; Bindings:
      better-defaults
@@ -197,7 +197,7 @@ This function is called at the very startup of Spacemacs initialization before l
    ;; Variables to control whether separate commands are bound in the GUI to the key pairs C-i, TAB and C-m, RET:
    ;; Setting it to a non-nil value allows for separate commands under <C-i> and TAB or <C-m> and RET. In the terminal, these pairs are generally indistinguishable, so this only works in the GUI.
    dotspacemacs-distinguish-gui-tab nil ; default nil
-;;; dotspacemacs-distinguish-gui-ret nil ; (not implemented)
+   ;; dotspacemacs-distinguish-gui-ret nil ; (not implemented)
 
    ;;; Layouts
    ;; Name of the default layout:
@@ -232,7 +232,7 @@ This function is called at the very startup of Spacemacs initialization before l
    dotspacemacs-helm-use-fuzzy 'always ; default 'always
 
    ;; Paste micro-state:
-   ;; Will `p` cycle through the kill ring content?
+   ;; Will `p' cycle through the kill ring content?
    dotspacemacs-enable-paste-transient-state t ; default nil
 
    ;; Which-key delay in seconds:
@@ -313,13 +313,14 @@ This function is called immediately after `dotspacemacs/init', before layer conf
 
   (customize-set-variable 'adaptive-fill-regexp "[ \t]*\\([-–!|#%;>·•‣⁃◦]+[ \t]*\\)*") ; Removed '*' so I can make non-unicode bullet lists. Ideally there should be two separate variables: adaptive-fill-regexp and adaptive-indent-regexp. The first would indent with the 'whitespace' character, but the second would indent with actual whitespace.
 
-  ;;; Mode Line and Frame Title
-  ;;; Hooks
-  ;;; * first-change-hook is called immediately before changing an unmodified buffer.
-  ;;; * after-change-major-mode-hook
-  ;;; * buffer-list-update-hook
-  ;;; * magit-refresh-buffer-hook
-  ;; (setq-default frame-title-format nil) ; Hide frame title until it is properly formatted.
+  )
+
+(defun dotspacemacs/user-config ()
+  "Configuration function for user code.
+This function is called at the very end of Spacemacs initialization, after layers configuration. Put your configuration code--except for variables that should be set before a package is loaded--here."
+
+  ;;; ----------------------------------------------
+  ;;; Mode Line, Header Line, and Frame Title Format
 
   (defvar my-buffer-modified-string
     '(:eval (cond
@@ -374,37 +375,12 @@ This function is called immediately after `dotspacemacs/init', before layer conf
     "The branch of a version-controlled file, colored to indicate status")
   (put 'my-vc-string 'risky-local-variable t)
 
-  (defvar my-text-vc-string
-    '(:eval (when (and vc-mode buffer-file-name)
-              (concat
-               "("
-               (vc-working-revision buffer-file-name)
-               (pcase (vc-state buffer-file-name)
-                 (`up-to-date "")
-                 (`added ", ready")
-                 (`edited "")
-                 (`needs-merge ", merge")
-                 (`removed ", removed")
-                 (`ignored ", ignored")
-                 (_ nil))
-               ")"))))
-  (put 'my-text-vc-string 'risky-local-variable t)
-
-  (defun my-refresh-all-modelines ()
-    (force-mode-line-update t))
-  (add-hook 'magit-refresh-buffer-hook 'my-refresh-all-modelines)
-
-  ;; (setq-default mode-line-format
-  ;;               (list
-  ;;                my-buffer-modified-string
-  ;;                " "
-  ;;                my-buffer-name-string))
-
   (defun my-format-prog-mode-line ()
     (setq mode-line-format
           (list
+           " "
            my-buffer-modified-string
-           "  "
+           " "
            my-buffer-name-string
            "  "
            my-point-string
@@ -418,8 +394,9 @@ This function is called immediately after `dotspacemacs/init', before layer conf
   (defun my-format-text-mode-line ()
     (setq mode-line-format
           (list
+           " "
            my-buffer-modified-string
-           "  "
+           " "
            my-buffer-name-string
            "  "
            my-vc-string
@@ -436,11 +413,9 @@ This function is called immediately after `dotspacemacs/init', before layer conf
              my-buffer-or-file-name-string
              "  "
              ))))
-  )
 
-(defun dotspacemacs/user-config ()
-  "Configuration function for user code.
-This function is called at the very end of Spacemacs initialization, after layers configuration. Put your configuration code--except for variables that should be set before a package is loaded--here."
+  ;;; --------------------------------
+  ;;; Fonts
 
   (defun my-select-font (fonts)
     (cond ((null fonts) (face-attribute 'default :family))
@@ -466,21 +441,38 @@ This function is called at the very end of Spacemacs initialization, after layer
                                  "Adobe Garamond Expert"
                                  "Garamond")))
 
+  ;;; ---------------------------------
+  ;;; Miscelaneous Global Stuff
+
   (global-hl-line-mode -1) ; Disable current line highlight.
   (global-visual-line-mode) ; Always wrap lines to window.
   (setq-default major-mode 'text-mode) ; Use text instead of fundamental.
+  (setq vc-follow-symlinks t)
+
+  ;;; ----------------------------------
+  ;;; Hooks
+
+  ;; * first-change-hook is called immediately before changing an unmodified buffer.
+  ;; * after-change-major-mode-hook
+  ;; * buffer-list-update-hook
+  ;; * magit-refresh-buffer-hook
 
   (defun my-add-hooks (mode-hooks hook-functions)
     "Add all hook-functions to all made-hooks."
     (dolist (mode-hook mode-hooks)
       (dolist (hook-function hook-functions)
-        (add-hook mode-hook hook-function))))
+        (when (commandp hook-function) (add-hook mode-hook hook-function)))))
 
   (my-add-hooks
-   '(buffer-list-update-hook after-change-major-mode-hook first-change-hook)
+   '(
+     buffer-list-update-hook
+     after-change-major-mode-hook
+     first-change-hook
+     )
    '(
      force-mode-line-update
      ))
+
   (my-add-hooks
    '(prog-mode-hook)
    '(
@@ -497,12 +489,19 @@ This function is called at the very end of Spacemacs initialization, after layer
      ))
 
   (my-add-hooks
-   '(spacemacs-buffer-mode-hook magit-mode-hook)
+   '(
+     spacemacs-buffer-mode-hook
+     magit-mode-hook
+     )
    '(
      (lambda () (setq mode-line-format nil)) ; Hide the mode line.
      ))
 
-  (setq vc-follow-symlinks t)
+  (add-hook 'magit-refresh-buffer-hook
+            (lambda () (force-mode-line-update t)))
+
+  ;;; ------------------------------
+  ;;; Key Maps
 
   ;;; Navigate wrapped lines.
   (define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
@@ -534,16 +533,23 @@ This function is called at the very end of Spacemacs initialization, after layer
   (define-key evil-insert-state-map (kbd "C-p") 'evil-paste-after)
 
   ;;; Mouse & copy / paste / delete
-  (setq mouse-drag-copy-region t) ; Copy on select. -- disable for acme-mouse
+  (setq mouse-drag-copy-region t) ; Copy on select -- disable for acme-mouse.
   (setq kill-do-not-save-duplicates t) ; Don't copy identical text twice.
+
+  ;;; ---------------------------
+  ;;; Major Mode Configurations
 
   ;;; Git
   ;; Use spacemacs for editing git commit messages.
   (global-git-commit-mode t)
 
   ;;; Elisp:
-  (add-hook 'emacs-lisp-mode-hook 'paren-face-mode) ; Fade parentheses in elisp mode.
-  (add-hook 'emacs-lisp-mode-hook 'aggressive-indent-mode)
+  (my-add-hooks
+   '(emacs-lisp-mode-hook)
+   '(
+     aggressive-indent-mode
+     paren-face-mode ; Fade parentheses.
+     ))
 
   ;;; Elm:
   (defun my-elm-mode-hook ()
@@ -562,21 +568,7 @@ This function is called at the very end of Spacemacs initialization, after layer
    ;;   '(mode-line ((t (:box nil))))
    '(fringe ((t (:background nil :inherit default))))
    '(linum ((t (:background nil :foreground nil :inherit font-lock-comment-face)))))
+
   )
 
 ;; Do not write anything past this comment. This is where Emacs will auto-generate custom variable definitions.
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(adaptive-fill-regexp "[ 	]*\\([-–!|#%;>·•‣⁃◦]+[ 	]*\\)*")
- '(package-selected-packages
-   (quote
-    (linum-relative evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-indent-plus evil-iedit-state iedit evil-exchange evil-ediff evil-args evil-anzu anzu zonokai-theme zenburn-theme zen-and-art-theme xterm-color ws-butler which-key wgrep web-mode web-beautify vimrc-mode uuidgen use-package underwater-theme ujelly-theme twilight-theme twilight-bright-theme twilight-anti-bright-theme tronesque-theme toxi-theme tao-theme tangotango-theme tango-plus-theme tango-2-theme tagedit sunny-day-theme sublime-themes subatomic256-theme subatomic-theme stekene-theme spacemacs-theme spacegray-theme sourcerer-theme soothe-theme solarized-theme soft-stone-theme soft-morning-theme soft-charcoal-theme smyx-theme smex smeargle smartparens slim-mode shell-pop seti-theme scss-mode sass-mode reverse-theme rainbow-mode rainbow-identifiers railscasts-theme quelpa purple-haze-theme pug-mode professional-theme planet-theme phoenix-dark-pink-theme phoenix-dark-mono-theme pcre2el pastels-on-dark-theme paren-face orgit organic-green-theme omtose-phellack-theme oldlace-theme occidental-theme obsidian-theme noctilux-theme niflheim-theme naquadah-theme mwim mustang-theme multi-term move-text monokai-theme monochrome-theme molokai-theme moe-theme mmm-mode minimal-theme material-theme markdown-toc majapahit-theme magit-gitflow magit-gh-pulls macrostep lush-theme lorem-ipsum livid-mode link-hint light-soap-theme less-css-mode json-mode js2-refactor js-doc jbeans-theme jazz-theme ivy-hydra ir-black-theme intero inkpot-theme hungry-delete hlint-refactor hindent heroku-theme hemisu-theme help-fns+ helm-make hc-zenburn-theme haskell-snippets gruvbox-theme gruber-darker-theme grandshell-theme gotham-theme gitignore-mode github-search github-clone github-browse-file gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gist gh-md gandalf-theme flyspell-correct-ivy flycheck-pos-tip flycheck-haskell flycheck-elm flx flatui-theme flatland-theme firebelly-theme farmhouse-theme expand-region exec-path-from-shell evil-visualstar evil-magit evil-escape eval-sexp-fu espresso-theme eshell-z eshell-prompt-extras esh-help emmet-mode elm-mode elisp-slime-nav dracula-theme django-theme diff-hl darktooth-theme darkokai-theme darkmine-theme darkburn-theme dakrone-theme dactyl-mode cyberpunk-theme counsel-projectile company-web company-tern company-statistics company-ghci company-ghc company-cabal colorsarenice-theme color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized color-identifiers-mode coffee-mode cmm-mode clues-theme clean-aindent-mode cherry-blossom-theme busybee-theme bubbleberry-theme birds-of-paradise-plus-theme bind-map badwolf-theme auto-yasnippet auto-dictionary auto-compile apropospriate-theme anti-zenburn-theme ample-zen-theme ample-theme alect-themes aggressive-indent afternoon-theme adaptive-wrap ace-window ac-ispell))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
