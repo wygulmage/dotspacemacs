@@ -311,6 +311,8 @@ This function is called at the very startup of Spacemacs initialization before l
   "Initialization function for user code.
 This function is called immediately after `dotspacemacs/init', before layer configuration. It is mostly useful for variables that must be set before packages are loaded. If you are unsure, try setting them in `dotspacemacs/user-config' first."
 
+  (setq my-default-mode-line mode-line-format) ; Save in case you want to know.
+
   (customize-set-variable 'adaptive-fill-regexp "[ \t]*\\([-–!|#%;>·•‣⁃◦]+[ \t]*\\)*") ; Removed '*' so I can make non-unicode bullet lists. Ideally there should be two separate variables: adaptive-fill-regexp and adaptive-indent-regexp. The first would indent with the 'whitespace' character, but the second would indent with actual whitespace.
 
   )
@@ -357,6 +359,17 @@ This function is called at the very end of Spacemacs initialization, after layer
                         'local-map (make-mode-line-mouse-map 'mouse-1 #'linum-mode))))
   (put 'my-point-string 'risky-local-variable t)
 
+  (defun my-filter (p l)
+    (cond ((null l)
+           l)
+          ((p (car l))
+           (cons (car l) (my-filter (cdr l))))
+          (t
+           (my-filter (cdr l)))))
+
+  (defvar my-major-mode-name
+    '(:eval (propertize (mode-name)
+                        'help-echo ())))
   (defvar my-vc-string
     '(:eval (when (and vc-mode buffer-file-name)
               (let ((branch (vc-working-revision buffer-file-name))
@@ -413,6 +426,7 @@ This function is called at the very end of Spacemacs initialization, after layer
              my-buffer-or-file-name-string
              "  "
              ))))
+  (my-format-frame-title)
 
   ;;; --------------------------------
   ;;; Fonts
@@ -461,12 +475,12 @@ This function is called at the very end of Spacemacs initialization, after layer
     "Add all hook-functions to all made-hooks."
     (dolist (mode-hook mode-hooks)
       (dolist (hook-function hook-functions)
-        (when (commandp hook-function) (add-hook mode-hook hook-function)))))
+        (add-hook mode-hook hook-function))))
 
   (my-add-hooks
    '(
-     buffer-list-update-hook
      after-change-major-mode-hook
+     buffer-list-update-hook
      first-change-hook
      )
    '(
@@ -490,8 +504,8 @@ This function is called at the very end of Spacemacs initialization, after layer
 
   (my-add-hooks
    '(
-     spacemacs-buffer-mode-hook
      magit-mode-hook
+     spacemacs-buffer-mode-hook
      )
    '(
      (lambda () (setq mode-line-format nil)) ; Hide the mode line.
