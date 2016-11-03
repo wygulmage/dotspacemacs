@@ -502,13 +502,15 @@ This function is called at the very end of Spacemacs initialization, after layer
      my-format-text-mode-line
      ))
 
+  ;; Hide the mode-line when not needed useful.
   (my-add-hooks
    '(
+     help-mode-hook
      magit-mode-hook
      spacemacs-buffer-mode-hook
      )
    '(
-     (lambda () (setq mode-line-format nil)) ; Hide the mode line.
+     (lambda () (setq mode-line-format nil))
      ))
 
   (add-hook 'magit-refresh-buffer-hook
