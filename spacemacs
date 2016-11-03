@@ -461,7 +461,7 @@ This function is called at the very end of Spacemacs initialization, after layer
     "Add all hook-functions to all made-hooks."
     (dolist (mode-hook mode-hooks)
       (dolist (hook-function hook-functions)
-        (when (commandp hook-function) (add-hook mode-hook hook-function)))))
+        (add-hook mode-hook hook-function))))
 
   (my-add-hooks
    '(
