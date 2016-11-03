@@ -369,6 +369,17 @@ This function is called at the very end of Spacemacs initialization, after layer
     "The row and column coordinates of the point.")
   (put 'my-point-string 'risky-local-variable t)
 
+  (defun my-filter (p l)
+    (cond ((null l)
+           l)
+          ((p (car l))
+           (cons (car l) (my-filter (cdr l))))
+          (t
+           (my-filter (cdr l)))))
+
+  (defvar my-major-mode-name
+    '(:eval (propertize (mode-name)
+                        'help-echo ())))
   (defvar my-vc-string
     '(:eval
       (when (and vc-mode buffer-file-name)
