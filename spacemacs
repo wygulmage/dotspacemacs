@@ -394,32 +394,39 @@ This function is called immediately after `dotspacemacs/init', before layer conf
     (force-mode-line-update t))
   (add-hook 'magit-refresh-buffer-hook 'my-refresh-all-modelines)
 
-  (setq-default mode-line-format
-                (list
-                 my-buffer-modified-string
-                 " "
-                 my-buffer-name-string))
+  ;; (setq-default mode-line-format
+  ;;               (list
+  ;;                my-buffer-modified-string
+  ;;                " "
+  ;;                my-buffer-name-string))
 
-  (defun my-mode-line ()
+  (defun my-format-prog-mode-line ()
     (setq mode-line-format
-          (if (derived-mode-p 'prog-mode)
-              (list
-               my-buffer-modified-string
-               "  "
-               my-buffer-name-string
-               "  "
-               my-point-string
-               "  "
-               mode-name
-               "  "
-               my-vc-string
-               )
-            (list
-             my-buffer-modified-string
-             " "
-             my-buffer-name-string))))
+          (list
+           my-buffer-modified-string
+           "  "
+           my-buffer-name-string
+           "  "
+           my-point-string
+           "  "
+           mode-name
+           "  "
+           my-vc-string
+           )
+          ))
 
-  (defun my-frame-title ()
+  (defun my-format-text-mode-line ()
+    (setq mode-line-format
+          (list
+           my-buffer-modified-string
+           "  "
+           my-buffer-name-string
+           "  "
+           my-vc-string
+           )
+          ))
+
+  (defun my-format-frame-title ()
     (when (display-graphic-p)
       (setq frame-title-format
             (list
@@ -469,34 +476,31 @@ This function is called at the very end of Spacemacs initialization, after layer
       (dolist (hook-function hook-functions)
         (add-hook mode-hook hook-function))))
 
-  ;; Create `my-leave-window-hook'.
-  ;; (defvar my-leave-window-hook nil)
-  ;;  (advice-add 'switch-to-buffer :before (lambda () (run-hooks 'my-leave-window-hook)))
-  ;;  (advice-add 'other-window :before (lambda () (run-hooks 'my-leave-window-hook)))
-  ;;  (advice-add 'windmove-up :before (lambda () (run-hooks 'my-leave-window-hook)))
-  ;;  (advice-add 'windmove-down :before (lambda () (run-hooks 'my-leave-window-hook)))
-  ;;  (advice-add 'windmove-left :before (lambda () (run-hooks 'my-leave-window-hook)))
-  ;;  (advice-add 'windmove-right :before (lambda () (run-hooks 'my-leave-window-hook)))
-  ;; (add-hook 'mouse-leave-buffer-hook (lambda () (run-hooks 'my-leave-window-hook)))
-
-  ;; (add-hook 'my-leave-window-hook
-  ;;           (lambda ()
-  ;;             (setq mode-line-format
-  ;;                   (list
-  ;;                    my-buffer-modified-string
-  ;;                    " "
-  ;;                    my-buffer-or-file-name-string))))
-
-
   (my-add-hooks
    '(buffer-list-update-hook after-change-major-mode-hook first-change-hook)
-   '(my-frame-title my-mode-line))
+   '(
+     force-mode-line-update
+     ))
+  (my-add-hooks
+   '(prog-mode-hook)
+   '(
+     adaptive-wrap-prefix-mode ; Indent wrapped lines in source code.
+     rainbow-mode ; Color color strings like "#4971af" in source code.
+     my-format-prog-mode-line
+     ))
 
-  (add-hook 'text-mode-hook 'variable-pitch-mode)
+  (my-add-hooks
+   '(text-mode-hook)
+   '(
+     variable-pitch-mode
+     my-format-text-mode-line
+     ))
 
-  (add-hook 'prog-mode-hook 'adaptive-wrap-prefix-mode) ; Indent wrapped lines in source code.
-  ;; (add-hook 'prog-mode-hook 'linum-mode) ; Show line numbers in source code.
-  (add-hook 'prog-mode-hook 'rainbow-mode) ; Color color strings like "#4971af" in source code.
+  (my-add-hooks
+   '(spacemacs-buffer-mode-hook magit-mode-hook)
+   '(
+     (lambda () (setq mode-line-format nil)) ; Hide the mode line.
+     ))
 
   (setq vc-follow-symlinks t)
 
@@ -561,3 +565,18 @@ This function is called at the very end of Spacemacs initialization, after layer
   )
 
 ;; Do not write anything past this comment. This is where Emacs will auto-generate custom variable definitions.
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(adaptive-fill-regexp "[ 	]*\\([-–!|#%;>·•‣⁃◦]+[ 	]*\\)*")
+ '(package-selected-packages
+   (quote
+    (linum-relative evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-indent-plus evil-iedit-state iedit evil-exchange evil-ediff evil-args evil-anzu anzu zonokai-theme zenburn-theme zen-and-art-theme xterm-color ws-butler which-key wgrep web-mode web-beautify vimrc-mode uuidgen use-package underwater-theme ujelly-theme twilight-theme twilight-bright-theme twilight-anti-bright-theme tronesque-theme toxi-theme tao-theme tangotango-theme tango-plus-theme tango-2-theme tagedit sunny-day-theme sublime-themes subatomic256-theme subatomic-theme stekene-theme spacemacs-theme spacegray-theme sourcerer-theme soothe-theme solarized-theme soft-stone-theme soft-morning-theme soft-charcoal-theme smyx-theme smex smeargle smartparens slim-mode shell-pop seti-theme scss-mode sass-mode reverse-theme rainbow-mode rainbow-identifiers railscasts-theme quelpa purple-haze-theme pug-mode professional-theme planet-theme phoenix-dark-pink-theme phoenix-dark-mono-theme pcre2el pastels-on-dark-theme paren-face orgit organic-green-theme omtose-phellack-theme oldlace-theme occidental-theme obsidian-theme noctilux-theme niflheim-theme naquadah-theme mwim mustang-theme multi-term move-text monokai-theme monochrome-theme molokai-theme moe-theme mmm-mode minimal-theme material-theme markdown-toc majapahit-theme magit-gitflow magit-gh-pulls macrostep lush-theme lorem-ipsum livid-mode link-hint light-soap-theme less-css-mode json-mode js2-refactor js-doc jbeans-theme jazz-theme ivy-hydra ir-black-theme intero inkpot-theme hungry-delete hlint-refactor hindent heroku-theme hemisu-theme help-fns+ helm-make hc-zenburn-theme haskell-snippets gruvbox-theme gruber-darker-theme grandshell-theme gotham-theme gitignore-mode github-search github-clone github-browse-file gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gist gh-md gandalf-theme flyspell-correct-ivy flycheck-pos-tip flycheck-haskell flycheck-elm flx flatui-theme flatland-theme firebelly-theme farmhouse-theme expand-region exec-path-from-shell evil-visualstar evil-magit evil-escape eval-sexp-fu espresso-theme eshell-z eshell-prompt-extras esh-help emmet-mode elm-mode elisp-slime-nav dracula-theme django-theme diff-hl darktooth-theme darkokai-theme darkmine-theme darkburn-theme dakrone-theme dactyl-mode cyberpunk-theme counsel-projectile company-web company-tern company-statistics company-ghci company-ghc company-cabal colorsarenice-theme color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized color-identifiers-mode coffee-mode cmm-mode clues-theme clean-aindent-mode cherry-blossom-theme busybee-theme bubbleberry-theme birds-of-paradise-plus-theme bind-map badwolf-theme auto-yasnippet auto-dictionary auto-compile apropospriate-theme anti-zenburn-theme ample-zen-theme ample-theme alect-themes aggressive-indent afternoon-theme adaptive-wrap ace-window ac-ispell))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
