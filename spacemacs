@@ -39,6 +39,7 @@ This function should only set values."
             shell-default-height 30
             shell-default-position 'bottom)
      spacemacs-editing
+     spacemacs-evil
      themes-megapack
      ;;; Bindings:
      better-defaults
@@ -310,7 +311,7 @@ This function is called at the very startup of Spacemacs initialization before l
   "Initialization function for user code.
 This function is called immediately after `dotspacemacs/init', before layer configuration. It is mostly useful for variables that must be set before packages are loaded. If you are unsure, try setting them in `dotspacemacs/user-config' first."
 
-  (customize-set-variable 'adaptive-fill-regexp (purecopy "[ \t]*\\([-–!|#%;>·•‣⁃◦]+[ \t]*\\)*")) ; Removed '*' so I can make non-unicode bullet lists. Ideally there should be two separate variables: adaptive-fill-regexp and adaptive-indent-regexp. The first would indent with the 'whitespace' character, but the second would indent with actual whitespace.
+  (customize-set-variable 'adaptive-fill-regexp "[ \t]*\\([-–!|#%;>·•‣⁃◦]+[ \t]*\\)*") ; Removed '*' so I can make non-unicode bullet lists. Ideally there should be two separate variables: adaptive-fill-regexp and adaptive-indent-regexp. The first would indent with the 'whitespace' character, but the second would indent with actual whitespace.
 
   ;;; Mode Line and Frame Title
   ;;; Hooks
@@ -326,9 +327,17 @@ This function is called immediately after `dotspacemacs/init', before layer conf
              (buffer-read-only "🔒")
              ((buffer-modified-p) "◆")
              (t " ")))
-
     "Show whether the buffer has been modified since its last save.")
   (put 'my-buffer-modified-string 'risky-local-variable t)
+
+  (defvar my-buffer-name-string
+    '(:eval (if buffer-file-truename
+                (propertize (buffer-name)
+                            'help-echo (abbreviate-file-name buffer-file-truename)
+                            'local-map (make-mode-line-mouse-map
+                                        'mouse-1 (lambda () (interactive) (dired (file-name-directory buffer-file-truename)))))
+              (buffer-name))))
+  (put 'my-buffer-name-string 'risky-local-variable t)
 
   (defvar my-buffer-or-file-name-string
     '(:eval (if buffer-file-name
@@ -342,18 +351,27 @@ This function is called immediately after `dotspacemacs/init', before layer conf
               (file-name-directory (abbreviate-file-name buffer-file-truename)))))
   (put 'my-file-directory-string 'risky-local-variable t)
 
+  (defvar my-point-string
+    '(:eval (propertize "(%l, %c)"
+                        'help-echo "Toggle line numbers."
+                        'local-map (make-mode-line-mouse-map 'mouse-1 #'linum-mode))))
+  (put 'my-point-string 'risky-local-variable t)
+
   (defvar my-vc-string
     '(:eval (when (and vc-mode buffer-file-name)
               (let ((branch (vc-working-revision buffer-file-name))
-                    (color (pcase (vc-state buffer-file-name)
-                             (`up-to-date "#cccccc")
-                             (`added "#99cc99")
-                             (`edited "#bbdaff")
-                             (`needs-merge "#ffc58f")
-                             (`removed "#ff9da4")
-                             (`ignored "#999999")
-                             (_ nil))))
-                (propertize branch 'face `(:foreground ,color)))))
+                    (desc.color (pcase (vc-state buffer-file-name)
+                                  (`up-to-date '("up to date" . "#cccccc"))
+                                  (`added '("staged" . "#99cc99"))
+                                  (`edited '("unstaged" . "#bbdaff"))
+                                  (`needs-merge '("needs to be merged" . "#ffc58f"))
+                                  (`removed '("removed" . "#ff9da4"))
+                                  (`ignored '("ignored" . "#999999"))
+                                  (_ '(nil . nil)))))
+                (propertize branch
+                            'face `(:foreground ,(cdr desc.color))
+                            'help-echo (concat "Magit status: " (car desc.color))
+                            'local-map (make-mode-line-mouse-map 'mouse-1 #'magit-status)))))
     "The branch of a version-controlled file, colored to indicate status")
   (put 'my-vc-string 'risky-local-variable t)
 
@@ -378,27 +396,20 @@ This function is called immediately after `dotspacemacs/init', before layer conf
   (add-hook 'magit-refresh-buffer-hook 'my-refresh-all-modelines)
 
   (defun my-mode-line ()
-    (cond
-     ((not (display-graphic-p))
+    (when (or (derived-mode-p 'prog-mode)
+              (not (display-graphic-p)))
       (setq mode-line-format
             (list
              my-buffer-modified-string
              " "
-             my-buffer-or-file-name-string
-             " (%l, %c) "
+             my-buffer-name-string
+             " "
+             my-point-string
+             " "
              mode-name
              " "
              my-vc-string
-             )))
-     ((derived-mode-p 'prog-mode)
-      (setq mode-line-format
-            (list
-             " (%l, %c) "
-             mode-name
-             " "
-             my-vc-string
-             )))
-     (t (setq mode-line-format mode-line-format))))
+             ))))
 
   (defun my-frame-title ()
     (when (display-graphic-p)
@@ -415,6 +426,7 @@ This function is called immediately after `dotspacemacs/init', before layer conf
 (defun dotspacemacs/user-config ()
   "Configuration function for user code.
 This function is called at the very end of Spacemacs initialization, after layers configuration. Put your configuration code--except for variables that should be set before a package is loaded--here."
+
   (defun my-select-font (fonts)
     (cond ((null fonts) (face-attribute 'default :family))
           ((member (car fonts) (font-family-list)) (car fonts))
@@ -448,6 +460,25 @@ This function is called at the very end of Spacemacs initialization, after layer
     (dolist (mode-hook mode-hooks)
       (dolist (hook-function hook-functions)
         (add-hook mode-hook hook-function))))
+
+  ;; Create `my-leave-window-hook'.
+  ;; (defvar my-leave-window-hook nil)
+  ;;  (advice-add 'switch-to-buffer :before (lambda () (run-hooks 'my-leave-window-hook)))
+  ;;  (advice-add 'other-window :before (lambda () (run-hooks 'my-leave-window-hook)))
+  ;;  (advice-add 'windmove-up :before (lambda () (run-hooks 'my-leave-window-hook)))
+  ;;  (advice-add 'windmove-down :before (lambda () (run-hooks 'my-leave-window-hook)))
+  ;;  (advice-add 'windmove-left :before (lambda () (run-hooks 'my-leave-window-hook)))
+  ;;  (advice-add 'windmove-right :before (lambda () (run-hooks 'my-leave-window-hook)))
+  ;; (add-hook 'mouse-leave-buffer-hook (lambda () (run-hooks 'my-leave-window-hook)))
+
+  ;; (add-hook 'my-leave-window-hook
+  ;;           (lambda ()
+  ;;             (setq mode-line-format
+  ;;                   (list
+  ;;                    my-buffer-modified-string
+  ;;                    " "
+  ;;                    my-buffer-or-file-name-string))))
+
 
   (my-add-hooks
    '(buffer-list-update-hook after-change-major-mode-hook first-change-hook)
