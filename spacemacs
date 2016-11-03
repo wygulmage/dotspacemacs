@@ -319,7 +319,6 @@ This function is called immediately after `dotspacemacs/init', before layer conf
   ;;; * after-change-major-mode-hook
   ;;; * buffer-list-update-hook
   ;;; * magit-refresh-buffer-hook
-  (setq-default mode-line-format nil)
   ;; (setq-default frame-title-format nil) ; Hide frame title until it is properly formatted.
 
   (defvar my-buffer-modified-string
@@ -395,21 +394,30 @@ This function is called immediately after `dotspacemacs/init', before layer conf
     (force-mode-line-update t))
   (add-hook 'magit-refresh-buffer-hook 'my-refresh-all-modelines)
 
+  (setq-default mode-line-format
+                (list
+                 my-buffer-modified-string
+                 " "
+                 my-buffer-name-string))
+
   (defun my-mode-line ()
-    (when (or (derived-mode-p 'prog-mode)
-              (not (display-graphic-p)))
-      (setq mode-line-format
+    (setq mode-line-format
+          (if (derived-mode-p 'prog-mode)
+              (list
+               my-buffer-modified-string
+               "  "
+               my-buffer-name-string
+               "  "
+               my-point-string
+               "  "
+               mode-name
+               "  "
+               my-vc-string
+               )
             (list
              my-buffer-modified-string
              " "
-             my-buffer-name-string
-             " "
-             my-point-string
-             " "
-             mode-name
-             " "
-             my-vc-string
-             ))))
+             my-buffer-name-string))))
 
   (defun my-frame-title ()
     (when (display-graphic-p)
