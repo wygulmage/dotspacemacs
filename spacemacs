@@ -324,6 +324,20 @@ This function is called at the very end of Spacemacs initialization, after layer
   ;;; ----------------------------------------------
   ;;; Mode Line, Header Line, and Frame Title Format
 
+  ;; (defun my-foldr (f z xs)
+  ;;   (if xs (f (car xs) (my-foldr (cdr xs)))
+  ;;     z))
+
+  ;; (defvar my-major-mode-name
+  ;;   '(:eval (propertize mode-name
+  ;;                      'help-echo (my-foldr (lambda (a as)
+  ;;                                             (if (bound-and-true-p (car a))
+  ;;                                                 (cons (cdr a) as)
+  ;;                                               as))
+  ;;                                           nil
+  ;;                                           minor-mode-alist))))
+  ;; (put 'my-major-mode-name 'risky-local-variable t)
+
   (defvar my-buffer-modified-string
     '(:eval (cond
              (buffer-read-only "🔒")
@@ -359,17 +373,6 @@ This function is called at the very end of Spacemacs initialization, after layer
                         'local-map (make-mode-line-mouse-map 'mouse-1 #'linum-mode))))
   (put 'my-point-string 'risky-local-variable t)
 
-  (defun my-filter (p l)
-    (cond ((null l)
-           l)
-          ((p (car l))
-           (cons (car l) (my-filter (cdr l))))
-          (t
-           (my-filter (cdr l)))))
-
-  (defvar my-major-mode-name
-    '(:eval (propertize (mode-name)
-                        'help-echo ())))
   (defvar my-vc-string
     '(:eval (when (and vc-mode buffer-file-name)
               (let ((branch (vc-working-revision buffer-file-name))
