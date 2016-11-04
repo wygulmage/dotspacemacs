@@ -324,20 +324,6 @@ This function is called at the very end of Spacemacs initialization, after layer
   ;;; ----------------------------------------------
   ;;; Mode Line, Header Line, and Frame Title Format
 
-  ;; (defun my-foldr (f z xs)
-  ;;   (if xs (f (car xs) (my-foldr (cdr xs)))
-  ;;     z))
-
-  ;; (defvar my-major-mode-name
-  ;;   '(:eval (propertize mode-name
-  ;;                      'help-echo (my-foldr (lambda (a as)
-  ;;                                             (if (bound-and-true-p (car a))
-  ;;                                                 (cons (cdr a) as)
-  ;;                                               as))
-  ;;                                           nil
-  ;;                                           minor-mode-alist))))
-  ;; (put 'my-major-mode-name 'risky-local-variable t)
-
   (defvar my-buffer-modified-string
     '(:eval (cond
              (buffer-read-only "🔒")
@@ -584,7 +570,6 @@ This function is called at the very end of Spacemacs initialization, after layer
    '(font-lock-keyword-face ((t (:foreground nil :inherit default))))
    '(font-lock-function-name-face ((t (:foreground nil :inherit default))))
    '(font-lock-variable-name-face ((t (:foreground nil :inherit default))))
-   ;;   '(mode-line ((t (:box nil))))
    '(fringe ((t (:background nil :inherit default))))
    '(linum ((t (:background nil :foreground nil :inherit font-lock-comment-face)))))
 
