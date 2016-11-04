@@ -77,6 +77,7 @@ This function should only set values."
      ;; (acme-mouse :location (recipe :fetcher github :repo "akrito/acme-mouse")) ; does not work in Spacemacs.
      adaptive-wrap
      aggressive-indent
+     company
      paren-face
      ;; popwin ; so helm [space] b b works (not using Helm).
      )
@@ -337,8 +338,10 @@ This function is called at the very end of Spacemacs initialization, after layer
                 (propertize (buffer-name)
                             'help-echo (abbreviate-file-name buffer-file-truename)
                             'local-map (make-mode-line-mouse-map
-                                        'mouse-1 (lambda () (interactive) (dired (file-name-directory buffer-file-truename)))))
-              (buffer-name))))
+                                        'mouse-1 (lambda () (interactive)
+                                                   (dired (file-name-directory buffer-file-truename)))))
+              (buffer-name)))
+    "The name of the buffer. If it's a file, shows the directory on hover and opens dired with a click.")
   (put 'my-buffer-name-string 'risky-local-variable t)
 
   (defvar my-buffer-or-file-name-string
@@ -350,13 +353,15 @@ This function is called at the very end of Spacemacs initialization, after layer
 
   (defvar my-file-directory-string
     '(:eval (when buffer-file-truename
-              (file-name-directory (abbreviate-file-name buffer-file-truename)))))
+              (file-name-directory (abbreviate-file-name buffer-file-truename))))
+    "The directory of the current file.")
   (put 'my-file-directory-string 'risky-local-variable t)
 
   (defvar my-point-string
     '(:eval (propertize "(%l, %c)"
                         'help-echo "Toggle line numbers."
-                        'local-map (make-mode-line-mouse-map 'mouse-1 #'linum-mode))))
+                        'local-map (make-mode-line-mouse-map 'mouse-1 #'linum-mode)))
+    "The row and column coordinates of the point.")
   (put 'my-point-string 'risky-local-variable t)
 
   (defvar my-vc-string
@@ -443,6 +448,9 @@ This function is called at the very end of Spacemacs initialization, after layer
                                  "Garamond Premr Pro"
                                  "Adobe Garamond Expert"
                                  "Garamond")))
+
+  (mapc (lambda (face) (set-face-attribute face nil :height 148))
+        '(default fixed-pitch variable-pitch))
 
   ;;; ---------------------------------
   ;;; Miscelaneous Global Stuff
@@ -557,13 +565,15 @@ This function is called at the very end of Spacemacs initialization, after layer
      ))
 
   ;;; Elm:
-  (defun my-elm-mode-hook ()
-    "elm setup adapted from http://www.lambdacat.com/post-modern-emacs-setup-for-elm/"
-    ;; (setq company-backends '(company-elm))
-    (elm-oracle-setup-completion))
-  (add-hook 'elm-mode-hook 'my-elm-mode-hook)
+  ;; (defun my-elm-mode-hook ()
+  ;;   "elm setup adapted from http://www.lambdacat.com/post-modern-emacs-setup-for-elm/"
+  ;;   (add-to-list company-backends '(company-elm))
+  ;;   (elm-oracle-setup-completion))
+  ;; (add-hook 'elm-mode-hook 'my-elm-mode-hook)
 
-  ;; Lastly, some hackish theming:
+
+  ;;; ---------------------------------------
+  ;;; Lastly, some hackish theming:
   (custom-set-faces
    '(font-lock-comment-face ((t (:slant normal))))
    '(font-lock-string-face ((t (:slant italic))))
