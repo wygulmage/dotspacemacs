@@ -449,8 +449,9 @@ This function is called at the very end of Spacemacs initialization, after layer
                                  "Adobe Garamond Expert"
                                  "Garamond")))
 
-  (mapc (lambda (face) (set-face-attribute face nil :height 148))
-        '(default fixed-pitch variable-pitch))
+  (let ((h (if (string= system-type "gnu/linux") 148 120)))
+    (mapc (lambda (face) (set-face-attribute face nil :height h))
+          '(default fixed-pitch variable-pitch)))
 
   ;;; ---------------------------------
   ;;; Miscelaneous Global Stuff
