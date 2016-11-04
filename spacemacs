@@ -32,7 +32,9 @@ This function should only set values."
    ;; Configuration layers to load:
    dotspacemacs-configuration-layers
    '(
-     (colors :variables ; for color strings only
+     (colors :packages
+             rainbow-mode ; for color strings only
+             :variables
              rainbow-x-colors nil
              rainbow-html-colors nil)
      (shell :variables
@@ -92,7 +94,7 @@ This function should only set values."
      highlight-indentation ; Indentation shows this.
      highlight-parentheses ; Use `paren-face-mode' instead.
      powerline ; Use customized modeline instead.
-     rainbow-delimiters ; Use `paren-face-mode'.
+     ;; rainbow-delimiters ; Use `paren-face-mode'.
      spray ; Not currently using spacemacs for speed reading.
      vi-tilde-fringe ; Line numbers show this.
      )
@@ -165,11 +167,13 @@ This function is called at the very startup of Spacemacs initialization before l
    ;; Default font or prioritized list of fonts:
    ;; `powerline-scale' allows to quickly tweak the mode-line size to make separators look not too crappy.
    dotspacemacs-default-font
-   '("Source Code Pro"
+   '(
+     "Source Code Pro"
      :size 13.0
      :weight normal
      :width normal
-     :powerline-scale 1.0)
+     :powerline-scale 1.0
+     )
 
    ;; The leader key:
    dotspacemacs-leader-key "SPC"
@@ -334,13 +338,14 @@ This function is called at the very end of Spacemacs initialization, after layer
   (put 'my-buffer-modified-string 'risky-local-variable t)
 
   (defvar my-buffer-name-string
-    '(:eval (if buffer-file-truename
-                (propertize (buffer-name)
-                            'help-echo (abbreviate-file-name buffer-file-truename)
-                            'local-map (make-mode-line-mouse-map
-                                        'mouse-1 (lambda () (interactive)
-                                                   (dired (file-name-directory buffer-file-truename)))))
-              (buffer-name)))
+    '(:eval
+      (if buffer-file-truename
+          (propertize (buffer-name)
+                      'help-echo (abbreviate-file-name buffer-file-truename)
+                      'local-map (make-mode-line-mouse-map
+                                  'mouse-1 (lambda () (interactive)
+                                             (dired (file-name-directory buffer-file-truename)))))
+        (buffer-name)))
     "The name of the buffer. If it's a file, shows the directory on hover and opens dired with a click.")
   (put 'my-buffer-name-string 'risky-local-variable t)
 
@@ -365,20 +370,21 @@ This function is called at the very end of Spacemacs initialization, after layer
   (put 'my-point-string 'risky-local-variable t)
 
   (defvar my-vc-string
-    '(:eval (when (and vc-mode buffer-file-name)
-              (let ((branch (vc-working-revision buffer-file-name))
-                    (desc.color (pcase (vc-state buffer-file-name)
-                                  (`up-to-date '("up to date" . "#cccccc"))
-                                  (`added '("staged" . "#99cc99"))
-                                  (`edited '("unstaged" . "#bbdaff"))
-                                  (`needs-merge '("needs to be merged" . "#ffc58f"))
-                                  (`removed '("removed" . "#ff9da4"))
-                                  (`ignored '("ignored" . "#999999"))
-                                  (_ '(nil . nil)))))
-                (propertize branch
-                            'face `(:foreground ,(cdr desc.color))
-                            'help-echo (concat "Magit status: " (car desc.color))
-                            'local-map (make-mode-line-mouse-map 'mouse-1 #'magit-status)))))
+    '(:eval
+      (when (and vc-mode buffer-file-name)
+        (let ((branch (vc-working-revision buffer-file-name))
+              (desc.color (pcase (vc-state buffer-file-name)
+                            (`up-to-date '("up to date" . "#cccccc"))
+                            (`added '("staged" . "#99cc99"))
+                            (`edited '("unstaged" . "#bbdaff"))
+                            (`needs-merge '("needs to be merged" . "#ffc58f"))
+                            (`removed '("removed" . "#ff9da4"))
+                            (`ignored '("ignored" . "#999999"))
+                            (_ '(nil . nil)))))
+          (propertize branch
+                      'face `(:foreground ,(cdr desc.color))
+                      'help-echo (concat "Magit status: " (car desc.color))
+                      'local-map (make-mode-line-mouse-map 'mouse-1 #'magit-status)))))
     "The branch of a version-controlled file, colored to indicate status")
   (put 'my-vc-string 'risky-local-variable t)
 
@@ -430,24 +436,26 @@ This function is called at the very end of Spacemacs initialization, after layer
           ((member (car fonts) (font-family-list)) (car fonts))
           (t (my-select-font (cdr fonts)))))
 
-  (set-face-attribute 'fixed-pitch nil
-                      :family (my-select-font
-                               '("Source Code Pro"
-                                 "IBM 3720"
-                                 "DejaVu Sans Mono"
-                                 "Monaco"
-                                 "Lucida Console")))
+  (set-face-attribute
+   'fixed-pitch nil
+   :family (my-select-font
+            '("Source Code Pro"
+              "IBM 3720"
+              "DejaVu Sans Mono"
+              "Monaco"
+              "Lucida Console")))
 
-  (set-face-attribute 'variable-pitch nil
-                      :family (my-select-font
-                               '("ET Book"
-                                 "ETBembo"
-                                 "Bembo Book MT Std"
-                                 "Bembo MT Book Std"
-                                 "Garamond Premier Pro"
-                                 "Garamond Premr Pro"
-                                 "Adobe Garamond Expert"
-                                 "Garamond")))
+  (set-face-attribute
+   'variable-pitch nil
+   :family (my-select-font
+            '("ET Book"
+              "ETBembo"
+              "Bembo Book MT Std"
+              "Bembo MT Book Std"
+              "Garamond Premier Pro"
+              "Garamond Premr Pro"
+              "Adobe Garamond Expert"
+              "Garamond")))
 
   (let ((h (if (string= system-type "gnu/linux") 148 120)))
     (mapc (lambda (face) (set-face-attribute face nil :height h))
@@ -518,10 +526,26 @@ This function is called at the very end of Spacemacs initialization, after layer
   ;;; Key Maps
 
   ;;; Navigate wrapped lines.
-  (define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
-  (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line)
+  (define-key evil-normal-state-map
+    (kbd "j") 'evil-next-visual-line)
+  (define-key evil-normal-state-map
+    (kbd "k") 'evil-previous-visual-line)
 
-  (define-key evil-insert-state-map (kbd "<backspace>") 'evil-delete-backward-word) ; Make backspace delete the whole word.
+  (evil-define-command my-greedy-delete-backward ()
+    (evil-delete (save-excursion
+                   (evil-backward-word-begin)
+                   (point))
+                 (point)
+                 'exclusive
+                 nil)
+    (delete-horizontal-space t))
+
+  (define-key evil-insert-state-map
+    (kbd "<backspace>") 'my-greedy-delete-backward) ; Make backspace delete the whole word.
+
+  ;;; Paste with Ctrl p.
+  (define-key evil-insert-state-map
+    (kbd "C-p") 'evil-paste-after)
 
   ;;; Zoom with Ctrl + mouse wheel.
   (defun my-zoom-in ()
@@ -532,7 +556,7 @@ This function is called at the very end of Spacemacs initialization, after layer
     (text-scale-decrease 1.01))
   (mapcar (lambda (x)
             (global-set-key
-             (kbd (if (string-equal system-type "gnu/linux")
+             (kbd (if (string= system-type "gnu/linux")
                       (cadr x)
                     (caddr x)))
              (car x)))
@@ -541,14 +565,14 @@ This function is called at the very end of Spacemacs initialization, after layer
 
   ;;; Insert unicode character with Ctrl Shift u.
   (global-set-key (kbd "C-S-u") 'insert-char)
-  (setq-default read-quoted-char-radix 16) ; Use hex for unicode character input.
 
-  ;;; Paste with Ctrl p.
-  (define-key evil-insert-state-map (kbd "C-p") 'evil-paste-after)
+  ;;; Use hex for unicode character input.
+  (setq-default read-quoted-char-radix 16)
 
   ;;; Mouse & copy / paste / delete
-  (setq mouse-drag-copy-region t) ; Copy on select -- disable for acme-mouse.
-  (setq kill-do-not-save-duplicates t) ; Don't copy identical text twice.
+  (setq mouse-drag-copy-region t ; Copy on select -- disable for acme-mouse.
+        kill-do-not-save-duplicates t ; Don't copy identical text twice.
+        )
 
   ;;; ---------------------------
   ;;; Major Mode Configurations
