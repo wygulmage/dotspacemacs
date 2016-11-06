@@ -330,10 +330,17 @@ This function is called at the very end of Spacemacs initialization, after layer
   ;;; Mode Line, Header Line, and Frame Title Format
 
   (defvar my-buffer-modified-string
-    '(:eval (cond
-             (buffer-read-only "🔒")
-             ((buffer-modified-p) "◆")
-             (t " ")))
+    '(:eval
+      (cond
+       (buffer-read-only
+        (propertize "🔒"
+                    'help-echo "Buffer is read-only. Click to save a copy."
+                    'local-map (make-mode-line-mouse-map 'mouse-' #'write-file)))
+       ((buffer-modified-p)
+        (propertize "◆"
+                    'help-echo "File has been modified. Click to save."
+                    'local-map (make-mode-line-mouse-map 'mouse-1 #'save-buffer)))
+       (t " ")))
     "Show whether the buffer has been modified since its last save.")
   (put 'my-buffer-modified-string 'risky-local-variable t)
 
