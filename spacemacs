@@ -465,7 +465,7 @@ This function is called at the very end of Spacemacs initialization, after layer
   ;;; Miscelaneous Global Stuff
 
   (global-hl-line-mode -1) ; Disable current line highlight.
-  (global-visual-line-mode) ; Always wrap lines to window.
+  (global-visual-line-mode 1) ; Always wrap lines to window.
   (setq-default major-mode 'text-mode) ; Use text instead of fundamental.
   (setq vc-follow-symlinks t)
 
