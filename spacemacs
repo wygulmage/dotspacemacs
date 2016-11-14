@@ -339,16 +339,23 @@ This function is called at the very end of Spacemacs initialization, after layer
 
   (defvar my-buffer-modified-string
     '(:eval
-      (cond
-       (buffer-read-only
-        (propertize "🔒"
-                    'help-echo "Buffer is read-only. Click to save a copy."
-                    'local-map (make-mode-line-mouse-map 'mouse-1' #'write-file)))
-       ((buffer-modified-p)
-        (propertize "◆"
-                    'help-echo "File has been modified. Click to save."
-                    'local-map (make-mode-line-mouse-map 'mouse-1 #'save-buffer)))
-       (t " ")))
+      (if (and buffer-read-only buffer-file-truename)
+          (if (buffer-modified-p)
+              (propertize "◆🔒◆"
+                          'help-echo "Modified read-only file ‑ click to save a copy."
+                          'local-map (make-mode-line-mouse-map 'mouse-1 #'write-file))
+            (propertize "🔒"
+                        'help-echo "Read-only file ‑ click to save a copy."
+                        'local-map (make-mode-line-mouse-map 'mouse-1 #'write-file)))
+        (if (buffer-modified-p)
+            (if buffer-file-truename
+                (propertize "◆"
+                            'help-echo "Modified file ‑ click to save."
+                            'local-map (make-mode-line-mouse-map 'mouse-1 #'save-buffer))
+              (propertize "◆"
+                          'help-echo "Modified buffer ‑ click to save as a file."
+                          'local-map (make-mode-line-mouse-map 'mouse-1 #'write-file)))
+          " ")))
     "Show whether the buffer has been modified since its last save; click to save.")
   (put 'my-buffer-modified-string 'risky-local-variable t)
 
