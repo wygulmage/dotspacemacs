@@ -359,34 +359,6 @@ This function is called at the very end of Spacemacs initialization, after layer
     "Show whether the buffer has been modified since its last save; click to save.")
   (put 'my-buffer-modified-string 'risky-local-variable t)
 
-  (defun my-active-glyph (glyph description action)
-    (propertize glyph
-                'help-echo description
-                'local-map (make-mode-line-mouse-map 'mouse-1 action)))
-
-  (defvar my-buffer-modified-string-refactor
-    '(:eval
-      (if (and buffer-read-only buffer-file-truename)
-          (if (buffer-modified-p)
-              (my-active-glyph "◆🔒◆"
-                               "Modified read-only file ‑ click to save a copy."
-                               #'write-file)
-            (my-active-glyph "🔒"
-                             "Read-only file ‑ click to save a copy."
-                             #'write-file))
-        (if (buffer-modified-p)
-            (if buffer-file-truename
-                (my-active-glyph "◆"
-                                 "Modified file ‑ click to save."
-                                 #'save-buffer)
-              (my-active-glyph "◆"
-                               "Modified buffer ‑ click to save as a file."
-                               #'write-file))
-          " ")))
-
-    "Show whether the buffer has been modified since its last save; click to save.")
-  (put 'my-buffer-modified-string-refactor 'risky-local-variable t)
-
   (defvar my-buffer-name-string
     '(:eval
       (if buffer-file-truename
