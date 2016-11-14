@@ -341,7 +341,7 @@ This function is called at the very end of Spacemacs initialization, after layer
     '(:eval
       (if (and buffer-read-only buffer-file-truename)
           (if (buffer-modified-p)
-              (propertize "◆🔒◆"
+              (propertize "◆🔒"
                           'help-echo "Modified read-only file ‑ click to save a copy."
                           'local-map (make-mode-line-mouse-map 'mouse-1 #'write-file))
             (propertize "🔒"
@@ -356,7 +356,7 @@ This function is called at the very end of Spacemacs initialization, after layer
                           'help-echo "Modified buffer ‑ click to save as a file."
                           'local-map (make-mode-line-mouse-map 'mouse-1 #'write-file)))
           " ")))
-    "Show whether the buffer has been modified since its last save; click to save.")
+    "Show whether the buffer has been modified since its last save; click to save. Should 'do what I mean'.")
   (put 'my-buffer-modified-string 'risky-local-variable t)
 
   (defvar my-buffer-name-string
@@ -372,7 +372,7 @@ This function is called at the very end of Spacemacs initialization, after layer
   (put 'my-buffer-name-string 'risky-local-variable t)
 
   (defvar my-buffer-or-file-name-string
-    '(:eval (if buffer-file-name
+    '(:eval (if buffer-file-truename
                 (file-name-nondirectory buffer-file-truename)
               (buffer-name)))
     "The filename if there is one; otherwise, the buffer name")
