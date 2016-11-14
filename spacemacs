@@ -16,6 +16,12 @@ This function should only set values."
    ;; * `all' will download all the packages regardless of whether they are used or not, and packages won't be deleted by Spacemacs.
    dotspacemacs-download-packages 'used ; default 'used
 
+   ;;; Layer installation & uninstalling:
+   ;; * `all' installs all supported packages and never uninstalls them.
+   ;; * `used-only' installs only explicitly used packages and uninstalls others.
+   ;; * `used-but-keep-unused' installs only explicitly used packages but keeps others.
+   dotspacemacs-install-packages 'used-only ; default 'used-only
+
    ;;; Deferred layer installation
    ;; Delay layer installation until opening a file with a supported type. Layers will be added to `dotspacemacs-configuration-layers' when they are installed.
    ;; * `unused' will wait to install layers not listed in  `dotspacemacs-configuration-layers'.
@@ -165,7 +171,7 @@ This function is called at the very startup of Spacemacs initialization before l
    dotspacemacs-colorize-cursor-according-to-state t
 
    ;; Default font or prioritized list of fonts:
-   ;; `powerline-scale' allows to quickly tweak the mode-line size to make separators look not too crappy.
+   ;; `powerline-scale' provides tweaking of the mode-line size to make separators look better.
    dotspacemacs-default-font
    '(
      "Source Code Pro"
@@ -202,7 +208,6 @@ This function is called at the very startup of Spacemacs initialization before l
    ;; Variables to control whether separate commands are bound in the GUI to the key pairs C-i, TAB and C-m, RET:
    ;; Setting it to a non-nil value allows for separate commands under <C-i> and TAB or <C-m> and RET. In the terminal, these pairs are generally indistinguishable, so this only works in the GUI.
    dotspacemacs-distinguish-gui-tab nil ; default nil
-   ;; dotspacemacs-distinguish-gui-ret nil ; (not implemented)
 
    ;;; Layouts
    ;; Name of the default layout:
@@ -247,6 +252,9 @@ This function is called at the very startup of Spacemacs initialization before l
    ;; Which-key frame position:
    ;; Possible values are `right', `bottom' and `right-then-bottom'. `right-then-bottom' tries to display the frame to the right; if there is insufficient space it displays it at the bottom.
    dotspacemacs-which-key-position 'bottom ; default 'bottom
+
+   ;; Should `switch-to-buffer' put the buffer in a same-purpose window even if the buffer can be put in the current window?
+   dotspacemacs-switch-to-buffer-prefers-purpose t; default nil
 
    ;;; Fullscreen
    ;; Will Spacemacs start up fullscreen? (Emacs 24.4+ only)
