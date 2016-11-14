@@ -332,16 +332,14 @@ This function is called at the very end of Spacemacs initialization, after layer
   (defvar my-buffer-modified-string
     '(:eval
       (cond
-       (buffer-read-only (propertize
-                          "🔒"
-                          'help-echo "Save a copy."
-                          'local-map (make-mode-line-mouse-map
-                                      'mouse-1 #'write-file)))
-       ((buffer-modified-p) (propertize
-                             "◆"
-                             'help-echo "Save file."
-                             'local-map (make-mode-line-mouse-map
-                                         'mouse-1 #'save-buffer)))
+       (buffer-read-only
+        (propertize "🔒"
+                    'help-echo "Buffer is read-only. Click to save a copy."
+                    'local-map (make-mode-line-mouse-map 'mouse-1' #'write-file)))
+       ((buffer-modified-p)
+        (propertize "◆"
+                    'help-echo "File has been modified. Click to save."
+                    'local-map (make-mode-line-mouse-map 'mouse-1 #'save-buffer)))
        (t " ")))
     "Show whether the buffer has been modified since its last save; click to save.")
   (put 'my-buffer-modified-string 'risky-local-variable t)
@@ -474,7 +472,7 @@ This function is called at the very end of Spacemacs initialization, after layer
   ;;; Miscelaneous Global Stuff
 
   (global-hl-line-mode -1) ; Disable current line highlight.
-  (global-visual-line-mode) ; Always wrap lines to window.
+  (global-visual-line-mode 1) ; Always wrap lines to window.
   (setq-default major-mode 'text-mode) ; Use text instead of fundamental.
   (setq vc-follow-symlinks t)
 
