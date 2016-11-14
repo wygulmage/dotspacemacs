@@ -363,25 +363,27 @@ This function is called at the very end of Spacemacs initialization, after layer
     (propertize glyph
                 'help-echo description
                 'local-map (make-mode-line-mouse-map 'mouse-1 action)))
+
   (defvar my-buffer-modified-string-refactor
     '(:eval
-      (let ((glyph " ")
-            (echo nil)
-            (action nil))
-        (if (and buffer-read-only buffer-file-truename)
-            (progn (setq action #'write-file)
-                   (if (buffer-modified-p)
-                       (setq glyph "◆🔒◆"
-                             echo "Modified read-only file ‑ click to save a copy.")
-                     (setq glyph "🔒"
-                           echo "Read-only file ‑ click to save a copy.")))
-          (progn (setq glyph "◆")
-                 (if buffer-file-truename
-                     (setq echo "Modified file ‑ click to save."
-                           action #'save-buffer)
-                   (setq echo "Modified buffer ‑ click to save as a file."
-                         action #'write-file))))
-        (propertize glyph 'help-echo echo 'local-map (make-mode-line-mouse-map 'mouse-1 action))))
+      (if (and buffer-read-only buffer-file-truename)
+          (if (buffer-modified-p)
+              (my-active-glyph "◆🔒◆"
+                               "Modified read-only file ‑ click to save a copy."
+                               #'write-file)
+            (my-active-glyph "🔒"
+                             "Read-only file ‑ click to save a copy."
+                             #'write-file))
+        (if (buffer-modified-p)
+            (if buffer-file-truename
+                (my-active-glyph "◆"
+                                 "Modified file ‑ click to save."
+                                 #'save-buffer)
+              (my-active-glyph "◆"
+                               "Modified buffer ‑ click to save as a file."
+                               #'write-file))
+          " ")))
+
     "Show whether the buffer has been modified since its last save; click to save.")
   (put 'my-buffer-modified-string-refactor 'risky-local-variable t)
 
