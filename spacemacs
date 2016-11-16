@@ -391,6 +391,12 @@ This function is called at the very end of Spacemacs initialization, after layer
     "The row and column coordinates of the point.")
   (put 'my-point-string 'risky-local-variable t)
 
+  (defvar my-major-mode-name
+    '(:eval (propertize (mode-name)
+                        'local-map (make-mode-line-mouse-map 'mouse-1 #'describe-mode)))
+    "The buffer's major-mode")
+  (put 'my-major-mode-name 'risky-local-variable t)
+
   (defvar my-vc-string
     '(:eval
       (when (and vc-mode buffer-file-name)
