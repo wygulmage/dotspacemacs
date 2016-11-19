@@ -65,7 +65,7 @@ This function should only set values."
      elm
      emacs-lisp
      haskell
-     (html :variables ;for CSS
+     (html :variables ; for CSS
            web-mode-css-indent-offset 2
            web-mode-enable-css-colorization nil ; already done with colors
            )
@@ -485,9 +485,11 @@ This function is called at the very end of Spacemacs initialization, after layer
               "Adobe Garamond Expert"
               "Garamond")))
 
-  (let ((h (if (string= system-type "gnu/linux") 148 120)))
-    (mapc (lambda (face) (set-face-attribute face nil :height h))
-          '(default fixed-pitch variable-pitch)))
+  (defun my-reset-font-height-by-platform ()
+    (let ((h (if (string= system-type "gnu/linux") 148 120)))
+      (mapc (lambda (face) (set-face-attribute face nil :height h))
+            '(default fixed-pitch variable-pitch ))))
+  (my-reset-font-height-by-platform)
 
   ;;; ---------------------------------
   ;;; Miscelaneous Global Stuff
@@ -627,15 +629,32 @@ This function is called at the very end of Spacemacs initialization, after layer
 
   ;;; ---------------------------------------
   ;;; Lastly, some hackish theming:
+  ;;; The main point is to, as much as possible without being distracting, distinguish stuff that does stuff from stuff that does not do stuff and things that look similar and act differently.
+  (defun my-color-values-to-string (c)
+    (let* ((max-color-val (car (color-values "white")))
+           (color-ratio (/ max-color-val 255))
+           (r (truncate (car c) color-ratio))
+           (g (truncate (cadr c) color-ratio))
+           (b (truncate (caddr c) color-ratio)))
+      (format "#%02X%02X%02X" r g b)))
+
   (custom-set-faces
-   '(font-lock-comment-face ((t (:slant normal))))
-   '(font-lock-string-face ((t (:slant italic))))
-   '(font-lock-keyword-face ((t (:foreground nil :inherit default))))
+   ;; Things that don't do stuff:
+   '(font-lock-comment-face ((t (:background nil :slant normal))))
+   ;; '(font-lock-comment-delimiter-face ((t (:slant normal :inherit font-lock-comment-face))))
+   '(font-lock-doc-face ((t (:inherit font-lock-comment-face))))
+   '(fringe ((t (:background nil :inherit font-lock-comment-face))))
+   '(linum ((t (:background nil :foreground nil :inherit font-lock-comment-face))))
+   ;; Things that do stuff:
+   ;; '(font-lock-builtin-face ((t (:inherit default))))
+   ;; '(font-lock-constant-face ((t (:inherit default))))
+   ;; '(font-lock-keyword-face ((t (:foreground nil :inherit default))))
+   ;; '(font-lock-type-face ((t (:inherit default))))
    '(font-lock-function-name-face ((t (:foreground nil :inherit default))))
    '(font-lock-variable-name-face ((t (:foreground nil :inherit default))))
-   '(fringe ((t (:background nil :inherit default))))
-   '(linum ((t (:background nil :foreground nil :inherit font-lock-comment-face)))))
-
+   ;; Things that look like other things:
+   '(font-lock-string-face ((t (:slant italic))))
+   )
   )
 
 ;; Do not write anything past this comment. This is where Emacs will auto-generate custom variable definitions.
