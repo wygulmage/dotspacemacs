@@ -638,6 +638,23 @@ This function is called at the very end of Spacemacs initialization, after layer
            (b (truncate (caddr c) color-ratio)))
       (format "#%02X%02X%02X" r g b)))
 
+  (defun my-laser-minor-theme (&optional color)
+    "Add borders to the mode-line and disable its background color."
+    (interactive)
+    (let ((style (if color
+                     `(:color ,color)
+                   t)))
+      (custom-set-faces
+       `(mode-line ((t (:box nil :background nil
+                             :underline ,style :overline ,style)))
+                   ))))
+
+  (defun my-material-minor-theme ()
+    "Remove borders from the mode-line"
+    (interactive)
+    (custom-set-faces
+     '(mode-line ((t (:box nil :underline nil :overline nil))))))
+
   (custom-set-faces
    ;; Things that don't do stuff:
    '(font-lock-comment-face ((t (:background nil :slant normal))))
@@ -645,6 +662,7 @@ This function is called at the very end of Spacemacs initialization, after layer
    '(font-lock-doc-face ((t (:inherit font-lock-comment-face))))
    '(fringe ((t (:background nil :inherit font-lock-comment-face))))
    '(linum ((t (:background nil :foreground nil :inherit font-lock-comment-face))))
+   '(mode-line ((t (:inherit font-lock-comment-face))))
    ;; Things that do stuff:
    ;; '(font-lock-builtin-face ((t (:inherit default))))
    ;; '(font-lock-constant-face ((t (:inherit default))))
