@@ -641,19 +641,21 @@ This function is called at the very end of Spacemacs initialization, after layer
   (defun my-laser-minor-theme (&optional color)
     "Add borders to the mode-line and disable its background color."
     (interactive)
-    (let ((style (if color
-                     `(:color ,color)
-                   t)))
-      (custom-set-faces
-       `(mode-line ((t (:box nil :background nil
-                             :underline ,style :overline ,style)))
-                   ))))
+    (let* ((c
+            (if color color
+              (face-attribute 'font-lock-comment-face :foreground)))
+           (line-style `(:color ,c :style line)))
+      (set-face-attribute 'mode-line nil :box nil :background nil
+                          :underline c
+                          :overline c)
+      (set-face-attribute 'window-divider nil :foreground c)))
 
   (defun my-material-minor-theme ()
-    "Remove borders from the mode-line"
+    "Remove borders from the mode-line when its background is different from the buffer's."
     (interactive)
-    (custom-set-faces
-     '(mode-line ((t (:box nil :underline nil :overline nil))))))
+    (unless (equal (face-attribute 'default :background)
+                   (face-attribute 'mode-line :background))
+      (set-face-attribute 'mode-line nil :box nil :underline nil :overline nil)))
 
   (custom-set-faces
    ;; Things that don't do stuff:
