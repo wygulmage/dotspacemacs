@@ -85,7 +85,9 @@ This function should only set values."
      ;; (acme-mouse :location (recipe :fetcher github :repo "akrito/acme-mouse")) ; does not work in Spacemacs.
      adaptive-wrap
      aggressive-indent
+     cl-lib ; cl- prefixed lisp functions
      company
+     dash ; list functions
      paren-face
      ;; popwin ; so helm [space] b b works (not using Helm).
      )
@@ -630,13 +632,31 @@ This function is called at the very end of Spacemacs initialization, after layer
   ;;; ---------------------------------------
   ;;; Lastly, some hackish theming:
   ;;; The main point is to, as much as possible without being distracting, distinguish stuff that does stuff from stuff that does not do stuff and things that look similar and act differently.
+
+  (defun max-color-val ()
+    (car (color-values "white")))
+
   (defun my-color-values-to-string (c)
-    (let* ((max-color-val (car (color-values "white")))
-           (color-ratio (/ max-color-val 255))
+    "Create a color string from and Emacs numerical color triplet."
+    (let* ((color-ratio (/ (max-color-val) 255))
            (r (truncate (car c) color-ratio))
            (g (truncate (cadr c) color-ratio))
            (b (truncate (caddr c) color-ratio)))
       (format "#%02X%02X%02X" r g b)))
+
+  (defun my-adaptive-shadow-face ()
+    "Create a string representation of a color halfway between the foreground and the background."
+    (let*
+        ((default-foreground
+           (color-values (face-attribute 'default :foreground)))
+         (default-background
+           (color-values (face-attribute 'default :background))))
+      (my-color-values-to-string
+       (-zip-with (lambda (x y) (/ (+ x y) 2))
+                  default-foreground
+                  default-background))))
+
+  (set-face-attribute 'shadow nil :foreground (my-adaptive-shadow-face))
 
   (defun my-laser-minor-theme (&optional color)
     "Add borders to the mode-line and disable its background color."
