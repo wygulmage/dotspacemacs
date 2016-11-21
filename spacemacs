@@ -651,6 +651,12 @@ This function is called at the very end of Spacemacs initialization, after layer
            (b (truncate (caddr c) color-ratio)))
       (format "#%02X%02X%02X" r g b)))
 
+  (defun my-blend-colors (c1 c2)
+    "Evenly blend two colors in emacs color triplet form."
+    (-zip-with (lambda (x y)
+                 (truncate (+ x y) 2))
+               c1 c2))
+
   (defun my-adaptive-shadow-face ()
     "Create a string representation of a color halfway between the foreground and the background."
     (let*
@@ -659,9 +665,9 @@ This function is called at the very end of Spacemacs initialization, after layer
          (default-background
            (color-values (face-attribute 'default :background))))
       (my-color-values-to-string
-       (-zip-with (lambda (x y) (/ (+ x y) 2))
-                  default-foreground
-                  default-background))))
+       (my-blend-colors
+        default-foreground
+        default-background))))
 
   (defun my-set-shadow-face ()
     set-face-attribute 'shadow nil :foreground (my-adaptive-shadow-face))
