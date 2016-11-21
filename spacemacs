@@ -65,7 +65,7 @@ This function should only set values."
      elm
      emacs-lisp
      haskell
-     (html :variables ;for CSS
+     (html :variables ; for CSS
            web-mode-css-indent-offset 2
            web-mode-enable-css-colorization nil ; already done with colors
            )
@@ -85,7 +85,9 @@ This function should only set values."
      ;; (acme-mouse :location (recipe :fetcher github :repo "akrito/acme-mouse")) ; does not work in Spacemacs.
      adaptive-wrap
      aggressive-indent
+     cl-lib ; cl- prefixed lisp functions
      company
+     dash ; list functions
      paren-face
      ;; popwin ; so helm [space] b b works (not using Helm).
      )
@@ -159,11 +161,11 @@ This function is called at the very startup of Spacemacs initialization before l
    dotspacemacs-themes
    '(
      spacemacs-dark
-     sanityinc-tomorrow-eighties
+     ;; sanityinc-tomorrow-eighties
      solarized-light
      solarized-dark
      leuven
-     monokai
+     ;; monokai
      zenburn
      )
 
@@ -391,6 +393,12 @@ This function is called at the very end of Spacemacs initialization, after layer
     "The row and column coordinates of the point.")
   (put 'my-point-string 'risky-local-variable t)
 
+  (defvar my-major-mode-name
+    '(:eval (propertize (mode-name)
+                        'local-map (make-mode-line-mouse-map 'mouse-1 #'describe-mode)))
+    "The buffer's major-mode")
+  (put 'my-major-mode-name 'risky-local-variable t)
+
   (defvar my-vc-string
     '(:eval
       (when (and vc-mode buffer-file-name)
@@ -479,9 +487,11 @@ This function is called at the very end of Spacemacs initialization, after layer
               "Adobe Garamond Expert"
               "Garamond")))
 
-  (let ((h (if (string= system-type "gnu/linux") 148 120)))
-    (mapc (lambda (face) (set-face-attribute face nil :height h))
-          '(default fixed-pitch variable-pitch)))
+  (defun my-reset-font-height-by-platform ()
+    (let ((h (if (string= system-type "gnu/linux") 148 120)))
+      (mapc (lambda (face) (set-face-attribute face nil :height h))
+            '(default fixed-pitch variable-pitch ))))
+  (my-reset-font-height-by-platform)
 
   ;;; ---------------------------------
   ;;; Miscelaneous Global Stuff
@@ -623,15 +633,77 @@ This function is called at the very end of Spacemacs initialization, after layer
 
   ;;; ---------------------------------------
   ;;; Lastly, some hackish theming:
+  ;;; The main point is to, as much as possible without being distracting, distinguish stuff that does stuff from stuff that does not do stuff and things that look similar and act differently.
+
+  ;;(defvar after-load-theme-hook nil
+  ;;  "Functions to run after a new theme is loaded.")
+  ;; (advice-add 'load-theme :after (lambda () (run-hooks 'after-load-theme-hook)))
+
+  (defun max-color-val ()
+    (car (color-values "white")))
+
+  (defun my-color-values-to-string (c)
+    "Create a color string from and Emacs numerical color triplet."
+    (let* ((color-ratio (/ (max-color-val) 255))
+           (r (truncate (car c) color-ratio))
+           (g (truncate (cadr c) color-ratio))
+           (b (truncate (caddr c) color-ratio)))
+      (format "#%02X%02X%02X" r g b)))
+
+  (defun my-adaptive-shadow-face ()
+    "Create a string representation of a color halfway between the foreground and the background."
+    (let*
+        ((default-foreground
+           (color-values (face-attribute 'default :foreground)))
+         (default-background
+           (color-values (face-attribute 'default :background))))
+      (my-color-values-to-string
+       (-zip-with (lambda (x y) (/ (+ x y) 2))
+                  default-foreground
+                  default-background))))
+
+  (defun my-set-shadow-face ()
+    set-face-attribute 'shadow nil :foreground (my-adaptive-shadow-face))
+  ;; (add-hook 'after-load-theme-hook #'my-set-shadow-face)
+
+  (defun my-laser-minor-theme (&optional color)
+    "Add borders to the mode-line and disable its background color."
+    (interactive)
+    (let* ((c
+            (if color color
+              (face-attribute 'shadow :foreground)))
+           (line-style `(:color ,c :style line)))
+      (set-face-attribute 'mode-line nil :box nil :background nil
+                          :underline c
+                          :overline c)
+      (set-face-attribute 'window-divider nil :foreground c)))
+
+  (defun my-material-minor-theme ()
+    "Remove borders from the mode-line when its background is different from the buffer's."
+    (interactive)
+    (unless (equal (face-attribute 'default :background)
+                   (face-attribute 'mode-line :background))
+      (set-face-attribute 'mode-line nil :box nil :underline nil :overline nil)))
+
   (custom-set-faces
-   '(font-lock-comment-face ((t (:slant normal))))
-   '(font-lock-string-face ((t (:slant italic))))
-   '(font-lock-keyword-face ((t (:foreground nil :inherit default))))
+   `(shadow ((t (:foreground ,(my-adaptive-shadow-face)))))
+   ;; Things that don't do stuff:
+   '(font-lock-comment-face ((t (:background nil :slant normal))))
+   ;; '(font-lock-comment-delimiter-face ((t (:slant normal :inherit font-lock-comment-face))))
+   '(font-lock-doc-face ((t (:inherit font-lock-comment-face))))
+   '(fringe ((t (:background nil :inherit font-lock-comment-face))))
+   '(linum ((t (:background nil :foreground nil :inherit font-lock-comment-face))))
+   '(mode-line ((t (:inherit font-lock-comment-face))))
+   ;; Things that do stuff:
+   ;; '(font-lock-builtin-face ((t (:inherit default))))
+   ;; '(font-lock-constant-face ((t (:inherit default))))
+   ;; '(font-lock-keyword-face ((t (:foreground nil :inherit default))))
+   ;; '(font-lock-type-face ((t (:inherit default))))
    '(font-lock-function-name-face ((t (:foreground nil :inherit default))))
    '(font-lock-variable-name-face ((t (:foreground nil :inherit default))))
-   '(fringe ((t (:background nil :inherit default))))
-   '(linum ((t (:background nil :foreground nil :inherit font-lock-comment-face)))))
-
+   ;; Things that look like other things:
+   '(font-lock-string-face ((t (:slant italic))))
+   )
   )
 
 ;; Do not write anything past this comment. This is where Emacs will auto-generate custom variable definitions.
