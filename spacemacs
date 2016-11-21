@@ -126,7 +126,7 @@ This function is called at the very startup of Spacemacs initialization before l
 
    ;; Will Spacemacs check for updates at startup?
    ;; This is disabled when the current branch is `develop'.
-   dotspacemacs-check-for-update t ; default t
+   dotspacemacs-check-for-update nil ; default t
 
    ;; Editing style:
    ;; One of `vim', `emacs' or `hybrid'. `hybrid' is like `vim' except that `insert state' is replaced by the `hybrid state' with `emacs' key bindings. The value can also be a list with `:variables' keyword (similar to layers). Check the editing styles section of the documentation for details on available variables.
@@ -504,6 +504,8 @@ This function is called at the very end of Spacemacs initialization, after layer
     (dolist (mode-hook mode-hooks)
       (dolist (hook-function hook-functions)
         (add-hook mode-hook hook-function))))
+
+  ;; (add-hook 'minibuffer-inactive-mode-hook (lambda () (setq max-mini-window-height 0))) ; -- does not work; you can't make the minibuffer zero lines.
 
   (my-add-hooks
    '(
