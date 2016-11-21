@@ -161,11 +161,11 @@ This function is called at the very startup of Spacemacs initialization before l
    dotspacemacs-themes
    '(
      spacemacs-dark
-     sanityinc-tomorrow-eighties
+     ;; sanityinc-tomorrow-eighties
      solarized-light
      solarized-dark
      leuven
-     monokai
+     ;; monokai
      zenburn
      )
 
