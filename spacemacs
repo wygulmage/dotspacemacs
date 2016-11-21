@@ -633,6 +633,10 @@ This function is called at the very end of Spacemacs initialization, after layer
   ;;; Lastly, some hackish theming:
   ;;; The main point is to, as much as possible without being distracting, distinguish stuff that does stuff from stuff that does not do stuff and things that look similar and act differently.
 
+  ;;(defvar after-load-theme-hook nil
+  ;;  "Functions to run after a new theme is loaded.")
+  ;; (advice-add 'load-theme :after (lambda () (run-hooks 'after-load-theme-hook)))
+
   (defun max-color-val ()
     (car (color-values "white")))
 
@@ -656,14 +660,16 @@ This function is called at the very end of Spacemacs initialization, after layer
                   default-foreground
                   default-background))))
 
-  (set-face-attribute 'shadow nil :foreground (my-adaptive-shadow-face))
+  (defun my-set-shadow-face ()
+    set-face-attribute 'shadow nil :foreground (my-adaptive-shadow-face))
+  ;; (add-hook 'after-load-theme-hook #'my-set-shadow-face)
 
   (defun my-laser-minor-theme (&optional color)
     "Add borders to the mode-line and disable its background color."
     (interactive)
     (let* ((c
             (if color color
-              (face-attribute 'font-lock-comment-face :foreground)))
+              (face-attribute 'shadow :foreground)))
            (line-style `(:color ,c :style line)))
       (set-face-attribute 'mode-line nil :box nil :background nil
                           :underline c
@@ -678,6 +684,7 @@ This function is called at the very end of Spacemacs initialization, after layer
       (set-face-attribute 'mode-line nil :box nil :underline nil :overline nil)))
 
   (custom-set-faces
+   `(shadow ((t (:foreground ,(my-adaptive-shadow-face)))))
    ;; Things that don't do stuff:
    '(font-lock-comment-face ((t (:background nil :slant normal))))
    ;; '(font-lock-comment-delimiter-face ((t (:slant normal :inherit font-lock-comment-face))))
