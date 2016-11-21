@@ -405,7 +405,7 @@ This function is called at the very end of Spacemacs initialization, after layer
       (when (and vc-mode buffer-file-name)
         (let ((branch (vc-working-revision buffer-file-name))
               (desc.color (pcase (vc-state buffer-file-name)
-                            (`up-to-date '("up to date" . (face-attribute 'font-lock-comment-face :foreground)))
+                            (`up-to-date `("up to date" . ,(face-attribute 'font-lock-comment-face :foreground)))
                             (`added '("staged" . "#99cc99"))
                             (`edited '("unstaged" . "#bbdaff"))
                             (`needs-merge '("needs to be merged" . "#ffc58f"))
