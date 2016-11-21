@@ -161,12 +161,13 @@ This function is called at the very startup of Spacemacs initialization before l
    dotspacemacs-themes
    '(
      spacemacs-dark
+     spacemacs-light
      ;; sanityinc-tomorrow-eighties
-     solarized-light
-     solarized-dark
-     leuven
+     ;; solarized-dark
+     ;; solarized-light
      ;; monokai
      zenburn
+     leuven
      )
 
    ;; Will the cursor color match the state color in GUI Spacemacs?
