@@ -415,7 +415,7 @@ This function is called at the very end of Spacemacs initialization, after layer
                  (_ '(nil . nil)))))
           (propertize (vc-working-revision buffer-file-truename)
                       'face `(:foreground ,(cdr desc.color))
-                      'help-echo `("Magit status: " ,(car desc.color))
+                      'help-echo (concat "Magit status: " (car desc.color))
                       'local-map (make-mode-line-mouse-map 'mouse-1 #'magit-status)))))
     "The branch of a version-controlled file, colored to indicate status")
   (put 'my-vc-string 'risky-local-variable t)
@@ -440,7 +440,7 @@ This function is called at the very end of Spacemacs initialization, after layer
               (_
                (values nil nil)))
           (propertize (vc-working-revision buffer-file-truename)
-                      'face `(:foreground ,color)
+                      'face (list :foreground color)
                       'help-echo (concat "Magit status: " description)
                       'local-map (make-mode-line-mouse-map 'mouse-1 #'magit-status))))))
 
