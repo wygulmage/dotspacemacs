@@ -674,10 +674,9 @@ This function is called at the very end of Spacemacs initialization, after layer
   (defun my-laser-minor-theme (&optional color)
     "Add borders to the mode-line and disable its background color."
     (interactive)
-    (let* ((c
-            (if color color
-              (face-attribute 'shadow :foreground)))
-           (line-style `(:color ,c :style line)))
+    (let ((c
+           (if color color
+             (face-attribute 'shadow :foreground))))
       (set-face-attribute 'mode-line nil :box nil :background nil
                           :underline c
                           :overline c)
@@ -691,6 +690,7 @@ This function is called at the very end of Spacemacs initialization, after layer
       (set-face-attribute 'mode-line nil :box nil :underline nil :overline nil)))
 
   (custom-set-faces
+   ;; '(cursor ((t (:background )))) -- this is just a stub to remind me of the cursor face.
    `(shadow ((t (:foreground ,(my-adaptive-shadow-face)))))
    ;; Things that don't do stuff:
    '(font-lock-comment-face ((t (:background nil :slant normal))))
