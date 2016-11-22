@@ -404,20 +404,45 @@ This function is called at the very end of Spacemacs initialization, after layer
   (defvar my-vc-string
     '(:eval
       (when (and vc-mode buffer-file-name)
-        (let ((desc.color (pcase (vc-state buffer-file-truename)
-                            ('up-to-date (cons "up to date"  (face-attribute 'mode-line :foreground)))
-                            ('added '("staged" . "#99cc99"))
-                            ('edited '("unstaged" . "#bbdaff"))
-                            ('needs-merge '("needs to be merged" . "#ffc58f"))
-                            ('removed '("removed" . "#ff9da4"))
-                            ('ignored '("ignored" . "#999999"))
-                            (_ '(nil . nil)))))
+        (let ((desc.color
+               (pcase (vc-state buffer-file-truename)
+                 ('up-to-date (cons "up to date"  (face-attribute 'mode-line :foreground)))
+                 ('added '("staged" . "#99cc99"))
+                 ('edited '("unstaged" . "#bbdaff"))
+                 ('needs-merge '("needs to be merged" . "#ffc58f"))
+                 ('removed '("removed" . "#ff9da4"))
+                 ('ignored '("ignored" . "#999999"))
+                 (_ '(nil . nil)))))
           (propertize (vc-working-revision buffer-file-truename)
                       'face `(:foreground ,(cdr desc.color))
-                      'help-echo (concat "Magit status: " (car desc.color))
+                      'help-echo `("Magit status: " ,(car desc.color))
                       'local-map (make-mode-line-mouse-map 'mouse-1 #'magit-status)))))
     "The branch of a version-controlled file, colored to indicate status")
   (put 'my-vc-string 'risky-local-variable t)
+
+  (defvar my-cl-vc-string
+    '(:eval
+      (when (and vc-mode buffer-file-truename)
+        (multiple-value-bind (description color)
+            (pcase (vc-state buffer-file-truename)
+              ('up-to-date
+               (values "up to date" (face-attribute 'mode-line :foreground)))
+              ('added
+               (values "staged" "#99CC99"))
+              ('edited
+               (values "unstaged" "#BBDAFF"))
+              ('needs-merge
+               (values "needs to be merged" "#FFC58F"))
+              ('removed
+               (values "removed" "#FF9DA4"))
+              ('ignored
+               (values "ignored" "#999999"))
+              (_
+               (values nil nil)))
+          (propertize (vc-working-revision buffer-file-truename)
+                      'face `(:foreground ,color)
+                      'help-echo (concat "Magit status: " description)
+                      'local-map (make-mode-line-mouse-map 'mouse-1 #'magit-status))))))
 
   (defun my-format-prog-mode-line ()
     (setq mode-line-format
