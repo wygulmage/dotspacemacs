@@ -404,16 +404,15 @@ This function is called at the very end of Spacemacs initialization, after layer
   (defvar my-vc-string
     '(:eval
       (when (and vc-mode buffer-file-name)
-        (let ((branch (vc-working-revision buffer-file-name))
-              (desc.color (pcase (vc-state buffer-file-name)
-                            ('up-to-date (cons "up to date"  (face-attribute 'font-lock-comment-face :foreground)))
+        (let ((desc.color (pcase (vc-state buffer-file-truename)
+                            ('up-to-date (cons "up to date"  (face-attribute 'mode-line :foreground)))
                             ('added '("staged" . "#99cc99"))
                             ('edited '("unstaged" . "#bbdaff"))
                             ('needs-merge '("needs to be merged" . "#ffc58f"))
                             ('removed '("removed" . "#ff9da4"))
                             ('ignored '("ignored" . "#999999"))
                             (_ '(nil . nil)))))
-          (propertize branch
+          (propertize (vc-working-revision buffer-file-truename)
                       'face `(:foreground ,(cdr desc.color))
                       'help-echo (concat "Magit status: " (car desc.color))
                       'local-map (make-mode-line-mouse-map 'mouse-1 #'magit-status)))))
@@ -553,7 +552,7 @@ This function is called at the very end of Spacemacs initialization, after layer
      )
    '((lambda () (setq mode-line-format nil))))
 
-  (add-hook 'magit-refresh-buffer-hook
+  (add-hook 'magit-post-refresh-hook
             (lambda () (force-mode-line-update t)))
 
   ;;; ------------------------------
