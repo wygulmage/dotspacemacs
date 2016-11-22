@@ -62,6 +62,7 @@ This function should only set values."
      (syntax-checking :variables
                       syntax-checking-enable-by-default nil)
      ;;; Languages:
+     semantic
      elm
      emacs-lisp
      haskell
@@ -405,7 +406,7 @@ This function is called at the very end of Spacemacs initialization, after layer
       (when (and vc-mode buffer-file-name)
         (let ((branch (vc-working-revision buffer-file-name))
               (desc.color (pcase (vc-state buffer-file-name)
-                            ('up-to-date (cons "up to date"  (face-attribute 'font-lock-comment-face :foreground)))
+                            ('up-to-date '("up to date" . "#cccccc"))
                             ('added '("staged" . "#99cc99"))
                             ('edited '("unstaged" . "#bbdaff"))
                             ('needs-merge '("needs to be merged" . "#ffc58f"))
@@ -550,9 +551,7 @@ This function is called at the very end of Spacemacs initialization, after layer
      magit-mode-hook
      spacemacs-buffer-mode-hook
      )
-   '(
-     (lambda () (setq mode-line-format nil))
-     ))
+   '((lambda () (setq mode-line-format nil))))
 
   (add-hook 'magit-refresh-buffer-hook
             (lambda () (force-mode-line-update t)))
