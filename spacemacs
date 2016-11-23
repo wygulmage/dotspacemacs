@@ -65,7 +65,9 @@ This function should only set values."
      (syntax-checking :variables
                       syntax-checking-enable-by-default nil)
      ;;; Languages:
-     (semantic :packages semantic)
+     (semantic :packages
+               semantic
+               srefactor)
      elm
      emacs-lisp
      haskell
