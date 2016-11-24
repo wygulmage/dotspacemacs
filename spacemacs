@@ -45,7 +45,8 @@ This function should only set values."
              rainbow-html-colors nil)
      (ranger :variables
              ranger-override-dired t
-             ranger-show-preview t)
+             ranger-show-preview t
+             ranger-show-literal nil)
      (shell :variables
             shell-default-height 30
             shell-default-position 'bottom)
@@ -346,6 +347,7 @@ This function is called at the very end of Spacemacs initialization, after layer
   ;;; ----------------------------------------------
   ;;; Mode Line, Header Line, and Frame Title Format
 
+  ;; To do: Check for derived mode to determine whether buffer is file-like. prog-mode and text-mode will hopefully do it. Do the same for mode line?
   (defvar my-buffer-modified-string
     '(:eval
       (if (and buffer-read-only buffer-file-truename)
