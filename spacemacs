@@ -45,7 +45,8 @@ This function should only set values."
              rainbow-html-colors nil)
      (ranger :variables
              ranger-override-dired t
-             ranger-show-preview t)
+             ranger-show-preview t
+             ranger-show-literal nil)
      (shell :variables
             shell-default-height 30
             shell-default-position 'bottom)
@@ -346,27 +347,41 @@ This function is called at the very end of Spacemacs initialization, after layer
   ;;; ----------------------------------------------
   ;;; Mode Line, Header Line, and Frame Title Format
 
+  ;; To do: Check for derived mode to determine whether buffer is file-like. prog-mode and text-mode will hopefully do it. Do the same for mode line?
   (defvar my-buffer-modified-string
     '(:eval
-      (if (and buffer-read-only buffer-file-truename)
-          (if (buffer-modified-p)
-              (propertize "◆🔒"
-                          'help-echo "Modified read-only file ‑ click to save a copy."
-                          'local-map (make-mode-line-mouse-map 'mouse-1 #'write-file))
-            (propertize "🔒"
-                        'help-echo "Read-only file ‑ click to save a copy."
-                        'local-map (make-mode-line-mouse-map 'mouse-1 #'write-file)))
-        (if (buffer-modified-p)
-            (if buffer-file-truename
-                (propertize "◆"
-                            'help-echo "Modified file ‑ click to save."
-                            'local-map (make-mode-line-mouse-map 'mouse-1 #'save-buffer))
-              (propertize "◆"
-                          'help-echo "Modified buffer ‑ click to save as a file."
+      (when (or buffer-file-truename
+                (derived-mode-p 'text-mode 'prog-mode))
+        (if buffer-read-only
+            (if (buffer-modified-p)
+                (propertize "◆🔒"
+                            'help-echo "Modified read-only file ‑ click to save a copy."
+                            'local-map (make-mode-line-mouse-map 'mouse-1 #'write-file))
+              (propertize "🔒"
+                          'help-echo "Read-only file ‑ click to save a copy."
                           'local-map (make-mode-line-mouse-map 'mouse-1 #'write-file)))
-          " ")))
-    "Show whether the buffer has been modified since its last save; click to save. Should 'do what I mean'.")
+          (if (buffer-modified-p)
+              (if buffer-file-truename
+                  (propertize "◆"
+                              'help-echo "Modified file ‑ click to save."
+                              'local-map (make-mode-line-mouse-map 'mouse-1 #'save-buffer))
+                (propertize "◆"
+                            'help-echo "Modified buffer ‑ click to save as a file."
+                            'local-map (make-mode-line-mouse-map 'mouse-1 #'write-file)))
+            " "))))
+    "Show whether a file-like buffer has been modified since its last save; click to save. Should 'do what I mean'.")
   (put 'my-buffer-modified-string 'risky-local-variable t)
+
+  ;; buffer-file-truename -> File
+  ;; (derived-mode-p 'text-mode 'prog-mode) -> File-Like
+  ;; buffer-read-only
+  ;; (buffer-modified-p)
+  ;;              Read-Only Modified
+  ;;              ------------------
+  ;;         File 🔒 Copy    ◆ Save
+  ;;    File-Like 🔒 Copy    ◆ Copy
+  ;; Other Buffer
+  ;;
 
   (defvar my-buffer-name-string
     '(:eval
