@@ -464,12 +464,31 @@ This function is called at the very end of Spacemacs initialization, after layer
                       'help-echo (concat "Magit status: " description)
                       'local-map (make-mode-line-mouse-map 'mouse-1 #'magit-status))))))
 
-  (defvar my-buffer-position-string
+  (defvar my-buffer-position-percentage-string
     '(:eval (pcase (format-mode-line "%P")
               ("Bottom" "100")
               ("All" "100")
               (% (concat " " (substring % -3 nil)))))
     "The percentage of the buffer above the bottom of the pane. Should give a percentage for the top, but does not.")
+
+  (defun my-buffer-line-count ()
+    (count-lines (buffer-end -1) (buffer-end 1)))
+
+  (defvar my-buffer-line-position-string
+    '(:eval `("%l/"
+              ,(number-to-string (my-buffer-line-count)))))
+
+  (defvar my-buffer-position-string
+    '(:eval (list
+             (propertize "(" 'face '(:inherit shadow))
+             "%c"
+             (propertize ", " 'face '(:inherit shadow))
+             "%l"
+             (propertize "/" 'face '(:inherit shadow))
+             (propertize (number-to-string (my-buffer-line-count)) 'face '(:inherit shadow))
+             (propertize ")" 'face '(:inherit shadow))
+              )))
+  (put 'my-buffer-position-string 'risky-local-variable t)
 
   (defun my-format-prog-mode-line ()
     (setq mode-line-format
@@ -479,9 +498,7 @@ This function is called at the very end of Spacemacs initialization, after layer
            " "
            my-buffer-name-string
            "  "
-           my-buffer-position-string "%%"
-           " "
-           my-point-string
+my-buffer-position-string
            "  "
            mode-name
            "  "
@@ -497,7 +514,7 @@ This function is called at the very end of Spacemacs initialization, after layer
            " "
            my-buffer-name-string
            "  "
-           my-buffer-position-string "%%"
+           my-buffer-line-position-string
            "  "
            my-vc-string
            )
