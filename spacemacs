@@ -464,6 +464,13 @@ This function is called at the very end of Spacemacs initialization, after layer
                       'help-echo (concat "Magit status: " description)
                       'local-map (make-mode-line-mouse-map 'mouse-1 #'magit-status))))))
 
+  (defvar my-buffer-position-string
+    '(:eval (pcase (format-mode-line "%P")
+              ("Bottom" "100")
+              ("All" "100")
+              (% (concat " " (substring % -3 nil)))))
+    "The percentage of the buffer above the bottom of the pane. Should give a percentage for the top, but does not.")
+
   (defun my-format-prog-mode-line ()
     (setq mode-line-format
           (list
@@ -472,6 +479,8 @@ This function is called at the very end of Spacemacs initialization, after layer
            " "
            my-buffer-name-string
            "  "
+           my-buffer-position-string "%%"
+           " "
            my-point-string
            "  "
            mode-name
@@ -487,6 +496,8 @@ This function is called at the very end of Spacemacs initialization, after layer
            my-buffer-modified-string
            " "
            my-buffer-name-string
+           "  "
+           my-buffer-position-string "%%"
            "  "
            my-vc-string
            )
