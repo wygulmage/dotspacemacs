@@ -474,20 +474,35 @@ This function is called at the very end of Spacemacs initialization, after layer
   (defun my-buffer-line-count ()
     (count-lines (buffer-end -1) (buffer-end 1)))
 
-  (defvar my-buffer-line-position-string
-    '(:eval `("%l/"
-              ,(number-to-string (my-buffer-line-count)))))
+  (defun my-fade (s)
+    (propertize s 'face '(:inherit shadow)))
+
+  (defun my-pad (n s)
+    (format (concat "%" (number-to-string n) "s") s))
+
+  (defun my-digits (n)
+    (length (number-to-string n)))
+
+  (defun my-line-position ()
+    (concat (format-mode-line "%l")
+            (my-fade "/")
+            (number-to-string (my-buffer-line-count))))
+
+  (defvar my-line-position-string
+    '(:eval (my-line-position)))
+  (put 'my-line-position-string 'risky-local-variable t)
+
+  (defun my-buffer-position ()
+    (concat
+     (my-pad 4 (concat (my-fade "(")
+                       (format-mode-line "%c")))
+     (my-fade ", ")
+     (my-pad (+ -2 (* -2 (my-digits (my-buffer-line-count))))
+             (concat (my-line-position)
+                     (my-fade ")")))))
 
   (defvar my-buffer-position-string
-    '(:eval (list
-             (propertize "(" 'face '(:inherit shadow))
-             "%c"
-             (propertize ", " 'face '(:inherit shadow))
-             "%l"
-             (propertize "/" 'face '(:inherit shadow))
-             (propertize (number-to-string (my-buffer-line-count)) 'face '(:inherit shadow))
-             (propertize ")" 'face '(:inherit shadow))
-              )))
+    '(:eval (my-buffer-position)))
   (put 'my-buffer-position-string 'risky-local-variable t)
 
   (defun my-format-prog-mode-line ()
@@ -497,8 +512,8 @@ This function is called at the very end of Spacemacs initialization, after layer
            my-buffer-modified-string
            " "
            my-buffer-name-string
-           "  "
-my-buffer-position-string
+           " "
+           my-buffer-position-string
            "  "
            mode-name
            "  "
@@ -514,7 +529,7 @@ my-buffer-position-string
            " "
            my-buffer-name-string
            "  "
-           my-buffer-line-position-string
+           my-line-position-string
            "  "
            my-vc-string
            )
