@@ -502,19 +502,22 @@ This function is called at the very end of Spacemacs initialization, after layer
                      (my-fade ")")))))
 
   (defvar my-buffer-position-string
-    '(:eval (my-buffer-position)))
+    '(:eval
+      (propertize (my-buffer-position)
+                  'help-echo "Toggle line numbers."
+                  'local-map (make-mode-line-mouse-map 'mouse-1 #'linum-mode)))
+    "(column, row/rows); click to toggle line numbers.")
   (put 'my-buffer-position-string 'risky-local-variable t)
 
   (defun my-format-prog-mode-line ()
     (setq mode-line-format
           (list
-           " "
            my-buffer-modified-string
            " "
            my-buffer-name-string
            " "
            my-buffer-position-string
-           "  "
+           " "
            mode-name
            "  "
            my-vc-string
@@ -524,7 +527,6 @@ This function is called at the very end of Spacemacs initialization, after layer
   (defun my-format-text-mode-line ()
     (setq mode-line-format
           (list
-           " "
            my-buffer-modified-string
            " "
            my-buffer-name-string
@@ -728,9 +730,12 @@ This function is called at the very end of Spacemacs initialization, after layer
   ;; (advice-add 'load-theme :after (lambda () (run-hooks 'after-load-theme-hook)))
 
   (defun my-set-face-attributes (l &optional buffer)
-    "From a list of (face :attr-1 a1 :attr-2 a2 ...) lists, give each face its attributes."
+    "From a list of (face :attr-1 a1 :attr-2 a2 ...) lists, give each face its attributes. Create undefined faces."
     (mapcar (lambda (x)
-              (apply #'set-face-attribute (car x) buffer (cdr x)))
+              (let ((face (car x))
+                    (attributes (cdr x)))
+                (unless (facep face) (make-face face))
+                (apply #'set-face-attribute face buffer attributes)))
             l))
 
   (defun max-color-val ()
@@ -774,10 +779,11 @@ This function is called at the very end of Spacemacs initialization, after layer
              (face-attribute 'shadow :foreground))))
       (my-set-face-attributes
        `((mode-line :box nil
-                    :foreground ,(face-attribute 'font-lock-comment-face :foreground)
-                    :background nil
+                    :foreground unspecified
+                    :background unspecified
                     :underline ,c
-                    :overline ,c)
+                    :overline ,c
+                    :inherit font-lock-comment-face)
          (window-divider :foreground ,c)))))
 
   (defun my-material-minor-theme ()
@@ -789,22 +795,22 @@ This function is called at the very end of Spacemacs initialization, after layer
 
   (my-set-face-attributes
    `(
-     ;; '(cursor ((t (:background )))) -- this is just a stub to remind me of the cursor face.
+     ;; (cursor :background) -- this is just a stub to remind me of the cursor face.
      (shadow :foreground ,(my-adaptive-shadow-face))
      ;; Things that don't do stuff:
-     (font-lock-comment-face :background nil :slant normal)
-     ;; '(font-lock-comment-delimiter-face ((t (:slant normal :inherit font-lock-comment-face))))
+     (font-lock-comment-face :background unspecified :slant normal)
+     ;; (font-lock-comment-delimiter-face :slant normal :inherit font-lock-comment-face)
      (font-lock-doc-face :inherit font-lock-comment-face)
-     (fringe :background nil :inherit font-lock-comment-face)
-     (linum :background nil :foreground nil :inherit font-lock-comment-face)
+     (fringe :background unspecified :foreground unspecified :inherit font-lock-comment-face)
+     (linum :background unspecified :foreground unspecified :inherit font-lock-comment-face)
      (mode-line :inherit font-lock-comment-face)
      ;; Things that do stuff:
-     ;; '(font-lock-builtin-face ((t (:inherit default))))
-     ;; '(font-lock-constant-face ((t (:inherit default))))
-     (font-lock-keyword-face :foreground nil :inherit default)
-     ;; '(font-lock-type-face ((t (:inherit default))))
-     (font-lock-function-name-face :foreground nil :inherit default)
-     (font-lock-variable-name-face :foreground nil :inherit default)
+     ;; (font-lock-builtin-face :inherit default)
+     ;; (font-lock-constant-face :inherit default)
+     (font-lock-keyword-face :foreground unspecified :inherit default)
+     ;; (font-lock-type-face :inherit default)
+     (font-lock-function-name-face :foreground unspecified :inherit default)
+     (font-lock-variable-name-face :foreground unspecified :inherit default)
      ;; Things that look like other things:
      (font-lock-string-face :slant italic)
      ))
