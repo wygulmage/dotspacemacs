@@ -344,6 +344,70 @@ This function is called immediately after `dotspacemacs/init', before layer conf
   "Configuration function for user code.
 This function is called at the very end of Spacemacs initialization, after layers configuration. Put your configuration code--except for variables that should be set before a package is loaded--here."
 
+;;; ------------------
+;;; Helpful Procedures
+
+  (defun my-add-hooks (mode-hooks hook-functions)
+    "Add all hook-functions to all made-hooks."
+    (dolist (mode-hook mode-hooks)
+      (dolist (hook-function hook-functions)
+        (add-hook mode-hook hook-function))))
+
+  (defun my-buffer-line-count ()
+    (count-lines (buffer-end -1) (buffer-end 1)))
+
+;;; Strings:
+
+  (defun my-pad (w s)
+    "Pad string s to width w; a negative width means add the padding on the right."
+    (format (concat "%" (number-to-string w) "s") s))
+
+;;; Numbers:
+
+  (defun my-digits (n)
+    "The number of decimal digits in n, including any period as a digit."
+    (length (number-to-string n)))
+
+;;; Faces:
+
+  (defun my-fade (s)
+    (propertize s 'face '(:inherit shadow)))
+
+  (defun my-select-font (fonts)
+    "Return the first available font in `fonts', or the default font if none are available."
+    (cond ((null fonts) (face-attribute 'default :family))
+          ((member (car fonts) (font-family-list)) (car fonts))
+          (t (my-select-font (cdr fonts)))))
+
+  (defun my-set-face-attributes (l &optional buffer)
+    "From a list of (face :attr-1 a1 :attr-2 a2 ...) lists, give each face its attributes. Create undefined faces."
+    (mapcar (lambda (x)
+              (let ((face (car x))
+                    (attributes (cdr x)))
+                (unless (facep face) (make-face face))
+                (apply #'set-face-attribute face buffer attributes)))
+            l))
+
+;;; Colors:
+
+  (defun max-color-val ()
+    "An the current maximum value for emacs color triplets."
+    (car (color-values "white")))
+
+  (defun my-color-values-to-string (c)
+    "Create a color string from and Emacs numerical color triplet."
+    (let* ((color-ratio (/ (max-color-val) 255))
+           (r (truncate (car c) color-ratio))
+           (g (truncate (cadr c) color-ratio))
+           (b (truncate (caddr c) color-ratio)))
+      (format "#%02X%02X%02X" r g b)))
+
+  (defun my-blend-colors (c1 c2)
+    "Evenly blend two emacs color triplets."
+    (-zip-with (lambda (x y)
+                 (truncate (+ x y) 2))
+               c1 c2))
+
   ;;; ----------------------------------------------
   ;;; Mode Line, Header Line, and Frame Title Format
 
@@ -459,10 +523,11 @@ This function is called at the very end of Spacemacs initialization, after layer
                (values "ignored" "#999999"))
               (_
                (values nil nil)))
-          (propertize (vc-working-revision buffer-file-truename)
-                      'face (list :foreground color)
-                      'help-echo (concat "Magit status: " description)
-                      'local-map (make-mode-line-mouse-map 'mouse-1 #'magit-status))))))
+          (propertize
+           (replace-regexp-in-string "Git:" "" vc-mode)
+           'face `(:foreground ,color)
+           'help-echo (concat "VC status: " description)
+           'local-map (make-mode-line-mouse-map 'mouse-1 #'magit-status))))))
 
   (defvar my-buffer-position-percentage-string
     '(:eval (pcase (format-mode-line "%P")
@@ -471,17 +536,6 @@ This function is called at the very end of Spacemacs initialization, after layer
               (% (concat " " (substring % -3 nil)))))
     "The percentage of the buffer above the bottom of the pane. Should give a percentage for the top, but does not.")
 
-  (defun my-buffer-line-count ()
-    (count-lines (buffer-end -1) (buffer-end 1)))
-
-  (defun my-fade (s)
-    (propertize s 'face '(:inherit shadow)))
-
-  (defun my-pad (n s)
-    (format (concat "%" (number-to-string n) "s") s))
-
-  (defun my-digits (n)
-    (length (number-to-string n)))
 
   (defun my-line-position ()
     (concat (format-mode-line "%l")
@@ -520,7 +574,7 @@ This function is called at the very end of Spacemacs initialization, after layer
            " "
            mode-name
            "  "
-           my-vc-string
+           my-cl-vc-string
            )
           ))
 
@@ -551,11 +605,6 @@ This function is called at the very end of Spacemacs initialization, after layer
 
   ;;; --------------------------------
   ;;; Fonts
-
-  (defun my-select-font (fonts)
-    (cond ((null fonts) (face-attribute 'default :family))
-          ((member (car fonts) (font-family-list)) (car fonts))
-          (t (my-select-font (cdr fonts)))))
 
   (set-face-attribute
    'fixed-pitch nil
@@ -600,11 +649,6 @@ This function is called at the very end of Spacemacs initialization, after layer
   ;; * buffer-list-update-hook
   ;; * magit-refresh-buffer-hook
 
-  (defun my-add-hooks (mode-hooks hook-functions)
-    "Add all hook-functions to all made-hooks."
-    (dolist (mode-hook mode-hooks)
-      (dolist (hook-function hook-functions)
-        (add-hook mode-hook hook-function))))
 
   ;; (add-hook 'minibuffer-inactive-mode-hook (lambda () (setq max-mini-window-height 0))) ; -- does not work; you can't make the minibuffer zero lines.
 
@@ -619,7 +663,9 @@ This function is called at the very end of Spacemacs initialization, after layer
      ))
 
   (my-add-hooks
-   '(prog-mode-hook)
+   '(
+     prog-mode-hook
+     )
    '(
      adaptive-wrap-prefix-mode ; Indent wrapped lines in source code.
      rainbow-mode ; Color color strings like "#4971af" in source code.
@@ -728,32 +774,6 @@ This function is called at the very end of Spacemacs initialization, after layer
   ;;(defvar after-load-theme-hook nil
   ;;  "Functions to run after a new theme is loaded.")
   ;; (advice-add 'load-theme :after (lambda () (run-hooks 'after-load-theme-hook)))
-
-  (defun my-set-face-attributes (l &optional buffer)
-    "From a list of (face :attr-1 a1 :attr-2 a2 ...) lists, give each face its attributes. Create undefined faces."
-    (mapcar (lambda (x)
-              (let ((face (car x))
-                    (attributes (cdr x)))
-                (unless (facep face) (make-face face))
-                (apply #'set-face-attribute face buffer attributes)))
-            l))
-
-  (defun max-color-val ()
-    (car (color-values "white")))
-
-  (defun my-color-values-to-string (c)
-    "Create a color string from and Emacs numerical color triplet."
-    (let* ((color-ratio (/ (max-color-val) 255))
-           (r (truncate (car c) color-ratio))
-           (g (truncate (cadr c) color-ratio))
-           (b (truncate (caddr c) color-ratio)))
-      (format "#%02X%02X%02X" r g b)))
-
-  (defun my-blend-colors (c1 c2)
-    "Evenly blend two colors in emacs color triplet form."
-    (-zip-with (lambda (x y)
-                 (truncate (+ x y) 2))
-               c1 c2))
 
   (defun my-adaptive-shadow-face ()
     "Create a string representation of a color halfway between the foreground and the background."
