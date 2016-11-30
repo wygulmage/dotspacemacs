@@ -727,6 +727,12 @@ This function is called at the very end of Spacemacs initialization, after layer
   ;;  "Functions to run after a new theme is loaded.")
   ;; (advice-add 'load-theme :after (lambda () (run-hooks 'after-load-theme-hook)))
 
+  (defun my-set-face-attributes (l &optional buffer)
+    "From a list of (face :attr-1 a1 :attr-2 a2 ...) lists, give each face its attributes."
+    (mapcar (lambda (x)
+              (apply #'set-face-attribute (car x) buffer (cdr x)))
+            l))
+
   (defun max-color-val ()
     (car (color-values "white")))
 
@@ -766,10 +772,13 @@ This function is called at the very end of Spacemacs initialization, after layer
     (let ((c
            (if color color
              (face-attribute 'shadow :foreground))))
-      (set-face-attribute 'mode-line nil :box nil :background nil
-                          :underline c
-                          :overline c)
-      (set-face-attribute 'window-divider nil :foreground c)))
+      (my-set-face-attributes
+       `((mode-line :box nil
+                    :foreground ,(face-attribute 'font-lock-comment-face :foreground)
+                    :background nil
+                    :underline ,c
+                    :overline ,c)
+         (window-divider :foreground ,c)))))
 
   (defun my-material-minor-theme ()
     "Remove borders from the mode-line when its background is different from the buffer's."
@@ -778,26 +787,27 @@ This function is called at the very end of Spacemacs initialization, after layer
                    (face-attribute 'mode-line :background))
       (set-face-attribute 'mode-line nil :box nil :underline nil :overline nil)))
 
-  (custom-set-faces
-   ;; '(cursor ((t (:background )))) -- this is just a stub to remind me of the cursor face.
-   `(shadow ((t (:foreground ,(my-adaptive-shadow-face)))))
-   ;; Things that don't do stuff:
-   '(font-lock-comment-face ((t (:background nil :slant normal))))
-   ;; '(font-lock-comment-delimiter-face ((t (:slant normal :inherit font-lock-comment-face))))
-   '(font-lock-doc-face ((t (:inherit font-lock-comment-face))))
-   '(fringe ((t (:background nil :inherit font-lock-comment-face))))
-   '(linum ((t (:background nil :foreground nil :inherit font-lock-comment-face))))
-   '(mode-line ((t (:inherit font-lock-comment-face))))
-   ;; Things that do stuff:
-   ;; '(font-lock-builtin-face ((t (:inherit default))))
-   ;; '(font-lock-constant-face ((t (:inherit default))))
-   '(font-lock-keyword-face ((t (:foreground nil :inherit default))))
-   ;; '(font-lock-type-face ((t (:inherit default))))
-   '(font-lock-function-name-face ((t (:foreground nil :inherit default))))
-   '(font-lock-variable-name-face ((t (:foreground nil :inherit default))))
-   ;; Things that look like other things:
-   '(font-lock-string-face ((t (:slant italic))))
-   )
+  (my-set-face-attributes
+   `(
+     ;; '(cursor ((t (:background )))) -- this is just a stub to remind me of the cursor face.
+     (shadow :foreground ,(my-adaptive-shadow-face))
+     ;; Things that don't do stuff:
+     (font-lock-comment-face :background nil :slant normal)
+     ;; '(font-lock-comment-delimiter-face ((t (:slant normal :inherit font-lock-comment-face))))
+     (font-lock-doc-face :inherit font-lock-comment-face)
+     (fringe :background nil :inherit font-lock-comment-face)
+     (linum :background nil :foreground nil :inherit font-lock-comment-face)
+     (mode-line :inherit font-lock-comment-face)
+     ;; Things that do stuff:
+     ;; '(font-lock-builtin-face ((t (:inherit default))))
+     ;; '(font-lock-constant-face ((t (:inherit default))))
+     (font-lock-keyword-face :foreground nil :inherit default)
+     ;; '(font-lock-type-face ((t (:inherit default))))
+     (font-lock-function-name-face :foreground nil :inherit default)
+     (font-lock-variable-name-face :foreground nil :inherit default)
+     ;; Things that look like other things:
+     (font-lock-string-face :slant italic)
+     ))
   )
 
 ;; Do not write anything past this comment. This is where Emacs will auto-generate custom variable definitions.
