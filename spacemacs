@@ -362,6 +362,13 @@ This function is called at the very end of Spacemacs initialization, after layer
     "Pad string s to width w; a negative width means add the padding on the right."
     (format (concat "%" (number-to-string w) "s") s))
 
+  (defun my-fade (s)
+    (propertize s 'face '(:inherit shadow)))
+
+  (defun my-brighten (s)
+    (let ((fg (color-values (get-text-property :foreground s)))
+          (bg (color-values (get-text-property :background s))))))
+
 ;;; Numbers:
 
   (defun my-digits (n)
@@ -369,9 +376,6 @@ This function is called at the very end of Spacemacs initialization, after layer
     (length (number-to-string n)))
 
 ;;; Faces:
-
-  (defun my-fade (s)
-    (propertize s 'face '(:inherit shadow)))
 
   (defun my-select-font (fonts)
     "Return the first available font in `fonts', or the default font if none are available."
@@ -562,6 +566,23 @@ This function is called at the very end of Spacemacs initialization, after layer
                   'local-map (make-mode-line-mouse-map 'mouse-1 #'linum-mode)))
     "(column, row/rows); click to toggle line numbers.")
   (put 'my-buffer-position-string 'risky-local-variable t)
+
+  (defun my-mode-line (buffer op)
+    (with-current-buffer buffer
+      (let ((file-like (or buffer-file-name (derived-mode-p 'text-mode 'prog-mode)))
+            )
+        (pcase (op)
+          ('write-status
+           (lambda () (if (not file-like) ""
+                        (propertize
+                         (concat (if (buffer-modified-p) "◆" "")
+                                 (if buffer-read-only "🔒" ""))
+                         'help-echo
+                         (concat (if (buffer-modified-p) "modified " "")
+                                 (if buffer-read-only "read-only " "")
+                                 "‑ click to save")
+                         'local-map (make-mode-line-mouse-map 'mouse-1 #'save-buffer))
+                        )))))))
 
   (defun my-format-prog-mode-line ()
     (setq mode-line-format
