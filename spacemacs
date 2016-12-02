@@ -433,11 +433,11 @@ This function is called at the very end of Spacemacs initialization, after layer
         (file-name-nondirectory buffer-file-truename)
       (buffer-name)))
 
-  (defvar my-file-directory-string
-    '(:eval (when buffer-file-truename
-              (file-name-directory (abbreviate-file-name buffer-file-truename))))
-    "The directory of the current file.")
-  (put 'my-file-directory-string 'risky-local-variable t)
+  (defun my-file-directory ()
+    "The directory of the current file."
+    (if buffer-file-truename
+        (file-name-directory (abbreviate-file-name buffer-file-truename))
+      ""))
 
   (defvar my-point-string
     '(:eval (propertize "(%l, %c)"
@@ -452,71 +452,33 @@ This function is called at the very end of Spacemacs initialization, after layer
     "The buffer's major-mode")
   (put 'my-major-mode-name 'risky-local-variable t)
 
-  (defvar my-vc-string
-    '(:eval
-      (when (and vc-mode buffer-file-name)
-        (let ((desc.color
-               (pcase (vc-state buffer-file-truename)
-                 ('up-to-date (cons "up to date"  (face-attribute 'mode-line :foreground)))
-                 ('added '("staged" . "#99cc99"))
-                 ('edited '("unstaged" . "#bbdaff"))
-                 ('needs-merge '("needs to be merged" . "#ffc58f"))
-                 ('removed '("removed" . "#ff9da4"))
-                 ('ignored '("ignored" . "#999999"))
-                 (_ '(nil . nil)))))
-          (propertize (vc-working-revision buffer-file-truename)
-                      'face `(:foreground ,(cdr desc.color))
-                      'help-echo (concat "Magit status: " (car desc.color))
-                      'local-map (make-mode-line-mouse-map 'mouse-1 #'magit-status)))))
-    "The branch of a version-controlled file, colored to indicate status")
-  (put 'my-vc-string 'risky-local-variable t)
-
-  (defvar my-cl-vc-string
-    '(:eval
-      (when (and vc-mode buffer-file-truename)
-        (multiple-value-bind (description color)
-            (pcase (vc-state buffer-file-truename)
-              ('up-to-date
-               (values "up to date" (face-attribute 'mode-line :foreground)))
-              ('added
-               (values "staged" "#99CC99"))
-              ('edited
-               (values "unstaged" "#BBDAFF"))
-              ('needs-merge
-               (values "needs to be merged" "#FFC58F"))
-              ('removed
-               (values "removed" "#FF9DA4"))
-              ('ignored
-               (values "ignored" "#999999"))
-              (_
-               (values nil nil)))
-          (propertize
-           (replace-regexp-in-string "Git:" "" vc-mode)
-           'face `(:foreground ,color)
-           'help-echo (concat "VC status: " description)
-           'local-map (make-mode-line-mouse-map 'mouse-1 #'magit-status))))))
+  (defun my-vc-branch ()
+    "The branch of a version-controlled file, colored to indicate status"
+    (when (and vc-mode buffer-file-truename)
+      (let ((desc.color
+             (pcase (vc-state buffer-file-truename)
+               ('up-to-date (cons "up to date"  (face-attribute 'mode-line :foreground)))
+               ('added '("staged" . "#99cc99"))
+               ('edited '("unstaged" . "#bbdaff"))
+               ('needs-merge '("needs to be merged" . "#ffc58f"))
+               ('removed '("removed" . "#ff9da4"))
+               ('ignored '("ignored" . "#999999"))
+               (_ '(nil . nil)))))
+        (propertize
+         (replace-regexp-in-string "Git:" "" vc-mode)
+         'face `(:foreground ,(cdr desc.color))
+         'help-echo (concat "VC status: " (car desc.color))
+         'local-map (make-mode-line-mouse-map 'mouse-1 #'magit-status)))))
 
   (defun my-line-position ()
-    (concat (format-mode-line "%l")
-            (my-fade "/")
-            (number-to-string (my-buffer-line-count))))
-
-  (defun my-buffer-position ()
-    (concat
-     (my-pad 4 (concat (my-fade "(")
-                       (format-mode-line "%c")))
-     (my-fade ", ")
-     (my-pad (+ -2 (* -2 (my-digits (my-buffer-line-count))))
-             (concat (my-line-position)
-                     (my-fade ")")))))
-
-  (defvar my-buffer-position-string
-    '(:eval
-      (propertize (my-buffer-position)
-                  'help-echo "Toggle line numbers."
-                  'local-map (make-mode-line-mouse-map 'mouse-1 #'linum-mode)))
-    "(column, row/rows); click to toggle line numbers.")
-  (put 'my-buffer-position-string 'risky-local-variable t)
+    "Current line / total lines. Click to toggle line numbers."
+    (propertize
+     (concat (my-pad (my-digits (my-buffer-line-count))
+                     (format-mode-line "%l"))
+             (my-fade "/")
+             (number-to-string (my-buffer-line-count)))
+     'help-echo "Toggle line numbers."
+     'local-map (make-mode-line-mouse-map 'mouse-1 #'linum-mode)))
 
   (defun my-buffer-write-status ()
     "Show whether a file-like buffer has been modified since its last save; click to save. Should 'do what I mean'."
@@ -532,21 +494,6 @@ This function is called at the very end of Spacemacs initialization, after layer
                "‑ click to save")
        'local-map (make-mode-line-mouse-map 'mouse-1 #'save-buffer))))
 
-  ;; (defvar my-buffer-write-status
-  ;;   '(:eval
-  ;;     (if (not (or buffer-file-name
-  ;;                  (derived-mode-p 'text-mode 'prog-mode))) ""
-  ;;       (propertize
-  ;;        (my-pad 1 (concat (if (buffer-modified-p) "◆" "")
-  ;;                          (if buffer-read-only "🔒" "")))
-  ;;        'help-echo
-  ;;        (concat (if (buffer-modified-p) "modified " "")
-  ;;                (if buffer-read-only "read-only " "")
-  ;;                (if buffer-file-name "file " "buffer ")
-  ;;                "‑ click to save")
-  ;;        'local-map (make-mode-line-mouse-map 'mouse-1 #'save-buffer))))
-  ;;   "Show whether a file-like buffer has been modified since its last save; click to save. Should 'do what I mean'.")
-
   (defun my-format-prog-mode-line ()
     (setq mode-line-format
           '(
@@ -554,13 +501,12 @@ This function is called at the very end of Spacemacs initialization, after layer
             " "
             (:eval (my-buffer-name))
             " "
-            my-buffer-position-string
-            " "
+            (:eval (my-line-position))
+            "  "
             mode-name
             "  "
-            my-cl-vc-string
-            )
-          ))
+            (:eval (my-vc-branch))
+            )))
 
   (defun my-format-text-mode-line ()
     (setq mode-line-format
@@ -571,9 +517,8 @@ This function is called at the very end of Spacemacs initialization, after layer
             "  "
             (:eval (my-line-position))
             "  "
-            my-vc-string
-            )
-          ))
+            (:eval (my-vc-branch))
+            )))
 
   (defun my-format-frame-title ()
     (when (display-graphic-p)
@@ -581,9 +526,8 @@ This function is called at the very end of Spacemacs initialization, after layer
             '(
               (:eval (my-buffer-write-status))
               " "
-              my-file-directory-string
+              (:eval (my-file-directory))
               (:eval (my-buffer-or-file-name))
-              "  "
               ))))
   (my-format-frame-title)
 
