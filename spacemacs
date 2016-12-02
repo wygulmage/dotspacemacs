@@ -359,10 +359,12 @@ This function is called at the very end of Spacemacs initialization, after layer
 ;;; Strings:
 
   (defun my-pad (w s)
-    "Pad string s to width w; a negative width means add the padding on the right."
+    "Integer -> String -> String
+Pad string s to width w; a negative width means add the padding on the right."
     (format (concat "%" (number-to-string w) "s") s))
 
   (defun my-fade (s)
+    "String -> String"
     (propertize s 'face '(:inherit shadow)))
 
   (defun my-brighten (s)
@@ -372,7 +374,8 @@ This function is called at the very end of Spacemacs initialization, after layer
 ;;; Numbers:
 
   (defun my-digits (n)
-    "The number of decimal digits in n, including any period as a digit."
+    "Number -> String
+The number of decimal digits in n, including any period as a digit."
     (length (number-to-string n)))
 
 ;;; Faces:
@@ -457,7 +460,7 @@ This function is called at the very end of Spacemacs initialization, after layer
     (when (and vc-mode buffer-file-truename)
       (let ((desc.color
              (pcase (vc-state buffer-file-truename)
-               ('up-to-date (cons "up to date"  (face-attribute 'mode-line :foreground)))
+               ('up-to-date `("up to date"  ,(face-attribute 'mode-line :foreground)))
                ('added '("staged" . "#99cc99"))
                ('edited '("unstaged" . "#bbdaff"))
                ('needs-merge '("needs to be merged" . "#ffc58f"))
@@ -467,18 +470,20 @@ This function is called at the very end of Spacemacs initialization, after layer
         (propertize
          (replace-regexp-in-string "Git:" "" vc-mode)
          'face `(:foreground ,(cdr desc.color))
+         'mouse-face '(:box nil)
          'help-echo (concat "VC status: " (car desc.color))
          'local-map (make-mode-line-mouse-map 'mouse-1 #'magit-status)))))
 
   (defun my-line-position ()
     "Current line / total lines. Click to toggle line numbers."
-    (propertize
-     (concat (my-pad (my-digits (my-buffer-line-count))
-                     (format-mode-line "%l"))
-             (my-fade "/")
-             (number-to-string (my-buffer-line-count)))
-     'help-echo "Toggle line numbers."
-     'local-map (make-mode-line-mouse-map 'mouse-1 #'linum-mode)))
+    (let ((lines (number-to-string (my-buffer-line-count))))
+      (propertize
+       (concat (my-pad (length lines)
+                       (format-mode-line "%l"))
+               (my-fade "/")
+               lines)
+       'help-echo "Toggle line numbers."
+       'local-map (make-mode-line-mouse-map 'mouse-1 #'linum-mode))))
 
   (defun my-buffer-write-status ()
     "Show whether a file-like buffer has been modified since its last save; click to save. Should 'do what I mean'."
