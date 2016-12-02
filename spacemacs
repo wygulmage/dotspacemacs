@@ -416,59 +416,22 @@ This function is called at the very end of Spacemacs initialization, after layer
   ;;; Mode Line, Header Line, and Frame Title Format
 
   ;; To do: Check for derived mode to determine whether buffer is file-like. prog-mode and text-mode will hopefully do it. Do the same for mode line?
-  (defvar my-buffer-modified-string
-    '(:eval
-      (when (or buffer-file-truename
-                (derived-mode-p 'text-mode 'prog-mode))
-        (if buffer-read-only
-            (if (buffer-modified-p)
-                (propertize "◆🔒"
-                            'help-echo "Modified read-only file ‑ click to save a copy."
-                            'local-map (make-mode-line-mouse-map 'mouse-1 #'write-file))
-              (propertize "🔒"
-                          'help-echo "Read-only file ‑ click to save a copy."
-                          'local-map (make-mode-line-mouse-map 'mouse-1 #'write-file)))
-          (if (buffer-modified-p)
-              (if buffer-file-truename
-                  (propertize "◆"
-                              'help-echo "Modified file ‑ click to save."
-                              'local-map (make-mode-line-mouse-map 'mouse-1 #'save-buffer))
-                (propertize "◆"
-                            'help-echo "Modified buffer ‑ click to save as a file."
-                            'local-map (make-mode-line-mouse-map 'mouse-1 #'write-file)))
-            " "))))
-    "Show whether a file-like buffer has been modified since its last save; click to save. Should 'do what I mean'.")
-  (put 'my-buffer-modified-string 'risky-local-variable t)
 
-  ;; buffer-file-truename -> File
-  ;; (derived-mode-p 'text-mode 'prog-mode) -> File-Like
-  ;; buffer-read-only
-  ;; (buffer-modified-p)
-  ;;              Read-Only Modified
-  ;;              ------------------
-  ;;         File 🔒 Copy    ◆ Save
-  ;;    File-Like 🔒 Copy    ◆ Copy
-  ;; Other Buffer
-  ;;
+  (defun my-buffer-name ()
+    "The name of the buffer. If it's a file, shows the directory on hover and opens dired with a click."
+    (if buffer-file-truename
+        (propertize (buffer-name)
+                    'help-echo (abbreviate-file-name buffer-file-truename)
+                    'local-map (make-mode-line-mouse-map
+                                'mouse-1 (lambda () (interactive)
+                                           (dired (file-name-directory buffer-file-truename)))))
+      (buffer-name)))
 
-  (defvar my-buffer-name-string
-    '(:eval
-      (if buffer-file-truename
-          (propertize (buffer-name)
-                      'help-echo (abbreviate-file-name buffer-file-truename)
-                      'local-map (make-mode-line-mouse-map
-                                  'mouse-1 (lambda () (interactive)
-                                             (dired (file-name-directory buffer-file-truename)))))
-        (buffer-name)))
-    "The name of the buffer. If it's a file, shows the directory on hover and opens dired with a click.")
-  (put 'my-buffer-name-string 'risky-local-variable t)
-
-  (defvar my-buffer-or-file-name-string
-    '(:eval (if buffer-file-truename
-                (file-name-nondirectory buffer-file-truename)
-              (buffer-name)))
-    "The filename if there is one; otherwise, the buffer name")
-  (put 'my-buffer-or-file-name-string 'risky-local-variable t)
+  (defun my-buffer-or-file-name ()
+    "The filename if there is one; otherwise, the buffer name"
+    (if buffer-file-truename
+        (file-name-nondirectory buffer-file-truename)
+      (buffer-name)))
 
   (defvar my-file-directory-string
     '(:eval (when buffer-file-truename
@@ -533,22 +496,10 @@ This function is called at the very end of Spacemacs initialization, after layer
            'help-echo (concat "VC status: " description)
            'local-map (make-mode-line-mouse-map 'mouse-1 #'magit-status))))))
 
-  (defvar my-buffer-position-percentage-string
-    '(:eval (pcase (format-mode-line "%P")
-              ("Bottom" "100")
-              ("All" "100")
-              (% (concat " " (substring % -3 nil)))))
-    "The percentage of the buffer above the bottom of the pane. Should give a percentage for the top, but does not.")
-
-
   (defun my-line-position ()
     (concat (format-mode-line "%l")
             (my-fade "/")
             (number-to-string (my-buffer-line-count))))
-
-  (defvar my-line-position-string
-    '(:eval (my-line-position)))
-  (put 'my-line-position-string 'risky-local-variable t)
 
   (defun my-buffer-position ()
     (concat
@@ -567,88 +518,73 @@ This function is called at the very end of Spacemacs initialization, after layer
     "(column, row/rows); click to toggle line numbers.")
   (put 'my-buffer-position-string 'risky-local-variable t)
 
-  (defvar my-buffer-write-status
-    '(:eval
-      (if (not (or buffer-file-name
-                   (derived-mode-p 'text-mode 'prog-mode))) ""
-        (propertize
-         (concat (if (buffer-modified-p) "◆" "")
-                 (if buffer-read-only "🔒" ""))
-         'help-echo
-         (concat (if (buffer-modified-p) "modified " "")
-                 (if buffer-read-only "read-only " "")
-                 "‑ click to save")
-         'local-map (make-mode-line-mouse-map 'mouse-1 #'save-buffer)))))
+  (defun my-buffer-write-status ()
+    "Show whether a file-like buffer has been modified since its last save; click to save. Should 'do what I mean'."
+    (if (not (or buffer-file-name
+                 (derived-mode-p 'text-mode 'prog-mode))) ""
+      (propertize
+       (my-pad 1 (concat (if (buffer-modified-p) "◆" "")
+                         (if buffer-read-only "🔒" "")))
+       'help-echo
+       (concat (if (buffer-modified-p) "modified " "")
+               (if buffer-read-only "read-only " "")
+               (if buffer-file-name "file " "buffer ")
+               "‑ click to save")
+       'local-map (make-mode-line-mouse-map 'mouse-1 #'save-buffer))))
 
-  (defun my-make-buffer-info (l)
-    `(:eval
-      (let
-          ((file-like
-            (or buffer-file-name
-                (derived-mode-p 'text-mode 'prog-mode)))
-           (line-count
-            (count-lines (buffer-end -1) (buffer-end 1)))
-           (line-position
-            (concat (format-mode-line "%l")
-                    (my-fade "/")
-                    (number-to-string (line-count)))))
-        (mapcar
-         (lambda (x)
-           (pcase x
-             ('write-status
-              (if (not file-like) ""
-                (propertize
-                 (concat (if (buffer-modified-p) "◆" "")
-                         (if buffer-read-only "🔒" ""))
-                 'help-echo
-                 (concat (if (buffer-modified-p) "modified " "")
-                         (if buffer-read-only "read-only " "")
-                         "‑ click to save")
-                 'local-map (make-mode-line-mouse-map 'mouse-1 #'save-buffer))))
-             ('line-position
-              line-position)))
-         ,l))))
-
+  ;; (defvar my-buffer-write-status
+  ;;   '(:eval
+  ;;     (if (not (or buffer-file-name
+  ;;                  (derived-mode-p 'text-mode 'prog-mode))) ""
+  ;;       (propertize
+  ;;        (my-pad 1 (concat (if (buffer-modified-p) "◆" "")
+  ;;                          (if buffer-read-only "🔒" "")))
+  ;;        'help-echo
+  ;;        (concat (if (buffer-modified-p) "modified " "")
+  ;;                (if buffer-read-only "read-only " "")
+  ;;                (if buffer-file-name "file " "buffer ")
+  ;;                "‑ click to save")
+  ;;        'local-map (make-mode-line-mouse-map 'mouse-1 #'save-buffer))))
+  ;;   "Show whether a file-like buffer has been modified since its last save; click to save. Should 'do what I mean'.")
 
   (defun my-format-prog-mode-line ()
     (setq mode-line-format
-          (list
-           my-buffer-modified-string
-           " "
-           my-buffer-name-string
-           " "
-           my-buffer-position-string
-           " "
-           mode-name
-           "  "
-           my-cl-vc-string
-           (my-make-buffer-info '(write-status line-position))
-           )
+          '(
+            (:eval (my-buffer-write-status))
+            " "
+            (:eval (my-buffer-name))
+            " "
+            my-buffer-position-string
+            " "
+            mode-name
+            "  "
+            my-cl-vc-string
+            )
           ))
 
   (defun my-format-text-mode-line ()
     (setq mode-line-format
-          (list
-           my-buffer-modified-string
-           " "
-           my-buffer-name-string
-           "  "
-           my-line-position-string
-           "  "
-           my-vc-string
-           )
+          '(
+            (:eval (my-buffer-write-status))
+            " "
+            (:eval (my-buffer-name))
+            "  "
+            (:eval (my-line-position))
+            "  "
+            my-vc-string
+            )
           ))
 
   (defun my-format-frame-title ()
     (when (display-graphic-p)
       (setq frame-title-format
-            (list
-             my-buffer-modified-string
-             " "
-             my-file-directory-string
-             my-buffer-or-file-name-string
-             "  "
-             ))))
+            '(
+              (:eval (my-buffer-write-status))
+              " "
+              my-file-directory-string
+              (:eval (my-buffer-or-file-name))
+              "  "
+              ))))
   (my-format-frame-title)
 
   ;;; --------------------------------
