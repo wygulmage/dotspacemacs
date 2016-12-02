@@ -567,22 +567,48 @@ This function is called at the very end of Spacemacs initialization, after layer
     "(column, row/rows); click to toggle line numbers.")
   (put 'my-buffer-position-string 'risky-local-variable t)
 
-  (defun my-mode-line (buffer op)
-    (with-current-buffer buffer
-      (let ((file-like (or buffer-file-name (derived-mode-p 'text-mode 'prog-mode)))
-            )
-        (pcase (op)
-          ('write-status
-           (lambda () (if (not file-like) ""
-                        (propertize
-                         (concat (if (buffer-modified-p) "◆" "")
-                                 (if buffer-read-only "🔒" ""))
-                         'help-echo
-                         (concat (if (buffer-modified-p) "modified " "")
-                                 (if buffer-read-only "read-only " "")
-                                 "‑ click to save")
-                         'local-map (make-mode-line-mouse-map 'mouse-1 #'save-buffer))
-                        )))))))
+  (defvar my-buffer-write-status
+    '(:eval
+      (if (not (or buffer-file-name
+                   (derived-mode-p 'text-mode 'prog-mode))) ""
+        (propertize
+         (concat (if (buffer-modified-p) "◆" "")
+                 (if buffer-read-only "🔒" ""))
+         'help-echo
+         (concat (if (buffer-modified-p) "modified " "")
+                 (if buffer-read-only "read-only " "")
+                 "‑ click to save")
+         'local-map (make-mode-line-mouse-map 'mouse-1 #'save-buffer)))))
+
+  (defun my-make-buffer-info (l)
+    `(:eval
+      (let
+          ((file-like
+            (or buffer-file-name
+                (derived-mode-p 'text-mode 'prog-mode)))
+           (line-count
+            (count-lines (buffer-end -1) (buffer-end 1)))
+           (line-position
+            (concat (format-mode-line "%l")
+                    (my-fade "/")
+                    (number-to-string (line-count)))))
+        (mapcar
+         (lambda (x)
+           (pcase x
+             ('write-status
+              (if (not file-like) ""
+                (propertize
+                 (concat (if (buffer-modified-p) "◆" "")
+                         (if buffer-read-only "🔒" ""))
+                 'help-echo
+                 (concat (if (buffer-modified-p) "modified " "")
+                         (if buffer-read-only "read-only " "")
+                         "‑ click to save")
+                 'local-map (make-mode-line-mouse-map 'mouse-1 #'save-buffer))))
+             ('line-position
+              line-position)))
+         ,l))))
+
 
   (defun my-format-prog-mode-line ()
     (setq mode-line-format
@@ -596,6 +622,7 @@ This function is called at the very end of Spacemacs initialization, after layer
            mode-name
            "  "
            my-cl-vc-string
+           (my-make-buffer-info '(write-status line-position))
            )
           ))
 
