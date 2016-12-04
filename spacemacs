@@ -452,23 +452,45 @@ This function is called at the very end of Spacemacs initialization, after layer
     "The buffer's major-mode")
   (put 'my-major-mode-name 'risky-local-variable t)
 
+  (defun my-vc-status ()
+    (if buffer-file-name
+        (vc-state buffer-file-truename)
+      nil))
+
   (defun my-vc-branch ()
-    "The branch of a version-controlled file, colored to indicate status"
-    (when (and vc-mode buffer-file-truename)
-      (let ((desc.color
-             (pcase (vc-state buffer-file-truename)
-               ('up-to-date (cons "up to date"  (face-attribute 'mode-line :foreground)))
-               ('added '("staged" . "#99cc99"))
-               ('edited '("unstaged" . "#bbdaff"))
-               ('needs-merge '("needs to be merged" . "#ffc58f"))
-               ('removed '("removed" . "#ff9da4"))
-               ('ignored '("ignored" . "#999999"))
-               (_ '(nil . nil)))))
-        (propertize
-         (replace-regexp-in-string "Git:" "" vc-mode)
-         'face `(:foreground ,(cdr desc.color))
-         'help-echo (concat "VC status: " (car desc.color))
-         'local-map (make-mode-line-mouse-map 'mouse-1 #'magit-status)))))
+    "Propertized VC status. "
+    (let ((status (my-vc-status)))
+      (if status
+          (cl-multiple-value-bind
+              (description color)
+              (pcase status
+                ;; backquote is needed so Emacs 24 doesn't choke on the cases.
+                (`up-to-date
+                 `("up to date" ,(face-attribute 'mode-line :foreground)))
+                (`edited
+                 '("edited" "#BBDAFF"))
+                (`added
+                 '("added" "#88CC99"))
+                (`needs-update
+                 '("needs to be updated" "#ffc58f"))
+                (`needs-merge
+                 '("needs to be merged" "#ffc58F"))
+                (`removed
+                 '("deleted" "#ff5555"))
+                (`conflict
+                 '("conflicted" "#EEAA33"))
+                (`ignored
+                 '("ignored" "#888888"))
+                (`unregistered
+                 '("untracked" "#888888"))
+                (_
+                 `(,(symbol-name status) "#FFFFFF")))
+            (propertize
+             (concat
+              (replace-regexp-in-string "Git:" "" vc-mode) " (" description ")")
+             'face `(:foreground ,color)
+             'local-map (make-mode-line-mouse-map 'mouse-1 #'magit-status)))
+        "")))
 
   (defun my-line-position ()
     "Current line / total lines. Click to toggle line numbers."
@@ -585,6 +607,7 @@ This function is called at the very end of Spacemacs initialization, after layer
      after-change-major-mode-hook
      buffer-list-update-hook
      first-change-hook
+     magit-pre-refresh-hook
      )
    '(
      force-mode-line-update
