@@ -455,34 +455,55 @@ The number of decimal digits in n, including any period as a digit."
     "The buffer's major-mode")
   (put 'my-major-mode-name 'risky-local-variable t)
 
+  (defun my-vc-status ()
+    (if buffer-file-name
+        (vc-state buffer-file-truename)
+      nil))
+
   (defun my-vc-branch ()
-    "The branch of a version-controlled file, colored to indicate status"
-    (when (and vc-mode buffer-file-truename)
-      (let ((desc.color
-             (pcase (vc-state buffer-file-truename)
-               ('up-to-date `("up to date"  ,(face-attribute 'mode-line :foreground)))
-               ('added '("staged" . "#99cc99"))
-               ('edited '("unstaged" . "#bbdaff"))
-               ('needs-merge '("needs to be merged" . "#ffc58f"))
-               ('removed '("removed" . "#ff9da4"))
-               ('ignored '("ignored" . "#999999"))
-               (_ '(nil . nil)))))
+    "Propertized VC status. "
+    (let ((status (my-vc-status)))
+      (if status
+          (cl-multiple-value-bind
+              (description color)
+              (pcase status
+                ;; backquote is needed so Emacs 24 doesn't choke on the cases.
+                (`up-to-date
+                 `("up to date" ,(face-attribute 'mode-line :foreground)))
+                (`edited
+                 '("edited" "#BBDAFF"))
+                (`added
+                 '("added" "#88CC99"))
+                (`needs-update
+                 '("needs to be updated" "#ffc58f"))
+                (`needs-merge
+                 '("needs to be merged" "#ffc58F"))
+                (`removed
+                 '("deleted" "#ff5555"))
+                (`conflict
+                 '("conflicted" "#EEAA33"))
+                (`ignored
+                 '("ignored" "#888888"))
+                (`unregistered
+                 '("untracked" "#888888"))
+                (_
+                 `(,(symbol-name status) "#FFFFFF")))
         (propertize
-         (replace-regexp-in-string "Git:" "" vc-mode)
-         'face `(:foreground ,(cdr desc.color))
-         'mouse-face '(:box nil)
-         'help-echo (concat "VC status: " (car desc.color))
-         'local-map (make-mode-line-mouse-map 'mouse-1 #'magit-status)))))
+             (concat
+              (replace-regexp-in-string "Git:" "" vc-mode) " (" description ")")
+             'face `(:foreground ,color)
+             'local-map (make-mode-line-mouse-map 'mouse-1 #'magit-status)))
+        "")))
 
   (defun my-line-position ()
     "Current line / total lines. Click to toggle line numbers."
     (let ((lines (number-to-string (my-buffer-line-count))))
-      (propertize
+    (propertize
        (concat (my-pad (length lines)
-                       (format-mode-line "%l"))
-               (my-fade "/")
+                     (format-mode-line "%l"))
+             (my-fade "/")
                lines)
-       'help-echo "Toggle line numbers."
+     'help-echo "Toggle line numbers."
        'local-map (make-mode-line-mouse-map 'mouse-1 #'linum-mode))))
 
   (defun my-buffer-write-status ()
@@ -590,6 +611,7 @@ The number of decimal digits in n, including any period as a digit."
      after-change-major-mode-hook
      buffer-list-update-hook
      first-change-hook
+     magit-pre-refresh-hook
      )
    '(
      force-mode-line-update
@@ -724,6 +746,16 @@ The number of decimal digits in n, including any period as a digit."
     set-face-attribute 'shadow nil :foreground (my-adaptive-shadow-face))
   ;; (add-hook 'after-load-theme-hook #'my-set-shadow-face)
 
+  (defun my-box-to-lines (face)
+    (let ((color
+           (pcase (face-attribute face :box)
+             (`nil nil)
+             (`t (face-attribute 'default :color))
+             ((and (pred stringp) c) c)
+             (plist (plist-get plist :color)))))
+      (when color (set-face-attribute
+                   face nil :box nil :underline color :overline color))))
+
   (defun my-laser-minor-theme (&optional color)
     "Add borders to the mode-line and disable its background color."
     (interactive)
@@ -746,6 +778,8 @@ The number of decimal digits in n, including any period as a digit."
                    (face-attribute 'mode-line :background))
       (set-face-attribute 'mode-line nil :box nil :underline nil :overline nil)))
 
+  (my-box-to-lines 'mode-line)
+  (my-box-to-lines 'mode-line-inactive)
   (my-set-face-attributes
    `(
      ;; (cursor :background) -- this is just a stub to remind me of the cursor face.
