@@ -488,9 +488,9 @@ The number of decimal digits in n, including any period as a digit."
                  '("untracked" "#888888"))
                 (_
                  `(,(symbol-name status) "#FFFFFF")))
-        (propertize
+            (propertize
              (concat
-              (replace-regexp-in-string "Git:" "" vc-mode) " (" description ")")
+              (replace-regexp-in-string "Git[:\-]" "" vc-mode) " (" description ")")
              'face `(:foreground ,color)
              'local-map (make-mode-line-mouse-map 'mouse-1 #'magit-status)))
         "")))
@@ -498,12 +498,12 @@ The number of decimal digits in n, including any period as a digit."
   (defun my-line-position ()
     "Current line / total lines. Click to toggle line numbers."
     (let ((lines (number-to-string (my-buffer-line-count))))
-    (propertize
+      (propertize
        (concat (my-pad (length lines)
-                     (format-mode-line "%l"))
-             (my-fade "/")
+                       (format-mode-line "%l"))
+               (my-fade "/")
                lines)
-     'help-echo "Toggle line numbers."
+       'help-echo "Toggle line numbers."
        'local-map (make-mode-line-mouse-map 'mouse-1 #'linum-mode))))
 
   (defun my-buffer-write-status ()
