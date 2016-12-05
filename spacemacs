@@ -51,7 +51,8 @@ This function should only set values."
             shell-default-height 30
             shell-default-position 'bottom)
      spacemacs-editing
-     spacemacs-evil ; This pulls in a lot of packages; figure out a way to pare them down.
+     (spacemacs-evil :packages
+                     (not vi-tilde-fringe))
      themes-megapack
      ;;; Bindings:
      better-defaults
@@ -109,9 +110,7 @@ This function should only set values."
      highlight-indentation ; Indentation shows this.
      highlight-parentheses ; Use `paren-face-mode' instead.
      powerline ; Use customized modeline instead.
-     ;; rainbow-delimiters ; Use `paren-face-mode'.
      spray ; Not currently using spacemacs for speed reading.
-     vi-tilde-fringe ; Line numbers show this.
      )
    ))
 
@@ -185,7 +184,7 @@ This function is called at the very startup of Spacemacs initialization before l
    dotspacemacs-default-font
    '(
      "Source Code Pro"
-     :size 13.0
+     :size 14.0
      :weight normal
      :width normal
      :powerline-scale 1.0
@@ -532,6 +531,8 @@ The number of decimal digits in n, including any period as a digit."
             mode-name
             "  "
             (:eval (my-vc-branch))
+            "  "
+            (:eval (when (bound-and-true-p anzu-mode)(anzu--update-mode-line)))
             )))
 
   (defun my-format-text-mode-line ()
