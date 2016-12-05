@@ -742,6 +742,16 @@ This function is called at the very end of Spacemacs initialization, after layer
     set-face-attribute 'shadow nil :foreground (my-adaptive-shadow-face))
   ;; (add-hook 'after-load-theme-hook #'my-set-shadow-face)
 
+  (defun my-box-to-lines (face)
+    (let ((color
+           (pcase (face-attribute face :box)
+             (`nil nil)
+             (`t (face-attribute 'default :color))
+             ((and (pred stringp) c) c)
+             (plist (plist-get plist :color)))))
+      (when color (set-face-attribute
+                   face nil :box nil :underline color :overline color))))
+
   (defun my-laser-minor-theme (&optional color)
     "Add borders to the mode-line and disable its background color."
     (interactive)
@@ -764,6 +774,8 @@ This function is called at the very end of Spacemacs initialization, after layer
                    (face-attribute 'mode-line :background))
       (set-face-attribute 'mode-line nil :box nil :underline nil :overline nil)))
 
+  (my-box-to-lines 'mode-line)
+  (my-box-to-lines 'mode-line-inactive)
   (my-set-face-attributes
    `(
      ;; (cursor :background) -- this is just a stub to remind me of the cursor face.
