@@ -333,7 +333,7 @@ This function is called at the very startup of Spacemacs initialization before l
   "Initialization function for user code.
 This function is called immediately after `dotspacemacs/init', before layer configuration. It is mostly useful for variables that must be set before packages are loaded. If you are unsure, try setting them in `dotspacemacs/user-config' first."
 
-  (setq my-default-mode-line mode-line-format) ; Save in case you want to know.
+  (setq the-default-mode-line mode-line-format) ; Save in case you want to know.
 
   (customize-set-variable 'adaptive-fill-regexp "[ \t]*\\([-–!|#%;>·•‣⁃◦]+[ \t]*\\)*") ; Removed '*' so I can make non-unicode bullet lists. Ideally there should be two separate variables: adaptive-fill-regexp and adaptive-indent-regexp. The first would indent with the 'whitespace' character, but the second would indent with actual whitespace.
 
@@ -366,9 +366,53 @@ Pad string s to width w; a negative width means add the padding on the right."
     "String -> String"
     (propertize s 'face '(:inherit shadow)))
 
-  (defun my-brighten (s)
-    (let ((fg (color-values (get-text-property :foreground s)))
-          (bg (color-values (get-text-property :background s))))))
+  (defun my-find (f l &optional no-match)
+    "Return the first non-nil result of f.car l, or nil."
+    (if (null l) no-match
+      (let ((candidate (funcall f (car l))))
+        (if candidate
+            candidate
+          (my-find f (cdr l) no-match)))))
+
+  (defun my-get-string-face-property (s key)
+    "Given a string and a keyword, get the value of the string's face's key's property. If it does not have that property, return the property of the default face."
+    (let ((face (and (> (length s) 0)
+                     (get-text-property 0 'face s))))
+      (or (cond
+           ((null face) nil)
+           ((facep face) (face-attribute face key))
+           ((facep (car face)) (my-find
+                                (lambda (x) (face-attribute x key))
+                                face))
+           (t (plist-get face key)))
+          (face-attribute 'default key))))
+
+  (defun my-shift-foreground (x face? fade?)
+    (cl-flet
+        ((get (key)
+              (color-values
+               (funcall (if face?
+                            'face-attribute
+                          'my-get-string-face-property)
+                        x key)))
+         (set (color)
+              (if face?
+                  (set-face-attribute x nil :foreground color)
+                (propertize x 'face `(:foreground ,color))))
+         (test (x y)
+               (funcall (if fade? '< '>) x y)))
+      (let ((fg (get :foreground))
+            (bg (get :background)))
+        (set (my-blend-colors
+              fg (if (test (apply '+ fg) (apply '+ bg))
+                     max-color-val
+                   '(0 0 0)))))))
+
+  (defun my-emphasize (x &optional face?)
+    (my-shift-foreground x face? nil))
+
+  (defun my-fade2 (x &optional face?)
+    (my-shift-foreground x face? t))
 
 ;;; Numbers:
 
@@ -397,16 +441,23 @@ The number of decimal digits in n, including any period as a digit."
 ;;; Colors:
 
   (defun max-color-val ()
-    "An the current maximum value for emacs color triplets."
+    "The current maximum value for emacs color triplets."
     (car (color-values "white")))
 
-  (defun my-color-values-to-string (c)
+  (defun my-color-values-to-string.bak (c)
     "Create a color string from and Emacs numerical color triplet."
     (let* ((color-ratio (/ (max-color-val) 255))
            (r (truncate (car c) color-ratio))
            (g (truncate (cadr c) color-ratio))
            (b (truncate (caddr c) color-ratio)))
       (format "#%02X%02X%02X" r g b)))
+
+  (defun my-color-values-to-string (c)
+    "Create a color string from and Emacs numerical color triplet."
+    (let ((color-ratio (/ (max-color-val) 255)))
+      (cl-multiple-value-bind (r g b)
+          (mapcar (lambda (x) (truncate x color-ratio)) c)
+        (format "#%02X%02X%02X" r g b))))
 
   (defun my-blend-colors (c1 c2)
     "Evenly blend two emacs color triplets."
@@ -500,7 +551,7 @@ The number of decimal digits in n, including any period as a digit."
       (propertize
        (concat (my-pad (length lines)
                        (format-mode-line "%l"))
-               (my-fade "/")
+               (my-fade2 "/")
                lines)
        'help-echo "Toggle line numbers."
        'local-map (make-mode-line-mouse-map 'mouse-1 #'linum-mode))))
@@ -586,7 +637,9 @@ The number of decimal digits in n, including any period as a digit."
     (let ((h (if (string= system-type "gnu/linux") 148 120)))
       (mapc (lambda (face) (set-face-attribute face nil :height h))
             '(default fixed-pitch variable-pitch ))))
-  (my-reset-font-height-by-platform)
+
+  (add-hook 'window-setup-hook
+            'my-reset-font-height-by-platform)
 
   ;;; ---------------------------------
   ;;; Miscelaneous Global Stuff
