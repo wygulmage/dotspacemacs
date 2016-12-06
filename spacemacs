@@ -355,7 +355,14 @@ This function is called at the very end of Spacemacs initialization, after layer
   (defun my-buffer-line-count ()
     (count-lines (buffer-end -1) (buffer-end 1)))
 
-;;; Strings:
+;;; Numbers:
+
+  (defun my-digits (n)
+    "Number -> String
+The number of decimal digits in n, including any period as a digit."
+    (length (number-to-string n)))
+
+;;; Strings, Colors, and Faces:
 
   (defun my-pad (w s)
     "Integer -> String -> String
@@ -381,32 +388,32 @@ Pad string s to width w; a negative width means add the padding on the right."
       (or (cond
            ((null face) nil)
            ((facep face) (face-attribute face key))
-           ((facep (car face)) (my-find
-                                (lambda (x) (face-attribute x key))
-                                face))
+           ((facep (car face))
+            (my-find (lambda (x) (face-attribute x key))
+                     face))
            (t (plist-get face key)))
           (face-attribute 'default key))))
 
   (defun my-shift-foreground (x face? fade?)
     (cl-flet
-        ((get (key)
-              (color-values
-               (funcall (if face?
-                            'face-attribute
-                          'my-get-string-face-property)
-                        x key)))
-         (set (color)
-              (if face?
-                  (set-face-attribute x nil :foreground color)
-                (propertize x 'face `(:foreground ,color))))
+        ((get-color (key)
+                    (color-values
+                     (funcall (if face?
+                                  'face-attribute
+                                'my-get-string-face-property)
+                              x key)))
+         (set-color (color)
+                    (if face?
+                        (set-face-attribute x nil :foreground color)
+                      (propertize x 'face `(:foreground ,color))))
          (test (x y)
                (funcall (if fade? '< '>) x y)))
-      (let ((fg (get :foreground))
-            (bg (get :background)))
-        (set (my-blend-colors
-              fg (if (test (apply '+ fg) (apply '+ bg))
-                     max-color-val
-                   '(0 0 0)))))))
+      (let ((fg (get-color :foreground))
+            (bg (get-color :background)))
+        (set-color (my-blend-colors
+                    fg (if (test (apply '+ fg) (apply '+ bg))
+                           max-color-val
+                         '(0 0 0)))))))
 
   (defun my-emphasize (x &optional face?)
     (my-shift-foreground x face? nil))
@@ -414,14 +421,6 @@ Pad string s to width w; a negative width means add the padding on the right."
   (defun my-fade2 (x &optional face?)
     (my-shift-foreground x face? t))
 
-;;; Numbers:
-
-  (defun my-digits (n)
-    "Number -> String
-The number of decimal digits in n, including any period as a digit."
-    (length (number-to-string n)))
-
-;;; Faces:
 
   (defun my-select-font (fonts)
     "Return the first available font in `fonts', or the default font if none are available."
@@ -437,8 +436,6 @@ The number of decimal digits in n, including any period as a digit."
                 (unless (facep face) (make-face face))
                 (apply #'set-face-attribute face buffer attributes)))
             l))
-
-;;; Colors:
 
   (defun max-color-val ()
     "The current maximum value for emacs color triplets."
