@@ -172,7 +172,7 @@ This function is called at the very startup of Spacemacs initialization before l
      ;; solarized-dark
      ;; solarized-light
      ;; monokai
-     zenburn
+     ;; zenburn
      leuven
      )
 
@@ -369,10 +369,6 @@ The number of decimal digits in n, including any period as a digit."
 Pad string s to width w; a negative width means add the padding on the right."
     (format (concat "%" (number-to-string w) "s") s))
 
-  (defun my-fade (s)
-    "String -> String"
-    (propertize s 'face '(:inherit shadow)))
-
   (defun my-find (f l &optional no-match)
     "Return the first non-nil result of f.car l, or nil."
     (if (null l) no-match
@@ -421,7 +417,7 @@ Pad string s to width w; a negative width means add the padding on the right."
   (defun my-emphasize (x &optional face?)
     (my-shift-foreground x face? nil))
 
-  (defun my-fade2 (x &optional face?)
+  (defun my-fade (x &optional face?)
     (my-shift-foreground x face? t))
 
 
@@ -543,7 +539,7 @@ Pad string s to width w; a negative width means add the padding on the right."
       (propertize
        (concat (my-pad (length lines)
                        (format-mode-line "%l"))
-               (my-fade2 "/")
+               (my-fade "/")
                lines)
        'help-echo "Toggle line numbers."
        'local-map (make-mode-line-mouse-map 'mouse-1 #'linum-mode))))
