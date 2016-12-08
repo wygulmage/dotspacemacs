@@ -395,6 +395,7 @@ Pad string s to width w; a negative width means add the padding on the right."
           (face-attribute 'default key))))
 
   (defun my-shift-foreground (x face? fade?)
+    "Shift the color of a string or face away from or towards the background color."
     (cl-flet
         ((get-color (key)
                     (color-values
