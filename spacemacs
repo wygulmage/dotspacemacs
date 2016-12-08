@@ -397,24 +397,26 @@ Pad string s to width w; a negative width means add the padding on the right."
   (defun my-shift-foreground (x face? fade?)
     "Shift the color of a string or face away from or towards the background color."
     (cl-flet
-        ((get-color (key)
-                    (color-values
-                     (funcall (if face?
-                                  'face-attribute
-                                'my-get-string-face-property)
-                              x key)))
-         (set-color (color)
-                    (if face?
-                        (set-face-attribute x nil :foreground color)
-                      (propertize x 'face `(:foreground ,color))))
-         (test (x y)
-               (funcall (if fade? '< '>) x y)))
-      (let ((fg (get-color :foreground))
-            (bg (get-color :background)))
-        (set-color (my-blend-colors
-                    fg (if (test (apply '+ fg) (apply '+ bg))
-                           max-color-val
-                         '(0 0 0)))))))
+        ((color-of (key)
+                   (color-values
+                    (funcall (if face?
+                                 'face-attribute
+                               'my-get-string-face-property)
+                             x key)))
+         (color-fg (color)
+                   (if face?
+                       (set-face-attribute x nil :foreground color)
+                     (propertize x 'face `(:foreground ,color))))
+         (brighter (c1 c2)
+                   (> (apply '+ c1) (apply '+ c2))))
+      (let ((fg (color-of :foreground))
+            (bg (color-of :background)))
+        (color-fg (my-color-values-to-string
+                   (my-blend-colors
+                    fg (cond
+                        (fade? bg)
+                        ((brighter fg bg) (max-color-val))
+                        (t '(0 0 0)))))))))
 
   (defun my-emphasize (x &optional face?)
     (my-shift-foreground x face? nil))
@@ -441,14 +443,6 @@ Pad string s to width w; a negative width means add the padding on the right."
   (defun max-color-val ()
     "The current maximum value for emacs color triplets."
     (car (color-values "white")))
-
-  (defun my-color-values-to-string.bak (c)
-    "Create a color string from and Emacs numerical color triplet."
-    (let* ((color-ratio (/ (max-color-val) 255))
-           (r (truncate (car c) color-ratio))
-           (g (truncate (cadr c) color-ratio))
-           (b (truncate (caddr c) color-ratio)))
-      (format "#%02X%02X%02X" r g b)))
 
   (defun my-color-values-to-string (c)
     "Create a color string from and Emacs numerical color triplet."
