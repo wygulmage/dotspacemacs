@@ -776,22 +776,6 @@ Pad string s to width w; a negative width means add the padding on the right."
   ;;  "Functions to run after a new theme is loaded.")
   ;; (advice-add 'load-theme :after (lambda () (run-hooks 'after-load-theme-hook)))
 
-  (defun my-adaptive-shadow-face ()
-    "Create a string representation of a color halfway between the foreground and the background."
-    (let*
-        ((default-foreground
-           (color-values (face-attribute 'default :foreground)))
-         (default-background
-           (color-values (face-attribute 'default :background))))
-      (my-color-values-to-string
-       (my-blend-colors
-        default-foreground
-        default-background))))
-
-  (defun my-set-shadow-face ()
-    (my-shift-face-color 'shadow 'default t))
-  ;; (add-hook 'after-load-theme-hook #'my-set-shadow-face)
-
   (defun my-box-to-lines (face)
     (let ((color
            (pcase (face-attribute face :box)
@@ -826,10 +810,13 @@ Pad string s to width w; a negative width means add the padding on the right."
 
   (my-box-to-lines 'mode-line)
   (my-box-to-lines 'mode-line-inactive)
+  (defun my-set-shadow-face ()
+    (my-shift-face-color 'shadow 'default t))
+  (my-set-shadow-face)
+  ;; (add-hook 'after-load-theme-hook #'my-set-shadow-face)
   (my-set-face-attributes
    `(
      ;; (cursor :background) -- this is just a stub to remind me of the cursor face.
-     (shadow :foreground ,(my-adaptive-shadow-face))
      ;; Things that don't do stuff:
      (font-lock-comment-face :background unspecified :slant normal)
      ;; (font-lock-comment-delimiter-face :slant normal :inherit font-lock-comment-face)
