@@ -399,38 +399,30 @@ Pad string s to width w; a negative width means add the padding on the right."
       (my-blend-colors color toner)))
 
   (defun my-shift-string-color (s &optional fade?)
-    (cl-flet (color-of (key)
-                       (color-values (my-get-string-face-property s key)))
+    "Make the foreground of a string closer to or farther from its background."
+    (cl-flet ((color-of (key)
+                        (color-values (my-get-string-face-property s key))))
       (let ((color (my-color-values-to-string
                     (my-shift-color (color-of :foreground)
                                     (color-of :background)
                                     (not fade?)))))
         (propertize s 'face `(:foreground ,color)))))
 
-  (defun my-shift-foreground (x face? fade?)
-    "Shift the color of a string or face away from or towards the background color."
-    (cl-flet
-        ((color-of (key)
-                   (color-values
-                    (funcall (if face?
-                                 'face-attribute
-                               'my-get-string-face-property)
-                             x key)))
-         (color-fg (color)
-                   (if face?
-                       (set-face-attribute x nil :foreground color)
-                     (propertize x 'face `(:foreground ,color)))))
-      (color-fg (my-color-values-to-string
-                 (my-shift-color (color-of :foreground)
-                                 (color-of :background)
-                                 (not fade?))))))
+  (defun my-emphasize (s)
+    (my-shift-string-color s))
 
-  (defun my-emphasize (x &optional face?)
-    (my-shift-foreground x face? nil))
+  (defun my-fade (s)
+    (my-shift-string-color s t))
 
-  (defun my-fade (x &optional face?)
-    (my-shift-foreground x face? t))
-
+  (defun my-shift-face-color (face reference &optional fade?)
+    "Make a face more or less intense than another face."
+    (cl-flet ((color-of (key)
+                        (color-values (face-attribute reference key))))
+      (let ((color (my-color-values-to-string
+                    (my-shift-color (color-of :foreground)
+                                    (color-of :background)
+                                    (not fade?)))))
+        (set-face-attribute face nil :foreground color))))
 
   (defun my-select-font (fonts)
     "Return the first available font in `fonts', or the default font if none are available."
@@ -797,7 +789,7 @@ Pad string s to width w; a negative width means add the padding on the right."
         default-background))))
 
   (defun my-set-shadow-face ()
-    set-face-attribute 'shadow nil :foreground (my-adaptive-shadow-face))
+    (my-shift-face-color 'shadow 'default t))
   ;; (add-hook 'after-load-theme-hook #'my-set-shadow-face)
 
   (defun my-box-to-lines (face)
