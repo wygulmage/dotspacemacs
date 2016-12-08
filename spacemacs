@@ -390,6 +390,14 @@ Pad string s to width w; a negative width means add the padding on the right."
            (t (plist-get face key)))
           (face-attribute 'default key))))
 
+  (defun my-shift-color (color reference &optional away?)
+    (let ((toner (cond ((not away?) reference)
+                       ((> (apply '+ color)
+                           (apply '+ reference))
+                        (max-color-val))
+                       (t '(0 0 0)))))
+      (my-blend-colors color toner)))
+
   (defun my-shift-foreground (x face? fade?)
     "Shift the color of a string or face away from or towards the background color."
     (cl-flet
@@ -402,17 +410,11 @@ Pad string s to width w; a negative width means add the padding on the right."
          (color-fg (color)
                    (if face?
                        (set-face-attribute x nil :foreground color)
-                     (propertize x 'face `(:foreground ,color))))
-         (brighter (c1 c2)
-                   (> (apply '+ c1) (apply '+ c2))))
-      (let ((fg (color-of :foreground))
-            (bg (color-of :background)))
-        (color-fg (my-color-values-to-string
-                   (my-blend-colors
-                    fg (cond
-                        (fade? bg)
-                        ((brighter fg bg) (max-color-val))
-                        (t '(0 0 0)))))))))
+                     (propertize x 'face `(:foreground ,color)))))
+      (color-fg (my-color-values-to-string
+                 (my-shift-color (color-of :foreground)
+                                 (color-of :background)
+                                 (not fade?))))))
 
   (defun my-emphasize (x &optional face?)
     (my-shift-foreground x face? nil))
