@@ -657,7 +657,8 @@ Pad string s to width w; a negative width means add the padding on the right."
      after-change-major-mode-hook
      buffer-list-update-hook
      first-change-hook
-     magit-pre-refresh-hook
+     magit-refresh-buffer-hook
+     magit-post-refresh-hook
      )
    '(
      force-mode-line-update
