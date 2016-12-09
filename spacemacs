@@ -662,6 +662,7 @@ Pad string s to width w; a negative width means add the padding on the right."
      ))
 
   (defun my-add-procedure-hook (hook when procedure)
+    (unless (boundp hook) (defvar hook nil))
     (pcase when
       (:before
        (add-function :before procedure
@@ -676,7 +677,6 @@ Pad string s to width w; a negative width means add the padding on the right."
         (my-add-hook-to-procedure hook when procedure))))
 
   ;; Refresh VC state to update mode line info. Fall back to expensive vc-find-file-hook if `vc-refresh-state' is not available.
-  (defvar my-after-magit-runs-git-hook nil)
 
   (my-add-hooks-to-procedures
    '(my-after-magit-runs-git-hook)
@@ -691,7 +691,7 @@ Pad string s to width w; a negative width means add the padding on the right."
      my-after-magit-runs-git-hook
      )
    `(
-     ,(if (boundp 'vc-refresh-state)
+     ,(if (fboundp 'vc-refresh-state)
           'vc-refresh-state 'vc-find-file-hook)
      ,(lambda () (force-mode-line-update t)) ; refresh all mode lines.
      ))
@@ -722,9 +722,6 @@ Pad string s to width w; a negative width means add the padding on the right."
      spacemacs-buffer-mode-hook
      )
    '((lambda () (setq mode-line-format nil))))
-
-  (add-hook 'magit-post-refresh-hook
-            (lambda () (force-mode-line-update t)))
 
   ;;; ------------------------------
   ;;; Key Maps
