@@ -663,10 +663,20 @@ Pad string s to width w; a negative width means add the padding on the right."
 
   ;; Refresh VC state to update mode line info. Fall back to expensive vc-find-file-hook if `vc-refresh-state' is not available.
   (defvar my-after-magit-runs-git-hook nil)
-  (advice-add :after 'magit-run-git
-              (lambda () (run-hooks 'my-after-magit-runs-git-hook)))
-  (advice-add :after 'magit-process-sentinel
-              (lambda () (run-hooks 'my-after-magit-runs-git-hook)))
+
+  (defun my-add-hook-to-procedure (hook procedure when)
+    (pcase when
+       (:before
+        (add-function :before procedure
+                      (lambda (ignored) (run-hooks hook))))
+       (:after
+        (add-function :filter-return procedure
+                      (lambda (result) (run-hooks hook) result)))))
+
+  (my-add-hook-to-procedure 'my-after-magit-runs-git-hook
+                            'magit-run-git
+                            :after)
+
   (my-hook-up
    '(
      my-after-magit-runs-git-hook
