@@ -346,7 +346,7 @@ This function is called at the very end of Spacemacs initialization, after layer
 ;;; ------------------
 ;;; Helpful Procedures
 
-  (defun my-add-hooks (mode-hooks hook-functions)
+  (defun my-hook-up (mode-hooks hook-functions)
     "Add all hook-functions to all made-hooks."
     (dolist (mode-hook mode-hooks)
       (dolist (hook-function hook-functions)
@@ -651,7 +651,7 @@ Pad string s to width w; a negative width means add the padding on the right."
 
   ;; (add-hook 'minibuffer-inactive-mode-hook (lambda () (setq max-mini-window-height 0))) ; -- does not work; you can't make the minibuffer zero lines.
 
-  (my-add-hooks
+  (my-hook-up
    '(
      after-change-major-mode-hook
      buffer-list-update-hook
@@ -662,15 +662,18 @@ Pad string s to width w; a negative width means add the padding on the right."
      ))
 
   ;; Refresh VC state to update mode line info. Fall back to expensive vc-find-file-hook if `vc-refresh-state' is not available.
-  (my-add-hooks
+  (my-hook-up
    '(
      magit-pre-refresh-hook
      magit-refresh-buffer-hook
      )
-   `(,(if (boundp 'vc-refresh-state)
-          'vc-refresh-state 'vc-find-file-hook)))
+   `(
+     ,(if (boundp 'vc-refresh-state)
+          'vc-refresh-state 'vc-find-file-hook)
+     force-mode-line-update
+     ))
 
-  (my-add-hooks
+  (my-hook-up
    '(
      prog-mode-hook
      )
@@ -680,7 +683,7 @@ Pad string s to width w; a negative width means add the padding on the right."
      my-format-prog-mode-line
      ))
 
-  (my-add-hooks
+  (my-hook-up
    '(text-mode-hook)
    '(
      variable-pitch-mode
@@ -688,7 +691,7 @@ Pad string s to width w; a negative width means add the padding on the right."
      ))
 
   ;; Hide the mode-line when not needed useful.
-  (my-add-hooks
+  (my-hook-up
    '(
      help-mode-hook
      magit-mode-hook
@@ -760,7 +763,7 @@ Pad string s to width w; a negative width means add the padding on the right."
   (global-git-commit-mode t)
 
   ;;; Elisp:
-  (my-add-hooks
+  (my-hook-up
    '(emacs-lisp-mode-hook)
    '(
      aggressive-indent-mode
