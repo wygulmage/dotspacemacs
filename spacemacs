@@ -666,16 +666,25 @@ Pad string s to width w; a negative width means add the padding on the right."
 
   (defun my-add-hook-to-procedure (hook procedure when)
     (pcase when
-       (:before
-        (add-function :before procedure
-                      (lambda (ignored) (run-hooks hook))))
-       (:after
-        (add-function :filter-return procedure
-                      (lambda (result) (run-hooks hook) result)))))
+      (:before
+       (add-function :before procedure
+                     (lambda (ignored) (run-hooks hook))))
+      (:after
+       (add-function :filter-return procedure
+                     (lambda (result) (run-hooks hook) result)))))
 
-  (my-add-hook-to-procedure 'my-after-magit-runs-git-hook
-                            'magit-run-git
-                            :after)
+  (defun my-add-hooks-to-procedures (hooks procedures when)
+    (dolist (hook hooks)
+      (dolist (procedure procedures)
+        (my-add-hook-to-procedure hook procedure when))))
+
+  (my-add-hooks-to-procedures
+   '(my-after-magit-runs-git-hook)
+   '(
+     magit-run-git
+     magit-start-process
+     )
+   :after)
 
   (my-hook-up
    '(
