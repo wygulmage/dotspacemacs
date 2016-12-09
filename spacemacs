@@ -674,7 +674,7 @@ Pad string s to width w; a negative width means add the padding on the right."
    `(
      ,(if (boundp 'vc-refresh-state)
           'vc-refresh-state 'vc-find-file-hook)
-     (lambda () (force-mode-line-update t)) ; refresh all mode lines.
+     ,(lambda () (force-mode-line-update t)) ; refresh all mode lines.
      ))
 
   (my-hook-up
