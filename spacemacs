@@ -662,10 +662,14 @@ Pad string s to width w; a negative width means add the padding on the right."
      ))
 
   ;; Refresh VC state to update mode line info. Fall back to expensive vc-find-file-hook if `vc-refresh-state' is not available.
+  (defvar my-after-magit-runs-git-hook nil)
+  (advice-add :after 'magit-run-git
+              (lambda () (run-hooks 'my-after-magit-runs-git-hook)))
+  (advice-add :after 'magit-process-sentinel
+              (lambda () (run-hooks 'my-after-magit-runs-git-hook)))
   (my-hook-up
    '(
-     magit-pre-refresh-hook
-     magit-refresh-buffer-hook
+     my-after-magit-runs-git-hook
      )
    `(
      ,(if (boundp 'vc-refresh-state)
@@ -782,6 +786,7 @@ Pad string s to width w; a negative width means add the padding on the right."
   ;;; Lastly, some hackish theming:
   ;;; The main point is to, as much as possible without being distracting, distinguish stuff that does stuff from stuff that does not do stuff and things that look similar and act differently.
 
+  ;; How to use advice to create a hook:
   ;;(defvar after-load-theme-hook nil
   ;;  "Functions to run after a new theme is loaded.")
   ;; (advice-add 'load-theme :after (lambda () (run-hooks 'after-load-theme-hook)))
