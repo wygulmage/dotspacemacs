@@ -14,7 +14,7 @@ This function should only set values."
    ;; * `used' will download only explicitly used packages and remove any unused packages as well as their dependencies.
    ;; * `used-but-keep-unused' will download only used packages but won't delete them if they become unused.
    ;; * `all' will download all the packages regardless of whether they are used or not, and packages won't be deleted by Spacemacs.
-   dotspacemacs-download-packages 'used ; default 'used
+   dotspacemacs-download-packages 'used-but-keep-unused ; default 'used
 
    ;;; Layer installation & uninstalling:
    ;; * `all' installs all supported packages and never uninstalls them.
@@ -26,7 +26,7 @@ This function should only set values."
    ;; Delay layer installation until opening a file with a supported type. Layers will be added to `dotspacemacs-configuration-layers' when they are installed.
    ;; * `unused' will wait to install layers not listed in  `dotspacemacs-configuration-layers'.
    ;; * `all' will wait to install any layer that supports lazy installation, even those listed in `dotspacemacs-configuration-layers'.
-   ;; * `nil' disables lazy installation.
+   ;; * `nil' disables deferred installation.
    dotspacemacs-enable-lazy-installation 'unused ; default 'unused
    ;; Will Spacemacs ask before lazily installing layers?
    dotspacemacs-ask-for-lazy-installation t ; default t
@@ -502,7 +502,7 @@ Pad string s to width w; a negative width means add the padding on the right."
       nil))
 
   (defun my-vc-branch ()
-    "Propertized VC status. "
+    "Propertized VC status."
     (let ((status (my-vc-status)))
       (if status
           (cl-multiple-value-bind
@@ -656,12 +656,15 @@ Pad string s to width w; a negative width means add the padding on the right."
      after-change-major-mode-hook
      buffer-list-update-hook
      first-change-hook
-     magit-refresh-buffer-hook
-     magit-post-refresh-hook
      )
    '(
      force-mode-line-update
      ))
+
+  ;; Refresh VC state to update mode line info. Fall back to expensive vc-find-file-hook if `vc-refresh-state' is not available.
+  (add-hook 'magit-update-uncommitted-buffer-hook
+            (if (boundp 'vc-refresh-state)
+                'vc-refresh-state 'vc-find-file-hook))
 
   (my-add-hooks
    '(
