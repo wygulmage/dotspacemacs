@@ -662,7 +662,7 @@ Pad string s to width w; a negative width means add the padding on the right."
      ))
 
   ;; Refresh VC state to update mode line info. Fall back to expensive vc-find-file-hook if `vc-refresh-state' is not available.
-  (add-hooks
+  (my-add-hooks
    '(
      magit-pre-refresh-hook
      magit-refresh-buffer-hook
