@@ -674,17 +674,17 @@ Pad string s to width w; a negative width means add the padding on the right."
   (defun my-add-hooks-to-procedures (hooks when procedures)
     (dolist (hook hooks)
       (dolist (procedure procedures)
-        (my-add-hook-to-procedure hook when procedure))))
+        (my-add-procedure-hook hook when procedure))))
 
   ;; Refresh VC state to update mode line info. Fall back to expensive vc-find-file-hook if `vc-refresh-state' is not available.
 
   (my-add-hooks-to-procedures
    '(my-after-magit-runs-git-hook)
+   :after
    '(
      magit-run-git
      magit-start-process
-     )
-   :after)
+     ))
 
   (my-hook-up
    '(
