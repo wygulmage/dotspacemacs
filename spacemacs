@@ -568,12 +568,19 @@ Pad string s to width w; a negative width means add the padding on the right."
             " "
             (:eval (my-buffer-name))
             " "
+            (:eval (propertize
+                    (concat (my-fade "(")
+                            (replace-regexp-in-string " Git[:\-]" "" vc-mode)
+                            (my-fade ")"))
+                    'local-map (make-mode-line-mouse-map 'mouse-1 #'magit-status)))
+
+            " "
             (:eval (my-line-position))
             "  "
             mode-name
             "  "
-            (:eval (my-vc-branch))
-            "  "
+            ;; (:eval (my-vc-branch))
+            ;; "  "
             (:eval (when (bound-and-true-p anzu-mode)(anzu--update-mode-line)))
             )))
 
@@ -583,10 +590,14 @@ Pad string s to width w; a negative width means add the padding on the right."
             (:eval (my-buffer-write-status))
             " "
             (:eval (my-buffer-name))
+            " "
+            (:eval (propertize
+                    (concat (my-fade "(")
+                            (replace-regexp-in-string " Git[:\-]" "" vc-mode)
+                            (my-fade ")"))
+                    'local-map (make-mode-line-mouse-map 'mouse-1 #'magit-status)))
             "  "
             (:eval (my-line-position))
-            "  "
-            (:eval (my-vc-branch))
             )))
 
   (defun my-format-frame-title ()
