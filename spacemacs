@@ -79,6 +79,7 @@ This function should only set values."
            )
      javascript
      markdown
+     python
      vimscript
      ;;; VC:
      git
@@ -322,7 +323,7 @@ This function is called at the very startup of Spacemacs initialization before l
 
    ;; Server:
    ;; Will quit functions be advised to leave the server running?
-   dotspacemacs-persistent-server t ; default nil
+   dotspacemacs-persistent-server nil ; default nil
 
    ;; Search Tools:
    ;; Spacemacs uses the first installed tool of the list. Supported tools are `ag', `pt', `ack' and `grep'.
