@@ -466,6 +466,7 @@ Pad string s to width w; a negative width means add the padding on the right."
     "The name of the buffer. If it's a file, shows the directory on hover and opens dired with a click."
     (if buffer-file-truename
         (propertize (buffer-name)
+                    'face '(:inherit font-lock-comment-face)
                     'help-echo (abbreviate-file-name buffer-file-truename)
                     'local-map (make-mode-line-mouse-map
                                 'mouse-1 (lambda () (interactive)
@@ -486,6 +487,7 @@ Pad string s to width w; a negative width means add the padding on the right."
 
   (defvar my-point-string
     '(:eval (propertize "(%l, %c)"
+                        'face '(:inherit font-lock-comment-face)
                         'help-echo "Toggle line numbers."
                         'local-map (make-mode-line-mouse-map 'mouse-1 #'linum-mode)))
     "The row and column coordinates of the point.")
@@ -493,6 +495,7 @@ Pad string s to width w; a negative width means add the padding on the right."
 
   (defvar my-major-mode-name
     '(:eval (propertize (mode-name)
+                        'face '(:inherit font-lock-comment-face)
                         'local-map (make-mode-line-mouse-map 'mouse-1 #'describe-mode)))
     "The buffer's major-mode")
   (put 'my-major-mode-name 'risky-local-variable t)
@@ -533,7 +536,7 @@ Pad string s to width w; a negative width means add the padding on the right."
             (propertize
              (concat
               (replace-regexp-in-string "Git[:\-]" "" vc-mode) " (" description ")")
-             'face `(:foreground ,color)
+             'face `(:foreground ,color :inherit font-lock-comment-face)
              'local-map (make-mode-line-mouse-map 'mouse-1 #'magit-status)))
         "")))
 
@@ -545,6 +548,7 @@ Pad string s to width w; a negative width means add the padding on the right."
                        (format-mode-line "%l"))
                (my-fade "/")
                lines)
+       'face '(:inherit font-lock-comment-face)
        'help-echo "Toggle line numbers."
        'local-map (make-mode-line-mouse-map 'mouse-1 #'linum-mode))))
 
@@ -555,6 +559,7 @@ Pad string s to width w; a negative width means add the padding on the right."
       (propertize
        (my-pad 1 (concat (if (buffer-modified-p) "◆" "")
                          (if buffer-read-only "🔒" "")))
+       'face '(:inherit font-lock-comment-face)
        'help-echo
        (concat (if (buffer-modified-p) "modified " "")
                (if buffer-read-only "read-only " "")
@@ -849,7 +854,7 @@ Pad string s to width w; a negative width means add the padding on the right."
     (interactive)
     (unless (equal (face-attribute 'default :background)
                    (face-attribute 'mode-line :background))
-      (set-face-attribute 'mode-line nil :box nil :underline nil :overline nil)))
+      (set-face-attribute 'mode-line nil :box nil :underline nil :overline nil :inherit font-lock-comment-face)))
 
   (my-box-to-lines 'mode-line)
   (my-box-to-lines 'mode-line-inactive)
