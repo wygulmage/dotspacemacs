@@ -94,11 +94,9 @@ This function should only set values."
      ;; (acme-mouse :location (recipe :fetcher github :repo "akrito/acme-mouse")) ; does not work in Spacemacs.
      adaptive-wrap
      aggressive-indent
-     cl-lib ; cl- prefixed lisp functions
      company
      dash ; list functions
      paren-face
-     ;; popwin ; so helm [space] b b works (not using Helm).
      (shen-elisp
       :location (recipe :repo "deech/shen-elisp"
                         :fetcher github
