@@ -99,6 +99,11 @@ This function should only set values."
      dash ; list functions
      paren-face
      ;; popwin ; so helm [space] b b works (not using Helm).
+     (shen-elisp
+      :location (recipe :repo "deech/shen-elisp"
+                        :fetcher github
+                        :files ("shen*.el"))
+      :upgrade 't)
      )
 
    ;; Packages that will not be updated:
