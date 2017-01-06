@@ -23,15 +23,15 @@ This function should only set values."
 
    ;; Deferred layer installation:
    dotspacemacs-enable-lazy-installation
-   'unused ; (default) waits until opening a relevant file to install layers not listed in  `dotspacemacs-configuration-layers'.
-   ;; 'all ; waits until opening a relevant file to install layers that support deferred installation, even those listed in `dotspacemacs-configuration-layers'.
+   'unused ; (default) waits until opening a relevant file to install layers not listed in dotspacemacs-configuration-layers.
+   ;; 'all ; waits until opening a relevant file to install layers that support deferred installation, even those listed in dotspacemacs-configuration-layers.
    ;; nil ; disables deferred installation.
 
    ;; Will Spacemacs ask before lazily installing layers?
    dotspacemacs-ask-for-lazy-installation t ; default t
 
    ;; Additional paths for configuration layers:
-   ;; Paths must have a trailing slash (e.g. `~/.mycontribs/').
+   ;; Paths must have a trailing slash (e.g. "~/.mycontribs/").
    dotspacemacs-configuration-layer-path '() ; default '()
 
    ;; Configuration layers to install & load:
@@ -58,7 +58,6 @@ This function should only set values."
      vinegar ; dired
      ;;; Checking & Completion:
      auto-completion
-     ;; helm ; Use ivy instead.
      ivy
      (spell-checking :variables
                      spell-checking-enable-by-default nil
@@ -72,7 +71,7 @@ This function should only set values."
      elm
      emacs-lisp
      haskell
-     (html :variables ; for CSS
+     (html :variables ; for CSS ; this is web-mode, not html-mode
            web-mode-css-indent-offset 2
            web-mode-enable-css-colorization nil ; already done with colors
            )
@@ -87,7 +86,7 @@ This function should only set values."
      )
 
    ;; Packages installed & loaded without being wrapped in a layer:
-   ;; If you need configuration for these packages, consider creating a layer. You can also put the configuration in `dotspacemacs/user-config'.
+   ;; If you need configuration for these packages, consider creating a layer. You can also put the configuration in dotspacemacs/user-config.
    dotspacemacs-additional-packages
    '(
      ;; (acme-mouse :location (recipe :fetcher github :repo "akrito/acme-mouse")) ; does not work in Spacemacs.
@@ -111,7 +110,7 @@ This function should only set values."
    '(
      fancy-battery ; The GUI shell shows this.
      highlight-indentation ; Indentation shows this.
-     highlight-parentheses ; Use `paren-face-mode' instead.
+     highlight-parentheses ; Use paren-face-mode instead.
      powerline ; Use customized modeline instead.
      spray ; Not currently using spacemacs for speed reading.
      )
@@ -123,7 +122,7 @@ This function is called at the very startup of Spacemacs initialization before l
   ;;; Spacemacs settings:
   (setq-default
    ;;; ELPA
-   ;; Will ELPA repositories be contacted via HTTPS? Disable only if you have no way to use HTTPS. Launching Emacs with the parameter `--insecure' sets this variable to nil.
+   ;; Will ELPA repositories be contacted via HTTPS? Disable only if you have no way to use HTTPS. Launching Emacs with the parameter --insecure sets this variable to nil.
    dotspacemacs-elpa-https t ; default t
    ;; Maximum allowed time in seconds to contact an ELPA repository:
    dotspacemacs-elpa-timeout 5 ; default 5
@@ -136,16 +135,16 @@ This function is called at the very startup of Spacemacs initialization before l
    dotspacemacs-default-package-repository nil ; default nil
 
    ;; Will Spacemacs check for updates at startup?
-   ;; This is disabled when the current branch is `develop'.
+   ;; This is disabled when the current branch is develop.
    dotspacemacs-check-for-update nil ; default t
 
    ;; Editing style:
    dotspacemacs-editing-style
    'vim ; (default)
    ;; 'emacs
-   ;; 'hybrid ; like `vim' except that `insert state' is replaced by the `hybrid state' with `emacs' key bindings. The value can also be a list with `:variables' keyword (similar to layers). Check the editing styles section of the documentation for details on available variables.
+   ;; 'hybrid ; like vim except that insert state is replaced by the hybrid state with emacs key bindings. The value can also be a list with :variables keyword (similar to layers). Check the editing styles section of the documentation for details on available variables.
 
-   ;; Will Spacemacs output loading progress to the `*Messages*' buffer?
+   ;; Will Spacemacs output loading progress to the *Messages* buffer?
    dotspacemacs-verbose-loading nil ; default nil
    ;; Will Spacemacs display a progress bar is displayed when loading? This may increase the boot time; set it to nil to boost the loading time.
    dotspacemacs-loading-progress-bar nil ; default t
@@ -153,13 +152,13 @@ This function is called at the very startup of Spacemacs initialization before l
    ;; The startup banner:
    dotspacemacs-startup-banner
    ;; 'official ; (default) displays the official spacemacs logo.
-   ;; 'random ; chooses a random text banner in `core/banners' directory.
+   ;; 'random ; chooses a random text banner in the core/banners directory.
    ;; 1 ; An integer is the index of a text banner.
    ;; "" ; A string must be a path to an image supported by your Emacs build.
    nil ; No banner is displayed.
 
    ;; Items to show in startup buffer:
-   ;; A list or an association list of of the form `(list-type . list-size)`. If nil it is disabled. Possible values for list-type are: `recents' `bookmarks' `projects' `agenda' `todos'.
+   ;; A list or an association list of of the form `(list-type . list-size)`. If nil it is disabled. Possible values for list-type are: recents bookmarks projects agenda todos.
    dotspacemacs-startup-lists '((recents . 7)
                                 (projects . 7))
    ;; Will the startup buffer resize?
@@ -201,23 +200,23 @@ This function is called at the very startup of Spacemacs initialization before l
    ;; The command key used for Vim Ex commands (ex-commands):
    dotspacemacs-ex-command-key ":"
    ;; Major mode leader key:
-   ;; Equivalent to pressing `<leader> m`. Disabled when nil.
+   ;; Equivalent to pressing <leader> m. Disabled when nil.
    dotspacemacs-major-mode-leader-key "," ; default ","
-   ;; The leader key in `emacs state' and `insert state':
+   ;; The leader key in emacs state and insert state:
    dotspacemacs-emacs-leader-key "M-m" ; default "M-m"
    ;; The key used for Emacs commands (M-x) after pressing on the leader key:
    dotspacemacs-emacs-command-key "SPC" ; default "SPC"
-   ;; Major mode leader key accessible in `emacs state' and `insert state':
+   ;; Major mode leader key accessible in emacs state and insert state:
    dotspacemacs-major-mode-emacs-leader-key "C-M-m" ; default "C-M-m"
 
    ;;; Vim keybindings
-   ;; Will `Y' be remapped to `y$'?
+   ;; Will Y be remapped to `y$'?
    dotspacemacs-remap-Y-to-y$ t ; default t
-   ;; Will the shift mappings `<' and `>' maintain visual state?
+   ;; Will the shift mappings < and > maintain visual state?
    dotspacemacs-retain-visual-state-on-shift t ; default t
    ;; Will J and K move lines up and down when in visual mode?
    dotspacemacs-visual-line-move-text nil ; default nil
-   ;; Will the meaning of `g' be inverted in `:substitute' Evil ex-commands?
+   ;; Will the meaning of g be inverted in :substitute Evil ex-commands?
    dotspacemacs-ex-substitute-global nil ; default nil
 
    ;; Variables to control whether separate commands are bound in the GUI to the key pairs C-i, TAB and C-m, RET:
@@ -249,12 +248,15 @@ This function is called at the very startup of Spacemacs initialization before l
    dotspacemacs-helm-resize nil ; default nil
    ;; Will the helm header be hidden when there is only one source?
    dotspacemacs-helm-no-header t ; default nil
-   ;; The position of `helm':
-   ;; Options are `bottom', `top', `left', or `right'.
+   ;; The position of helm:
+   ;; Options are bottom, top, left, or right.
    dotspacemacs-helm-position 'bottom ; default 'bottom
+
    ;; Fuzzy matching in helm:
-   ;; If set to `always', force fuzzy matching in all non-asynchronous sources. If set to `source', preserve individual source settings. Else, disable fuzzy matching in all sources.
-   dotspacemacs-helm-use-fuzzy 'always ; default 'always
+   dotspacemacs-helm-use-fuzzy
+   'always ; (default) force fuzzy matching in all non-asynchronous sources.
+   ;; 'source ; preserve individual source settings.
+   ;; nil ; disable fuzzy matching in all sources.
 
    ;; Paste micro-state:
    ;; Will `p' cycle through the kill ring content?
@@ -265,22 +267,24 @@ This function is called at the very startup of Spacemacs initialization before l
    dotspacemacs-which-key-delay 0.4 ; default 0.4
 
    ;; Which-key frame position:
-   ;; Possible values are `right', `bottom' and `right-then-bottom'. `right-then-bottom' tries to display the frame to the right; if there is insufficient space it displays it at the bottom.
-   dotspacemacs-which-key-position 'bottom ; default 'bottom
+   dotspacemacs-which-key-position
+   'bottom ; (default)
+   ;; 'right
+   ;; 'right-then-bottom ; tries to display the frame to the right; if there is insufficient space it is displayed at the bottom.
 
-   ;; Should `switch-to-buffer' put the buffer in a same-purpose window even if the buffer can be put in the current window?
+   ;; Should switch-to-buffer put the buffer in a same-purpose window even if the buffer can be put in the current window?
    dotspacemacs-switch-to-buffer-prefers-purpose t; default nil
 
    ;;; Fullscreen
    ;; Will Spacemacs start up fullscreen? (Emacs 24.4+ only)
    dotspacemacs-fullscreen-at-startup nil ; default nil
-   ;; Will `spacemacs/toggle-fullscreen' use non-native fullscreen? Use to disable fullscreen animations in OSX.
+   ;; Will spacemacs/toggle-fullscreen use non-native fullscreen? Use to disable fullscreen animations in OSX.
    dotspacemacs-fullscreen-use-non-native nil ; default nil
-   ;; Will the frame be maximized when Spacemacs starts up? Ignored if `dotspacemacs-fullscreen-at-startup' is not nil. (Emacs 24.4+ only)
+   ;; Will the frame be maximized when Spacemacs starts up? Ignored if dotspacemacs-fullscreen-at-startup is not nil. (Emacs 24.4+ only)
    dotspacemacs-maximized-at-startup nil ; default nil
 
    ;;; Frame opacity
-   ;; Transparency can be toggled through `toggle-transparency'.
+   ;; Transparency can be toggled through toggle-transparency.
    ;; Active and selected frames:
    dotspacemacs-active-transparency 90 ; default 90
    ;; Inactive and unselected frames:
@@ -804,10 +808,6 @@ Pad string s to width w; a negative width means add the padding on the right."
      aggressive-indent-mode
      paren-face-mode ; Fade parentheses.
      ))
-
-  ;;; HTML/CSS
-  (add-hook 'html-mode-hook
-            'fixed-pitch-mode)
 
   ;;; Markdown:
   (add-hook 'markdown-mode-hook
