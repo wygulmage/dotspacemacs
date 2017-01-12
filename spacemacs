@@ -6,8 +6,9 @@
 This function should only set values."
   (setq-default
    ;; Base setup, a layer contained in the directory `+distribution':
-   ;; Available distributions are `spacemacs-base' and `spacemacs'.
-   dotspacemacs-distribution 'spacemacs-base ; default 'spacemacs
+   dotspacemacs-distribution
+   ;; 'spacemacs ; default
+   'spacemacs-base ; minimal
 
    ;; Package downloading and retention:
    dotspacemacs-download-packages
@@ -142,11 +143,11 @@ This function is called at the very startup of Spacemacs initialization before l
    dotspacemacs-editing-style
    'vim ; (default)
    ;; 'emacs
-   ;; 'hybrid ; like vim except that insert state is replaced by the hybrid state with emacs key bindings. The value can also be a list with :variables keyword (similar to layers). Check the editing styles section of the documentation for details on available variables.
+   ;; 'hybrid ; like vim except that insert state is replaced by the hybrid state with emacs key bindings. The value can also be a list with :variables keyword. Check the editing styles section of the documentation for details on available variables.
 
    ;; Will Spacemacs output loading progress to the *Messages* buffer?
    dotspacemacs-verbose-loading nil ; default nil
-   ;; Will Spacemacs display a progress bar is displayed when loading? This may increase the boot time; set it to nil to boost the loading time.
+   ;; Will Spacemacs display a progress bar when loading? This may increase the boot time.
    dotspacemacs-loading-progress-bar nil ; default t
 
    ;; The startup banner:
