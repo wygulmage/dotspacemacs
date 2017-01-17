@@ -679,9 +679,7 @@ Pad string s to width w; a negative width means add the padding on the right."
      buffer-list-update-hook
      first-change-hook
      )
-   '(
-     force-mode-line-update
-     ))
+   '(force-mode-line-update))
 
   (defun my-add-procedure-hook (hook when procedure)
     (unless (boundp hook) (defvar hook nil))
@@ -717,9 +715,7 @@ Pad string s to width w; a negative width means add the padding on the right."
      ))
 
   (my-hook-up
-   '(
-     prog-mode-hook
-     )
+   '(prog-mode-hook)
    '(
      adaptive-wrap-prefix-mode ; Indent wrapped lines in source code.
      rainbow-mode ; Color color strings like "#4971af" in source code.
@@ -733,7 +729,7 @@ Pad string s to width w; a negative width means add the padding on the right."
      my-format-text-mode-line
      ))
 
-  (with-current-buffer "*Messages*" (my-format-text-mode-line)) ; Use a simple mode line for the "*Messages* buffer".
+  (with-current-buffer "*Messages*" (my-format-text-mode-line)) ; Use a simple mode line for the *Messages* buffer.
 
   ;; Hide the mode-line when not needed useful.
   (my-hook-up
