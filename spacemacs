@@ -829,9 +829,7 @@ Pad string s to width w; a negative width means add the padding on the right."
   ;; How to use advice to create a hook:
   (defvar after-load-theme-hook nil
     "Functions to run after a theme is loaded.")
-  ;; (advice-add 'load-theme :after (lambda () (run-hooks 'after-load-theme-hook))) ; not working
-  (defadvice load-theme (after run-after-load-theme-hook activate)
-    (run-hooks 'after-load-theme-hook))
+  (my-add-procedure-hook 'after-load-theme-hook :after 'load-theme)
 
   (defun my-box-to-lines (face)
     (let ((color
