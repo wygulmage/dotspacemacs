@@ -172,14 +172,14 @@ This function is called at the very startup of Spacemacs initialization before l
    ;; The first of the list is loaded when spacemacs starts. Press <SPC> T n to cycle to the next theme in the list (works great with 2 themes variants, one dark and one light).
    dotspacemacs-themes
    '(
-     spacemacs-dark
-     spacemacs-light
+     spacemacs-dark ; dark theme
+     ;; spacemacs-light
      ;; sanityinc-tomorrow-eighties
      ;; solarized-dark
      ;; solarized-light
      ;; monokai
      ;; zenburn
-     leuven
+     leuven ; light theme
      )
 
    ;; Will the cursor color match the state color in GUI Spacemacs?
@@ -827,9 +827,11 @@ Pad string s to width w; a negative width means add the padding on the right."
   ;;; The main point is to, as much as possible without being distracting, distinguish stuff that does stuff from stuff that does not do stuff and things that look similar and act differently.
 
   ;; How to use advice to create a hook:
-  ;;(defvar after-load-theme-hook nil
-  ;;  "Functions to run after a new theme is loaded.")
-  ;; (advice-add 'load-theme :after (lambda () (run-hooks 'after-load-theme-hook)))
+  (defvar after-load-theme-hook nil
+    "Functions to run after a theme is loaded.")
+  ;; (advice-add 'load-theme :after (lambda () (run-hooks 'after-load-theme-hook))) ; not working
+  (defadvice load-theme (after run-after-load-theme-hook activate)
+    (run-hooks 'after-load-theme-hook))
 
   (defun my-box-to-lines (face)
     (let ((color
@@ -863,32 +865,36 @@ Pad string s to width w; a negative width means add the padding on the right."
                    (face-attribute 'mode-line :background))
       (set-face-attribute 'mode-line nil :box nil :underline nil :overline nil :inherit font-lock-comment-face)))
 
-  (my-box-to-lines 'mode-line)
-  (my-box-to-lines 'mode-line-inactive)
   (defun my-set-shadow-face ()
     (my-shift-face-color 'shadow 'default t))
-  (my-set-shadow-face)
-  ;; (add-hook 'after-load-theme-hook #'my-set-shadow-face)
-  (my-set-face-attributes
-   `(
-     ;; (cursor :background) -- this is just a stub to remind me of the cursor face.
-     ;; Things that don't do stuff:
-     (font-lock-comment-face :background unspecified :slant normal)
-     ;; (font-lock-comment-delimiter-face :slant normal :inherit font-lock-comment-face)
-     (font-lock-doc-face :inherit font-lock-comment-face)
-     (fringe :background unspecified :foreground unspecified :inherit font-lock-comment-face)
-     (linum :background unspecified :foreground unspecified :inherit font-lock-comment-face)
-     (mode-line :inherit font-lock-comment-face)
-     ;; Things that do stuff:
-     ;; (font-lock-builtin-face :inherit default)
-     ;; (font-lock-constant-face :inherit default)
-     (font-lock-keyword-face :foreground unspecified :inherit default)
-     ;; (font-lock-type-face :inherit default)
-     (font-lock-function-name-face :foreground unspecified :inherit default)
-     (font-lock-variable-name-face :foreground unspecified :inherit default)
-     ;; Things that look like other things:
-     (font-lock-string-face :slant italic)
-     ))
+
+  (defun my-theme-tweaks ()
+    (my-box-to-lines 'mode-line)
+    (my-box-to-lines 'mode-line-inactive)
+    (my-set-shadow-face)
+    ;; (add-hook 'after-load-theme-hook #'my-set-shadow-face)
+    (my-set-face-attributes
+     `(
+       ;; (cursor :background) -- this is just a stub to remind me of the cursor face.
+       ;; Things that don't do stuff:
+       (font-lock-comment-face :background unspecified :slant normal)
+       ;; (font-lock-comment-delimiter-face :slant normal :inherit font-lock-comment-face)
+       (font-lock-doc-face :inherit font-lock-comment-face)
+       (fringe :background unspecified :foreground unspecified :inherit font-lock-comment-face)
+       (linum :background unspecified :foreground unspecified :inherit font-lock-comment-face)
+       (mode-line :inherit font-lock-comment-face)
+       ;; Things that do stuff:
+       ;; (font-lock-builtin-face :inherit default)
+       ;; (font-lock-constant-face :inherit default)
+       (font-lock-keyword-face :foreground unspecified :inherit default)
+       ;; (font-lock-type-face :inherit default)
+       (font-lock-function-name-face :foreground unspecified :inherit default)
+       (font-lock-variable-name-face :foreground unspecified :inherit default)
+       ;; Things that look like other things:
+       (font-lock-string-face :slant italic)
+       )))
+  (my-theme-tweaks)
+  (add-hook 'after-load-theme-hook 'my-theme-tweaks)
   )
 
 ;; Do not write anything past this comment. This is where Emacs will auto-generate custom variable definitions.
