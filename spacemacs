@@ -733,6 +733,8 @@ Pad string s to width w; a negative width means add the padding on the right."
      my-format-text-mode-line
      ))
 
+  (with-current-buffer "*Messages*" (my-format-text-mode-line)) ; Use a simple mode line for the "*Messages* buffer".
+
   ;; Hide the mode-line when not needed useful.
   (my-hook-up
    '(
