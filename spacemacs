@@ -364,6 +364,21 @@ This function is called at the very end of Spacemacs initialization, after layer
       (dolist (hook-function hook-functions)
         (add-hook mode-hook hook-function))))
 
+  (defun my-add-procedure-hook (hook when procedure)
+    (unless (boundp hook) (defvar hook nil))
+    (pcase when
+      (:before
+       (add-function :before procedure
+                     (lambda (ignored) (run-hooks hook))))
+      (:after
+       (add-function :filter-return procedure
+                     (lambda (result) (run-hooks hook) result)))))
+
+  (defun my-add-hooks-to-procedures (hooks when procedures)
+    (dolist (hook hooks)
+      (dolist (procedure procedures)
+        (my-add-procedure-hook hook when procedure))))
+
   (defun my-buffer-line-count ()
     (count-lines (buffer-end -1) (buffer-end 1)))
 
@@ -680,21 +695,6 @@ Pad string s to width w; a negative width means add the padding on the right."
      first-change-hook
      )
    '(force-mode-line-update))
-
-  (defun my-add-procedure-hook (hook when procedure)
-    (unless (boundp hook) (defvar hook nil))
-    (pcase when
-      (:before
-       (add-function :before procedure
-                     (lambda (ignored) (run-hooks hook))))
-      (:after
-       (add-function :filter-return procedure
-                     (lambda (result) (run-hooks hook) result)))))
-
-  (defun my-add-hooks-to-procedures (hooks when procedures)
-    (dolist (hook hooks)
-      (dolist (procedure procedures)
-        (my-add-procedure-hook hook when procedure))))
 
   ;; Refresh VC state to update mode line info. Fall back to expensive vc-find-file-hook if `vc-refresh-state' is not available.
 
