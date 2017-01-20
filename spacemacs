@@ -359,12 +359,14 @@ This function is called at the very end of Spacemacs initialization, after layer
 ;;; Helpful Procedures
 
   (defun my-hook-up (mode-hooks hook-functions)
-    "Add all hook-functions to all made-hooks."
+    "Add all hook-functions to all mode-hooks."
     (dolist (mode-hook mode-hooks)
       (dolist (hook-function hook-functions)
         (add-hook mode-hook hook-function))))
 
   (defun my-add-procedure-hook (hook when procedure)
+    "Run hook :before or :after procedure.
+Warning: will create a null hook if the hook is not defined."
     (unless (boundp hook) (defvar hook nil))
     (pcase when
       (:before
@@ -375,12 +377,16 @@ This function is called at the very end of Spacemacs initialization, after layer
                      (lambda (result) (run-hooks hook) result)))))
 
   (defun my-add-hooks-to-procedures (hooks when procedures)
+    "Run hooks :before or :after procedures.
+Warning: will create null hooks if hooks are not defined."
     (dolist (hook hooks)
       (dolist (procedure procedures)
         (my-add-procedure-hook hook when procedure))))
 
-  (defun my-buffer-line-count ()
-    (count-lines (buffer-end -1) (buffer-end 1)))
+  (defun my-buffer-line-count (&opt buffer)
+    "Number of lines in buffer. If the last line of the buffer is empty, it won't be counted."
+    (with-current-buffer (or buffer (current-buffer))
+      (count-lines (buffer-end -1) (buffer-end 1))))
 
 ;;; Numbers:
 
@@ -397,7 +403,7 @@ Pad string s to width w; a negative width means add the padding on the right."
     (format (concat "%" (number-to-string w) "s") s))
 
   (defun my-find (f l &optional no-match)
-    "Return the first non-nil result of f.car l, or nil."
+    "Return the first non-nil result of f.car l, or no-match."
     (if (null l) no-match
       (let ((candidate (funcall f (car l))))
         (if candidate
@@ -426,7 +432,8 @@ Pad string s to width w; a negative width means add the padding on the right."
       (my-blend-colors color toner)))
 
   (defun my-shift-string-color (s &optional fade?)
-    "Make the foreground of a string closer to or farther from its background."
+    "String ->? Boolean -> String
+Make the foreground of a string closer to or farther from its background."
     (cl-flet ((color-of (key)
                         (color-values (my-get-string-face-property s key))))
       (let ((color (my-color-values-to-string
