@@ -383,10 +383,9 @@ Warning: will create null hooks if hooks are not defined."
       (dolist (procedure procedures)
         (my-add-procedure-hook hook when procedure))))
 
-  (defun my-buffer-line-count (&opt buffer)
-    "Number of lines in buffer. If the last line of the buffer is empty, it won't be counted."
-    (with-current-buffer (or buffer (current-buffer))
-      (count-lines (buffer-end -1) (buffer-end 1))))
+  (defun my-buffer-line-count ()
+    "Number of lines in the current buffer. If the last line of the buffer is empty, it won't be counted."
+    (count-lines (buffer-end -1) (buffer-end 1)))
 
 ;;; Numbers:
 
