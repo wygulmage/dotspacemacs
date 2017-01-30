@@ -795,9 +795,10 @@ Make the foreground of a string closer to or farther from its background."
   (setq-default read-quoted-char-radix 16)
 
   ;;; Mouse & copy / paste / delete
-  (setq mouse-drag-copy-region t ; Copy on select -- disable for acme-mouse.
-        kill-do-not-save-duplicates t ; Don't copy identical text twice.
-        )
+  (setq
+   mouse-drag-copy-region t ; Copy on select -- disable for acme-mouse.
+   kill-do-not-save-duplicates t ; Don't copy identical text twice.
+   )
 
   ;;; ---------------------------
   ;;; Major Mode Configurations
