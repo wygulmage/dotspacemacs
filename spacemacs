@@ -532,11 +532,11 @@ Make the foreground of a string closer to or farther from its background."
     "The row and column coordinates of the point.")
   (put 'my-point-string 'risky-local-variable t)
 
-  (defvar my-major-mode-name
-    '(:eval (propertize (mode-name)
-                        'local-map (make-mode-line-mouse-map 'mouse-1 #'describe-mode)))
-    "The buffer's major-mode")
-  (put 'my-major-mode-name 'risky-local-variable t)
+  (defun my-major-mode-name ()
+    "The buffer's major-mode"
+    (propertize mode-name
+                'help-echo "Click mouse 1 for mode menu, mouse 2 for mode info, or mouse 3 to toggle minor modes."
+                'local-map mode-line-major-mode-keymap))
 
   (defun my-vc-status ()
     (if buffer-file-name
@@ -578,6 +578,20 @@ Make the foreground of a string closer to or farther from its background."
              'local-map (make-mode-line-mouse-map 'mouse-1 #'magit-status)))
         "")))
 
+  (defun my-buffer-write-status ()
+    "Show whether a file-like buffer has been modified since its last save; click to save. Should 'do what I mean'."
+    (if (not (or buffer-file-name
+                 (derived-mode-p 'text-mode 'prog-mode))) "" ; Ignore buffers that aren't files.
+      (propertize
+       (my-pad 1 (concat (if (buffer-modified-p) "◆" "")
+                         (if buffer-read-only "🔒" "")))
+       'help-echo
+       (concat (if (buffer-modified-p) "modified " "")
+               (if buffer-read-only "read-only " "")
+               (if buffer-file-name "file " "buffer ")
+               "‑ click to save")
+       'local-map (make-mode-line-mouse-map 'mouse-1 #'save-buffer))))
+
   (defun my-simpler-vc-branch ()
     (propertize
      (concat (my-fade "(")
@@ -596,20 +610,6 @@ Make the foreground of a string closer to or farther from its background."
        'help-echo "Toggle line numbers."
        'local-map (make-mode-line-mouse-map 'mouse-1 #'linum-mode))))
 
-  (defun my-buffer-write-status ()
-    "Show whether a file-like buffer has been modified since its last save; click to save. Should 'do what I mean'."
-    (if (not (or buffer-file-name
-                 (derived-mode-p 'text-mode 'prog-mode))) ""
-      (propertize
-       (my-pad 1 (concat (if (buffer-modified-p) "◆" "")
-                         (if buffer-read-only "🔒" "")))
-       'help-echo
-       (concat (if (buffer-modified-p) "modified " "")
-               (if buffer-read-only "read-only " "")
-               (if buffer-file-name "file " "buffer ")
-               "‑ click to save")
-       'local-map (make-mode-line-mouse-map 'mouse-1 #'save-buffer))))
-
   (defun my-format-prog-mode-line ()
     (setq mode-line-format
           '(
@@ -621,10 +621,8 @@ Make the foreground of a string closer to or farther from its background."
             " "
             (:eval (my-line-position))
             "  "
-            mode-name
+            (:eval (my-major-mode-name))
             "  "
-            ;; (:eval (my-vc-branch))
-            ;; "  "
             (:eval (when (bound-and-true-p anzu-mode)(anzu--update-mode-line)))
             )))
 
@@ -657,31 +655,34 @@ Make the foreground of a string closer to or farther from its background."
   (set-face-attribute
    'fixed-pitch nil
    :family (my-select-font
-            '("Source Code Pro"
+            '(
+              "Source Code Pro"
               "IBM 3720"
               "DejaVu Sans Mono"
               "Monaco"
-              "Lucida Console")))
+              "Lucida Console"
+              )))
 
   (set-face-attribute
    'variable-pitch nil
    :family (my-select-font
-            '("ET Book"
+            '(
+              "ET Book"
               "ETBembo"
               "Bembo Book MT Std"
               "Bembo MT Book Std"
               "Garamond Premier Pro"
               "Garamond Premr Pro"
               "Adobe Garamond Expert"
-              "Garamond")))
+              "Garamond"
+              )))
 
   (defun my-reset-font-height-by-platform ()
     (let ((h (if (string= system-type "gnu/linux") 148 120)))
       (mapc (lambda (face) (set-face-attribute face nil :height h))
             '(default fixed-pitch variable-pitch ))))
 
-  (add-hook 'window-setup-hook
-            'my-reset-font-height-by-platform)
+  (add-hook 'window-setup-hook 'my-reset-font-height-by-platform)
 
   ;;; ---------------------------------
   ;;; Miscelaneous Global Stuff
@@ -826,7 +827,9 @@ Make the foreground of a string closer to or farther from its background."
   ;;; Markdown:
   (add-hook 'markdown-mode-hook
             (lambda ()
-              (set-face-attribute 'markdown-pre-face nil :family (face-attribute 'fixed-pitch :family))))
+              (set-face-attribute 'markdown-pre-face
+                                  nil
+                                  :family (face-attribute 'fixed-pitch :family))))
   ;;; Elm:
   ;; (defun my-elm-mode-hook ()
   ;;   "elm setup adapted from http://www.lambdacat.com/post-modern-emacs-setup-for-elm/"
@@ -861,13 +864,15 @@ Make the foreground of a string closer to or farther from its background."
            (if color color
              (face-attribute 'shadow :foreground))))
       (my-set-face-attributes
-       `((mode-line :box nil
+       `(
+         (mode-line :box nil
                     :foreground unspecified
                     :background unspecified
                     :underline ,c
                     :overline ,c
                     :inherit font-lock-comment-face)
-         (window-divider :foreground ,c)))))
+         (window-divider :foreground ,c)
+         ))))
 
   (defun my-material-minor-theme ()
     "Remove borders from the mode-line when its background is different from the buffer's."
