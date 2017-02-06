@@ -578,6 +578,13 @@ Make the foreground of a string closer to or farther from its background."
              'local-map (make-mode-line-mouse-map 'mouse-1 #'magit-status)))
         "")))
 
+  (defun my-simpler-vc-branch ()
+    (propertize
+     (concat (my-fade "(")
+             (replace-regexp-in-string " Git[:\-]" "" vc-mode)
+             (my-fade ")"))
+     'local-map (make-mode-line-mouse-map 'mouse-1 #'magit-status)))
+
   (defun my-line-position ()
     "Current line / total lines. Click to toggle line numbers."
     (let ((lines (number-to-string (my-buffer-line-count))))
@@ -610,11 +617,7 @@ Make the foreground of a string closer to or farther from its background."
             " "
             (:eval (my-buffer-name))
             " "
-            (:eval (propertize
-                    (concat (my-fade "(")
-                            (replace-regexp-in-string " Git[:\-]" "" vc-mode)
-                            (my-fade ")"))
-                    'local-map (make-mode-line-mouse-map 'mouse-1 #'magit-status)))
+            (:eval (my-simpler-vc-branch))
             " "
             (:eval (my-line-position))
             "  "
@@ -632,11 +635,7 @@ Make the foreground of a string closer to or farther from its background."
             " "
             (:eval (my-buffer-name))
             " "
-            (:eval (propertize
-                    (concat (my-fade "(")
-                            (replace-regexp-in-string " Git[:\-]" "" vc-mode)
-                            (my-fade ")"))
-                    'local-map (make-mode-line-mouse-map 'mouse-1 #'magit-status)))
+            (:eval (my-simpler-vc-branch))
             "  "
             (:eval (my-line-position))
             )))
