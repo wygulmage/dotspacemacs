@@ -706,6 +706,7 @@ Make the foreground of a string closer to or farther from its background."
   (my-hook-up
    '(
      after-change-major-mode-hook
+     after-save-hook
      buffer-list-update-hook
      first-change-hook
      )
