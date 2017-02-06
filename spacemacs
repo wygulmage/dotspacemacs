@@ -155,7 +155,7 @@ This function is called at the very startup of Spacemacs initialization before l
    ;; 'official ; (default) displays the official spacemacs logo.
    ;; 'random ; chooses a random text banner in the core/banners directory.
    ;; 1 ; An integer is the index of a text banner.
-   ;; "" ; A string must be a path to an image supported by your Emacs build.
+   ;; "~/.emacs.d/assets/spacemacs.svg" ; A string must be a path to an image supported by your Emacs build.
    nil ; No banner is displayed.
 
    ;; Items to show in startup buffer:
@@ -309,6 +309,15 @@ This function is called at the very startup of Spacemacs initialization before l
    nil ; (default) disables line numbers.
    ;; t ; turns on line numbers in all `prog-mode' and `text-mode' derivatives.
    ;; 'relative ; also turns on relative line numbers.
+   ;; '(:relative nil ; A property list can be used for finer control.
+   ;;   :disabled-for-modes dired-mode
+   ;;                       doc-view-mode
+   ;;                       markdown-mode
+   ;;                       org-mode
+   ;;                       pdf-view-mode
+   ;;                       text-mode
+   ;;   :size-limit-kb 1000)
+
 
    ;; Code folding:
    dotspacemacs-folding-method
