@@ -173,12 +173,6 @@ This function is called at the very startup of Spacemacs initialization before l
    dotspacemacs-themes
    '(
      spacemacs-dark ; dark theme
-     ;; spacemacs-light
-     ;; sanityinc-tomorrow-eighties
-     ;; solarized-dark
-     ;; solarized-light
-     ;; monokai
-     ;; zenburn
      leuven ; light theme
      )
 
