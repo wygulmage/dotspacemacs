@@ -209,7 +209,7 @@ This function is called at the very startup of Spacemacs initialization before l
    dotspacemacs-remap-Y-to-y$ t ; default t
    ;; Will the shift mappings < and > maintain visual state?
    dotspacemacs-retain-visual-state-on-shift t ; default t
-   ;; Will J and K move lines up and down when in visual mode?
+   ;; Will J and K move lines up and down when in visual state?
    dotspacemacs-visual-line-move-text nil ; default nil
    ;; Will the meaning of g be inverted in :substitute Evil ex-commands?
    dotspacemacs-ex-substitute-global nil ; default nil
@@ -257,8 +257,8 @@ This function is called at the very startup of Spacemacs initialization before l
    ;; Will `p' cycle through the kill ring content?
    dotspacemacs-enable-paste-transient-state t ; default nil
 
-   ;; Which-key delay in seconds:
-   ;; The which-key buffer is a popup listing the commands bound to the current keystroke sequence.
+   ;; Which-key popup delay in seconds:
+   ;; The which-key buffer is a list of the commands sharing the current keystroke prefix.
    dotspacemacs-which-key-delay 0.4 ; default 0.4
 
    ;; Which-key frame position:
