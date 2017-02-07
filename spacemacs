@@ -195,7 +195,7 @@ This function is called at the very startup of Spacemacs initialization before l
    ;; The command key used for Vim Ex commands (ex-commands):
    dotspacemacs-ex-command-key ":"
    ;; Major mode leader key:
-   ;; Equivalent to pressing <leader> m. Disabled when nil.
+   ;; Equivalent to '<leader> m'. Disabled when nil.
    dotspacemacs-major-mode-leader-key "," ; default ","
    ;; The leader key in emacs state and insert state:
    dotspacemacs-emacs-leader-key "M-m" ; default "M-m"
