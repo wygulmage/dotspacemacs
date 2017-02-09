@@ -687,6 +687,16 @@ Make the foreground of a string closer to or farther from its background."
   (setq vc-follow-symlinks t)
 
   ;;; ----------------------------------
+  ;;; Set Evil to not behave like Vim.
+  (setq-default
+   evil-move-beyond-eol t ; Allow the cursor to move beyond the end of the line.
+   evil-move-cursor-back nil ; Don't move the cursor when exiting insert mode.
+   )
+  (customize-set-variable
+   evil-move-beyond-eol t
+   evil-move-cursor-back nil
+   )
+  ;;; ----------------------------------
   ;;; Hooks
 
   ;; * first-change-hook is called immediately before changing an unmodified buffer.
