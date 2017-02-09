@@ -688,14 +688,33 @@ Make the foreground of a string closer to or farther from its background."
 
   ;;; ----------------------------------
   ;;; Set Evil to not behave like Vim.
-  (setq-default
-   evil-move-beyond-eol t ; Allow the cursor to move beyond the end of the line.
-   evil-move-cursor-back nil ; Don't move the cursor when exiting insert mode.
-   )
-  (customize-set-variable
-   evil-move-beyond-eol t
-   evil-move-cursor-back nil
-   )
+  (customize-set-variable 'evil-move-beyond-eol t) ; Allow the cursor to move beyond the end of the line.
+  (customize-set-variable 'evil-move-cursor-back nil) ; Don't move the cursor when exiting insert mode.
+
+  (defun my-evil-forward-end (thing &optional count)
+    "Move forward past the end of thing. Repeat count times."
+    ;; (unless (eobp) (forward-char))
+    (forward-thing thing (or count 1)))
+
+  (evil-define-motion my-evil-forward-word-end (count &optional bigword)
+    "Move the cursor past the end of the count-th next word."
+    :type inclusive ; I don't know what this does!
+    (let ((thing (if bigword
+                     'evil-WORD
+                   'evil-word))
+          (n (or count 1)))
+      (evil-signal-at-bob-or-eob n)
+      (my-evil-forward-end thing n)))
+
+  (evil-define-motion my-evil-forward-WORD-end (count)
+    "Move the cursor past the end of the count-th next WORD."
+    :type exclusive ; I don't know what this does!
+    (my-evil-forward-word-end count t))
+
+  (define-key evil-motion-state-map "e" 'my-evil-forward-word-end)
+  (define-key evil-motion-state-map "E" 'my-evil-forward-WORD-end)
+
+
   ;;; ----------------------------------
   ;;; Hooks
 
