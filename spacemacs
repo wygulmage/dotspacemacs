@@ -361,6 +361,13 @@ This function is called at the very end of Spacemacs initialization, after layer
 ;;; ------------------
 ;;; Helpful Procedures
 
+  ;; TODO: Implement compose function.
+
+  (defun my-customize-set-variables (&rest pairs)
+    "Takes zero or more ('symbol . value) arguments and customizes symbol to value."
+    (dolist (pair pairs)
+      (customize-set-variable (car pair) (cdr pair))))
+
   (defun my-hook-up (mode-hooks hook-functions)
     "Add all hook-functions to all mode-hooks."
     (dolist (mode-hook mode-hooks)
