@@ -488,6 +488,14 @@ Make the foreground of a string closer to or farther from its background."
                 (apply #'set-face-attribute face buffer attributes)))
             l))
 
+  (defun my-set-face-attributes-2 (l &optional buffer)
+    "From a list of (face :attr-1 a1 :attr-2 a2 ...) lists, give each face its attributes. Create undefined faces."
+    (dolist (x l)
+      (let ((face (car x))
+            (attributes (cdr x)))
+        (unless (facep face) (make-face face))
+        (apply 'set-face-attribute face buffer attributes))))
+
   (defun max-color-val ()
     "The current maximum value for emacs color triplets."
     (car (color-values "white")))
@@ -588,7 +596,8 @@ Make the foreground of a string closer to or farther from its background."
   (defun my-buffer-write-status ()
     "Show whether a file-like buffer has been modified since its last save; click to save. Should 'do what I mean'."
     (if (not (or buffer-file-name
-                 (derived-mode-p 'text-mode 'prog-mode))) "" ; Ignore buffers that aren't files.
+                 (derived-mode-p 'text-mode 'prog-mode)))
+        "" ; Ignore buffers that aren't files.
       (propertize
        (my-pad 1 (concat (if (buffer-modified-p) "◆" "")
                          (if buffer-read-only "🔒" "")))
@@ -617,33 +626,34 @@ Make the foreground of a string closer to or farther from its background."
        'help-echo "Toggle line numbers."
        'local-map (make-mode-line-mouse-map 'mouse-1 #'linum-mode))))
 
-  (defun my-format-prog-mode-line ()
-    (setq mode-line-format
-          '(
-            (:eval (my-buffer-write-status))
-            " "
-            (:eval (my-buffer-name))
-            " "
-            (:eval (my-simpler-vc-branch))
-            " "
-            (:eval (my-line-position))
-            "  "
-            (:eval (my-major-mode-name))
-            "  "
-            (:eval (when (bound-and-true-p anzu-mode)(anzu--update-mode-line)))
-            )))
+  (defvar my-base-mode-line-format
+    '(
+      (:eval (my-buffer-write-status))
+      " "
+      (:eval (my-buffer-name))
+      " "
+      (:eval (my-simpler-vc-branch))
+      "  "
+      (:eval (my-line-position))
+      )
+    "a simple status bar")
 
   (defun my-format-text-mode-line ()
-    (setq mode-line-format
-          '(
-            (:eval (my-buffer-write-status))
-            " "
-            (:eval (my-buffer-name))
-            " "
-            (:eval (my-simpler-vc-branch))
-            "  "
-            (:eval (my-line-position))
-            )))
+    (setq mode-line-format my-base-mode-line-format))
+
+  (defvar my-prog-mode-line-format
+    (append
+     my-base-mode-line-format
+     '(
+       "  "
+       (:eval (my-major-mode-name))
+       "  "
+       (:eval (when (bound-and-true-p anzu-mode)(anzu--update-mode-line)))
+       ))
+    "simple status bar that indicates the current mode")
+
+  (defun my-format-prog-mode-line ()
+    (setq mode-line-format my-prog-mode-line-format))
 
   (defun my-format-frame-title ()
     (when (display-graphic-p)
