@@ -171,9 +171,15 @@ This function is called at the very startup of Spacemacs initialization before l
    ;; Themes:
    ;; The first of the list is loaded when spacemacs starts. Press <SPC> T n to cycle to the next theme in the list (works great with 2 themes variants, one dark and one light).
    dotspacemacs-themes
-   '(
-     spacemacs-dark ; dark theme
-     leuven ; light theme
+   (if (string= system-type "gnu/linux")
+       '(
+         spacemacs-dark ; dark theme
+         leuven ; light theme
+         )
+     '(
+       leuven ; light theme
+       spacemacs-dark ; dark theme
+       )
      )
 
    ;; Will the cursor color match the state color in GUI Spacemacs?
@@ -942,10 +948,6 @@ Make the foreground of a string closer to or farther from its background."
        )))
   (my-theme-tweaks)
   (add-hook 'after-load-theme-hook 'my-theme-tweaks)
-
-  ;; Use light theme for Windows.
-  (unless (string= system-type "gnu/linux")
-    (spacemacs/load-theme "leuven" nil t))
   )
 
 ;; Do not write anything past this comment. This is where Emacs will auto-generate custom variable definitions.
