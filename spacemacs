@@ -942,6 +942,10 @@ Make the foreground of a string closer to or farther from its background."
        )))
   (my-theme-tweaks)
   (add-hook 'after-load-theme-hook 'my-theme-tweaks)
+
+  ;; Use light theme for Windows.
+  (unless (string= system-type "gnu/linux")
+    (spacemacs/load-theme "leuven" nil t))
   )
 
 ;; Do not write anything past this comment. This is where Emacs will auto-generate custom variable definitions.
