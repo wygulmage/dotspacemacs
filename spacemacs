@@ -600,11 +600,13 @@ Make the foreground of a string closer to or farther from its background."
        'local-map (make-mode-line-mouse-map 'mouse-1 #'save-buffer))))
 
   (defun my-simpler-vc-branch ()
-    (propertize
-     (concat (my-fade "(")
-             (replace-regexp-in-string " Git[:\-]" "" vc-mode)
-             (my-fade ")"))
-     'local-map (make-mode-line-mouse-map 'mouse-1 #'magit-status)))
+    (if (not vc-mode)
+        ""
+      (propertize
+       (concat (my-fade "(")
+               (replace-regexp-in-string " Git[:\-]" "" vc-mode)
+               (my-fade ")"))
+       'local-map (make-mode-line-mouse-map 'mouse-1 #'magit-status))))
 
   (defun my-line-position ()
     "Current line / total lines. Click to toggle line numbers."
@@ -685,10 +687,19 @@ Make the foreground of a string closer to or farther from its background."
               "Garamond"
               )))
 
+  ;; (defun my-reset-font-height-by-platform ()
+  ;;   (let ((h (if (string= system-type "gnu/linux") 148 120)))
+  ;;     (mapc (lambda (face) (set-face-attribute face nil :height h))
+  ;;           '(default fixed-pitch variable-pitch ))))
+
   (defun my-reset-font-height-by-platform ()
     (let ((h (if (string= system-type "gnu/linux") 148 120)))
-      (mapc (lambda (face) (set-face-attribute face nil :height h))
-            '(default fixed-pitch variable-pitch ))))
+      (dolist (face '(
+                      default
+                      fixed-pitch
+                      variable-pitch
+                      ))
+        (set-face-attribute face nil :height h))))
 
   (add-hook 'window-setup-hook 'my-reset-font-height-by-platform)
 
