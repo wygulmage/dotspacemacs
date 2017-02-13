@@ -481,15 +481,6 @@ Make the foreground of a string closer to or farther from its background."
 
   (defun my-set-face-attributes (l &optional buffer)
     "From a list of (face :attr-1 a1 :attr-2 a2 ...) lists, give each face its attributes. Create undefined faces."
-    (mapcar (lambda (x)
-              (let ((face (car x))
-                    (attributes (cdr x)))
-                (unless (facep face) (make-face face))
-                (apply #'set-face-attribute face buffer attributes)))
-            l))
-
-  (defun my-set-face-attributes-2 (l &optional buffer)
-    "From a list of (face :attr-1 a1 :attr-2 a2 ...) lists, give each face its attributes. Create undefined faces."
     (dolist (x l)
       (let ((face (car x))
             (attributes (cdr x)))
