@@ -826,14 +826,15 @@ Make the foreground of a string closer to or farther from its background."
   (defun my-zoom-out ()
     (interactive)
     (text-scale-decrease 1.01))
-  (mapcar (lambda (x)
-            (global-set-key
-             (kbd (if (string= system-type "gnu/linux")
-                      (cadr x)
-                    (caddr x)))
-             (car x)))
-          '((my-zoom-in "C-<mouse-4>"  "C-<wheel-up>")
-            (my-zoom-out "C-<mouse-5>" "C-<wheel-down>")))
+  (dolist (x '(
+               (my-zoom-in "C-<mouse-4>" "C-<wheel-up>")
+               (my-zoom-out "C-<mouse-5>" "C-<wheel-down>")
+               ))
+    (global-set-key
+     (kbd (if (string= system-type "gnu/linux")
+              (cadr x)
+            (caddr x)))
+     (car x)))
 
   ;;; Insert unicode character with Ctrl Shift u.
   (global-set-key (kbd "C-S-u") 'insert-char)
