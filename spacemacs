@@ -10,7 +10,7 @@ This function should only set values."
    ;; 'spacemacs ; default
    'spacemacs-base ; minimal
 
-   ;; Package downloading and retention:
+   ;; Package downloading & retention:
    dotspacemacs-download-packages
    ;; 'used ; (default) only downloads explicitly used packages and removes any unused packages and dependencies.
    'used-but-keep-unused ; only downloads used packages but won't delete unused packages.
@@ -53,7 +53,6 @@ This function should only set values."
      spacemacs-editing
      (spacemacs-evil :packages
                      (not vi-tilde-fringe))
-     ;; themes-megapack ; Seems like none of the themes I'm currently using are in this.
      ;;; Bindings:
      better-defaults
      vinegar ; dired
