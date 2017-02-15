@@ -465,7 +465,7 @@ Make the foreground of a string closer to or farther from its background."
     (my-shift-string-color s t))
 
   (defun my-shift-face-color (face reference &optional fade?)
-    "Make a face more or less intense than another face."
+    "Make a face's foreground a more or less intense version of another face's."
     (cl-flet ((color-of (key)
                         (color-values (face-attribute reference key))))
       (let ((color (my-color-values-to-string
@@ -508,10 +508,8 @@ Make the foreground of a string closer to or farther from its background."
   ;;; ----------------------------------------------
   ;;; Mode Line, Header Line, and Frame Title Format
 
-  (make-face 'mode-line-shadow-face)
-  (set-face-attribute 'mode-line-shadow-face nil
-                      :inherit 'mode-line)
-  (my-shift-face-color 'mode-line-shadow-face 'mode-line t)
+  (defun my-mode-line-fade (string)
+    (my-fade (format-mode-line (list string) t)))
 
   ;; To do: Check for derived mode to determine whether buffer is file-like. prog-mode and text-mode will hopefully do it. Do the same for mode line?
 
@@ -618,8 +616,7 @@ Make the foreground of a string closer to or farther from its background."
       (propertize
        (concat (my-pad (length lines)
                        (format-mode-line "%l"))
-               (propertize "/"
-                           'face 'mode-line-shadow-face)
+               (my-mode-line-fade "/")
                lines)
        'help-echo "Toggle line numbers."
        'local-map (make-mode-line-mouse-map 'mouse-1 #'linum-mode))))
@@ -630,9 +627,11 @@ Make the foreground of a string closer to or farther from its background."
       " "
       (:eval (my-buffer-name))
       " "
-      (:propertize "(" face mode-line-shadow-face)
-      (:eval (my-simpler-vc-branch))
-      (:propertize ")" face mode-line-shadow-face)
+      (:eval (let ((b (my-simpler-vc-branch)))
+               (if (string= b "")
+                   ""
+                 (concat
+                  b))))
       "  "
       (:eval (my-line-position))
       )
@@ -735,7 +734,7 @@ Make the foreground of a string closer to or farther from its background."
   ;; Flip Vi a/A behavior.
   (define-key evil-normal-state-map "a" 'evil-append-line)
   (define-key evil-normal-state-map "A" 'evil-append)
-  
+
   (defun my-evil-forward-end (thing &optional count)
     "Move forward past the end of thing. Repeat count times."
     ;; (unless (eobp) (forward-char))
@@ -1004,3 +1003,24 @@ Make the foreground of a string closer to or farther from its background."
   )
 
 ;; Do not write anything past this comment. This is where Emacs will auto-generate custom variable definitions.
+(defun dotspacemacs/emacs-custom-settings ()
+  "Emacs custom settings.
+This is an auto-generated function, do not modify its content directly, use
+Emacs customize menu instead.
+This function is called at the very end of Spacemacs initialization."
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(adaptive-fill-regexp "[ 	]*\\([-–!|#%;>·•‣⁃◦]+[ 	]*\\)*")
+ '(package-selected-packages
+   (quote
+    (multiple-cursors org-plus-contrib zonokai-theme zenburn-theme zen-and-art-theme yapfify xterm-color ws-butler winum which-key wgrep web-mode web-beautify vimrc-mode uuidgen use-package unfill underwater-theme ujelly-theme twilight-theme twilight-bright-theme twilight-anti-bright-theme tronesque-theme toxi-theme tao-theme tangotango-theme tango-plus-theme tango-2-theme tagedit sunny-day-theme sublime-themes subatomic256-theme subatomic-theme srefactor spacemacs-theme spacegray-theme sourcerer-theme soothe-theme soft-stone-theme soft-morning-theme soft-charcoal-theme smyx-theme smex smeargle slim-mode shen-elisp shell-pop seti-theme scss-mode sass-mode reverse-theme restart-emacs ranger rainbow-mode railscasts-theme quelpa pyvenv pytest pyenv-mode py-isort purple-haze-theme pug-mode professional-theme planet-theme pip-requirements phoenix-dark-pink-theme phoenix-dark-mono-theme pcre2el pastels-on-dark-theme paren-face paradox organic-green-theme open-junk-file omtose-phellack-theme oldlace-theme occidental-theme obsidian-theme noctilux-theme niflheim-theme naquadah-theme mwim mustang-theme multi-term move-text monokai-theme monochrome-theme molokai-theme moe-theme mmm-mode minimal-theme material-theme markdown-toc majapahit-theme magithub magit-gitflow magit-gh-pulls macrostep lush-theme lorem-ipsum livid-mode live-py-mode linum-relative link-hint light-soap-theme less-css-mode json-mode js2-refactor js-doc jbeans-theme jazz-theme ivy-hydra ir-black-theme intero inkpot-theme info+ hy-mode hungry-delete hlint-refactor hindent heroku-theme hemisu-theme help-fns+ helm-make hc-zenburn-theme haskell-snippets gruvbox-theme gruber-darker-theme grandshell-theme gotham-theme gitignore-mode github-search github-clone github-browse-file gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gist gh-md gandalf-theme fuzzy flyspell-correct-ivy flycheck-pos-tip flycheck-haskell flycheck-elm flx-ido flatui-theme flatland-theme firebelly-theme farmhouse-theme expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu espresso-theme eshell-z eshell-prompt-extras esh-help emmet-mode elm-mode elisp-slime-nav dracula-theme django-theme diff-hl darktooth-theme darkokai-theme darkmine-theme darkburn-theme dakrone-theme dactyl-mode cython-mode cyberpunk-theme counsel-projectile company-web company-tern company-statistics company-ghci company-ghc company-cabal company-anaconda color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized coffee-mode cmm-mode clues-theme clean-aindent-mode cherry-blossom-theme busybee-theme bubbleberry-theme birds-of-paradise-plus-theme badwolf-theme auto-yasnippet auto-dictionary auto-compile apropospriate-theme anti-zenburn-theme ample-zen-theme ample-theme alect-themes aggressive-indent afternoon-theme adaptive-wrap ace-window ace-link ac-ispell))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
+)
