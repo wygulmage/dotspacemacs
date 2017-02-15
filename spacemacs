@@ -50,9 +50,11 @@ This function should only set values."
      (shell :variables
             shell-default-height 30
             shell-default-position 'bottom)
+     spacemacs-completion
      spacemacs-editing
      (spacemacs-evil :packages
                      (not vi-tilde-fringe))
+     spacemacs-ui ; includes restart-emacs
      ;;; Bindings:
      better-defaults
      vinegar ; dired
