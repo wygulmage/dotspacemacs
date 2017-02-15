@@ -73,7 +73,7 @@ This function should only set values."
      elm
      emacs-lisp
      haskell
-     (html :variables ; for CSS ; this is web-mode, not html-mode
+     (html :variables ; for CSS ; this is called web-mode, not html-mode
            web-mode-css-indent-offset 2
            web-mode-enable-css-colorization nil ; already done with colors
            )
@@ -508,6 +508,11 @@ Make the foreground of a string closer to or farther from its background."
   ;;; ----------------------------------------------
   ;;; Mode Line, Header Line, and Frame Title Format
 
+  (make-face 'mode-line-shadow-face)
+  (set-face-attribute 'mode-line-shadow-face nil
+                      :inherit 'mode-line)
+  (my-shift-face-color 'mode-line-shadow-face 'mode-line t)
+
   ;; To do: Check for derived mode to determine whether buffer is file-like. prog-mode and text-mode will hopefully do it. Do the same for mode line?
 
   (defun my-buffer-name ()
@@ -604,9 +609,7 @@ Make the foreground of a string closer to or farther from its background."
     (if (not vc-mode)
         ""
       (propertize
-       (concat (my-fade "(")
-               (replace-regexp-in-string " Git[:\-]" "" vc-mode)
-               (my-fade ")"))
+       (replace-regexp-in-string " Git[:\-]" "" vc-mode)
        'local-map (make-mode-line-mouse-map 'mouse-1 #'magit-status))))
 
   (defun my-line-position ()
@@ -615,7 +618,8 @@ Make the foreground of a string closer to or farther from its background."
       (propertize
        (concat (my-pad (length lines)
                        (format-mode-line "%l"))
-               (my-fade "/")
+               (propertize "/"
+                           'face 'mode-line-shadow-face)
                lines)
        'help-echo "Toggle line numbers."
        'local-map (make-mode-line-mouse-map 'mouse-1 #'linum-mode))))
@@ -626,7 +630,9 @@ Make the foreground of a string closer to or farther from its background."
       " "
       (:eval (my-buffer-name))
       " "
+      (:propertize "(" face mode-line-shadow-face)
       (:eval (my-simpler-vc-branch))
+      (:propertize ")" face mode-line-shadow-face)
       "  "
       (:eval (my-line-position))
       )
@@ -716,6 +722,15 @@ Make the foreground of a string closer to or farther from its background."
   ;;; Set Evil to not behave like Vim.
   (customize-set-variable 'evil-move-beyond-eol t) ; Allow the cursor to move beyond the end of the line.
   (customize-set-variable 'evil-move-cursor-back nil) ; Don't move the cursor when exiting insert mode.
+
+  ;; ;; Make the cursor always a bar.
+  ;; (dolist (cursor '(
+  ;;                   evil-emacs-state-cursor
+  ;;                   evil-insert-state-cursor
+  ;;                   evil-motion-state-cursor
+  ;;                   evil-normal-state-cursor
+  ;;                   evil-visual-state-cursor))
+  ;;   (set cursor 'bar))
 
   ;; Flip Vi a/A behavior.
   (define-key evil-normal-state-map "a" 'evil-append-line)
@@ -952,7 +967,7 @@ Make the foreground of a string closer to or farther from its background."
     (my-set-face-attributes
      `(
        ;; (cursor :background) -- this is just a stub to remind me of the cursor face.
-       ;; Things that don't do stuff:
+       ;;; Things that don't do stuff:
        (font-lock-comment-face
         :background unspecified
         :slant normal)
@@ -967,8 +982,8 @@ Make the foreground of a string closer to or farther from its background."
         :background unspecified
         :foreground unspecified
         :inherit font-lock-comment-face)
-       (mode-line :inherit font-lock-comment-face)
-       ;; Things that do stuff:
+       ;; (mode-line :inherit font-lock-comment-face)
+       ;;; Things that do stuff:
        ;; (font-lock-builtin-face :inherit default)
        ;; (font-lock-constant-face :inherit default)
        (font-lock-keyword-face
@@ -981,7 +996,7 @@ Make the foreground of a string closer to or farther from its background."
        (font-lock-variable-name-face
         :foreground unspecified
         :inherit default)
-       ;; Things that look like other things:
+       ;;; Things that look like other things:
        (font-lock-string-face :slant italic)
        )))
   (my-theme-tweaks)
