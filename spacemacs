@@ -370,10 +370,10 @@ This function is called at the very end of Spacemacs initialization, after layer
 
   ;; TODO: Implement compose function.
 
-  (defun my-customize-set-variables (&rest pairs)
+  (defun my-customize-set-variables (&rest assocs)
     "Takes zero or more ('symbol . value) arguments and customizes symbol to value."
-    (dolist (pair pairs)
-      (customize-set-variable (car pair) (cdr pair))))
+    (dolist (key.val assocs)
+      (customize-set-variable (car key.val) (cdr key.val))))
 
   (defun my-hook-up (mode-hooks hook-functions)
     "Add all hook-functions to all mode-hooks."
@@ -717,6 +717,10 @@ Make the foreground of a string closer to or farther from its background."
   (customize-set-variable 'evil-move-beyond-eol t) ; Allow the cursor to move beyond the end of the line.
   (customize-set-variable 'evil-move-cursor-back nil) ; Don't move the cursor when exiting insert mode.
 
+  ;; Flip Vi a/A behavior.
+  (define-key evil-normal-state-map "a" 'evil-append-line)
+  (define-key evil-normal-state-map "A" 'evil-append)
+  
   (defun my-evil-forward-end (thing &optional count)
     "Move forward past the end of thing. Repeat count times."
     ;; (unless (eobp) (forward-char))
@@ -737,8 +741,9 @@ Make the foreground of a string closer to or farther from its background."
     :type exclusive ; I don't know what this does!
     (my-evil-forward-word-end count t))
 
-  (define-key evil-motion-state-map "e" 'my-evil-forward-word-end)
-  (define-key evil-motion-state-map "E" 'my-evil-forward-WORD-end)
+  ;; Flip Vi e/E behavior to make a more useful distiction from w/W.
+  (define-key evil-motion-state-map "E" 'my-evil-forward-word-end)
+  (define-key evil-motion-state-map "e" 'my-evil-forward-WORD-end)
 
 
   ;;; ----------------------------------
@@ -930,7 +935,11 @@ Make the foreground of a string closer to or farther from its background."
     (interactive)
     (unless (equal (face-attribute 'default :background)
                    (face-attribute 'mode-line :background))
-      (set-face-attribute 'mode-line nil :box nil :underline nil :overline nil :inherit font-lock-comment-face)))
+      (set-face-attribute 'mode-line nil
+                          :box nil
+                          :underline nil
+                          :overline nil
+                          :inherit font-lock-comment-face)))
 
   (defun my-set-shadow-face ()
     (my-shift-face-color 'shadow 'default t))
@@ -944,19 +953,34 @@ Make the foreground of a string closer to or farther from its background."
      `(
        ;; (cursor :background) -- this is just a stub to remind me of the cursor face.
        ;; Things that don't do stuff:
-       (font-lock-comment-face :background unspecified :slant normal)
+       (font-lock-comment-face
+        :background unspecified
+        :slant normal)
        ;; (font-lock-comment-delimiter-face :slant normal :inherit font-lock-comment-face)
-       (font-lock-doc-face :inherit font-lock-comment-face)
-       (fringe :background unspecified :foreground unspecified :inherit font-lock-comment-face)
-       (linum :background unspecified :foreground unspecified :inherit font-lock-comment-face)
+       (font-lock-doc-face
+        :inherit font-lock-comment-face)
+       (fringe
+        :background unspecified
+        :foreground unspecified
+        :inherit font-lock-comment-face)
+       (linum
+        :background unspecified
+        :foreground unspecified
+        :inherit font-lock-comment-face)
        (mode-line :inherit font-lock-comment-face)
        ;; Things that do stuff:
        ;; (font-lock-builtin-face :inherit default)
        ;; (font-lock-constant-face :inherit default)
-       (font-lock-keyword-face :foreground unspecified :inherit default)
+       (font-lock-keyword-face
+        :foreground unspecified
+        :inherit default)
        ;; (font-lock-type-face :inherit default)
-       (font-lock-function-name-face :foreground unspecified :inherit default)
-       (font-lock-variable-name-face :foreground unspecified :inherit default)
+       (font-lock-function-name-face
+        :foreground unspecified
+        :inherit default)
+       (font-lock-variable-name-face
+        :foreground unspecified
+        :inherit default)
        ;; Things that look like other things:
        (font-lock-string-face :slant italic)
        )))
