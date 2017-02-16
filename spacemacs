@@ -430,14 +430,22 @@ Pad string s to width w; a negative width means add the padding on the right."
     "Given a string and a keyword, get the value of the string's face's key's property. If it does not have that property, return the property of the default face."
     (let ((face (and (> (length s) 0)
                      (get-text-property 0 'face s))))
-      (or (cond
-           ((null face) nil)
-           ((facep face) (face-attribute face key))
-           ((facep (car face))
-            (my-find (lambda (x) (face-attribute x key))
-                     face))
-           (t (plist-get face key)))
-          (face-attribute 'default key))))
+      (cond
+       ((null face) (face-attribute 'default key))
+       ((facep face) (face-attribute face key nil t))
+       ((facep (car face)) ; face is actually a list of face names.
+        (car (my-find (lambda (x) ; Wraps return value in a list because nil is a valid attribute value.
+                        (let (result (face-attribute x key nil t))
+                          (if (or (eq 'unspecified result)
+                                  (eq 'undefined result))
+                              nil
+                            (list result))))
+                      face
+                      (list undefined))))
+       (t (let ((val (plist-member face key))) ; face is actually a property list.
+            (if (null val)
+                (face-attribute 'default key)
+              (cadr val)))))))
 
   (defun my-shift-color (color reference &optional away?)
     (let ((toner (cond ((not away?) reference)
@@ -631,6 +639,7 @@ Make the foreground of a string closer to or farther from its background."
                (if (string= b "")
                    ""
                  (concat
+                  (my-fade (format-mode-line "("))
                   b))))
       "  "
       (:eval (my-line-position))
@@ -1003,24 +1012,3 @@ Make the foreground of a string closer to or farther from its background."
   )
 
 ;; Do not write anything past this comment. This is where Emacs will auto-generate custom variable definitions.
-(defun dotspacemacs/emacs-custom-settings ()
-  "Emacs custom settings.
-This is an auto-generated function, do not modify its content directly, use
-Emacs customize menu instead.
-This function is called at the very end of Spacemacs initialization."
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(adaptive-fill-regexp "[ 	]*\\([-–!|#%;>·•‣⁃◦]+[ 	]*\\)*")
- '(package-selected-packages
-   (quote
-    (multiple-cursors org-plus-contrib zonokai-theme zenburn-theme zen-and-art-theme yapfify xterm-color ws-butler winum which-key wgrep web-mode web-beautify vimrc-mode uuidgen use-package unfill underwater-theme ujelly-theme twilight-theme twilight-bright-theme twilight-anti-bright-theme tronesque-theme toxi-theme tao-theme tangotango-theme tango-plus-theme tango-2-theme tagedit sunny-day-theme sublime-themes subatomic256-theme subatomic-theme srefactor spacemacs-theme spacegray-theme sourcerer-theme soothe-theme soft-stone-theme soft-morning-theme soft-charcoal-theme smyx-theme smex smeargle slim-mode shen-elisp shell-pop seti-theme scss-mode sass-mode reverse-theme restart-emacs ranger rainbow-mode railscasts-theme quelpa pyvenv pytest pyenv-mode py-isort purple-haze-theme pug-mode professional-theme planet-theme pip-requirements phoenix-dark-pink-theme phoenix-dark-mono-theme pcre2el pastels-on-dark-theme paren-face paradox organic-green-theme open-junk-file omtose-phellack-theme oldlace-theme occidental-theme obsidian-theme noctilux-theme niflheim-theme naquadah-theme mwim mustang-theme multi-term move-text monokai-theme monochrome-theme molokai-theme moe-theme mmm-mode minimal-theme material-theme markdown-toc majapahit-theme magithub magit-gitflow magit-gh-pulls macrostep lush-theme lorem-ipsum livid-mode live-py-mode linum-relative link-hint light-soap-theme less-css-mode json-mode js2-refactor js-doc jbeans-theme jazz-theme ivy-hydra ir-black-theme intero inkpot-theme info+ hy-mode hungry-delete hlint-refactor hindent heroku-theme hemisu-theme help-fns+ helm-make hc-zenburn-theme haskell-snippets gruvbox-theme gruber-darker-theme grandshell-theme gotham-theme gitignore-mode github-search github-clone github-browse-file gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gist gh-md gandalf-theme fuzzy flyspell-correct-ivy flycheck-pos-tip flycheck-haskell flycheck-elm flx-ido flatui-theme flatland-theme firebelly-theme farmhouse-theme expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu espresso-theme eshell-z eshell-prompt-extras esh-help emmet-mode elm-mode elisp-slime-nav dracula-theme django-theme diff-hl darktooth-theme darkokai-theme darkmine-theme darkburn-theme dakrone-theme dactyl-mode cython-mode cyberpunk-theme counsel-projectile company-web company-tern company-statistics company-ghci company-ghc company-cabal company-anaconda color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized coffee-mode cmm-mode clues-theme clean-aindent-mode cherry-blossom-theme busybee-theme bubbleberry-theme birds-of-paradise-plus-theme badwolf-theme auto-yasnippet auto-dictionary auto-compile apropospriate-theme anti-zenburn-theme ample-zen-theme ample-theme alect-themes aggressive-indent afternoon-theme adaptive-wrap ace-window ace-link ac-ispell))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
-)
