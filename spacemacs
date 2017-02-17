@@ -43,6 +43,8 @@ This function should only set values."
              :variables
              rainbow-x-colors nil
              rainbow-html-colors nil)
+     (org :variables
+          org-enable-github-support t)
      (ranger :variables
              ranger-override-dired t
              ranger-show-preview t
@@ -111,6 +113,7 @@ This function should only set values."
    dotspacemacs-excluded-packages
    '(
      fancy-battery ; The GUI shell shows this.
+     helm ; Use ivy instead.
      highlight-indentation ; Indentation shows this.
      highlight-parentheses ; Use paren-face-mode instead.
      powerline ; Use customized modeline instead.
@@ -375,6 +378,8 @@ This function is called at the very end of Spacemacs initialization, after layer
     (dolist (key.val assocs)
       (customize-set-variable (car key.val) (cdr key.val))))
 
+;;; Hooks:
+
   (defun my-hook-up (mode-hooks hook-functions)
     "Add all hook-functions to all mode-hooks."
     (dolist (mode-hook mode-hooks)
@@ -394,11 +399,36 @@ Warning: will create a null hook if the hook is not defined."
                      (lambda (result) (run-hooks hook) result)))))
 
   (defun my-add-hooks-to-procedures (hooks when procedures)
-    "Run hooks :before or :after procedures.
+    "Run all hooks :before or :after all procedures.
 Warning: will create null hooks if hooks are not defined."
     (dolist (hook hooks)
       (dolist (procedure procedures)
         (my-add-procedure-hook hook when procedure))))
+
+;;; Buffers and panes:
+
+  (defvar my-current-pane (frame-selected-window)
+    "The pane that has an active mode-line")
+
+  (defun my-set-current-pane ()
+    "Sets my-current-pane to the active pane (unless the active pane is a minibuffer)."
+    (let ((p (frame-selected-window)))
+      (unless (minibuffer-window-active-p p)
+        (setq my-current-pane p))))
+
+  (defun my-unset-current-pane ()
+    "Sets my-current-pane to nil."
+    (setq my-current-pane nil)
+    (force-mode-line-update))
+
+  (add-hook 'focus-out-hook 'my-unset-current-pane)
+
+  (my-hook-up
+   '(focus-in-hook)
+   '(my-set-current-pane))
+
+  (defun my-current-pane-active? ()
+    (eq my-current-pane (selected-window)))
 
   (defun my-buffer-line-count ()
     "Number of lines in the current buffer. If the last line of the buffer is empty, it won't be counted."
@@ -412,6 +442,14 @@ The number of decimal digits in n, including any period as a digit."
     (length (number-to-string n)))
 
 ;;; Strings, Colors, and Faces:
+
+  (defun my-define-faces (group &rest faces)
+    "Creates faces (name docstring properties) in group. No fancy business here; the display is always t."
+    (dolist (face faces)
+      (let((name (car face))
+           (docstring (cadr face))
+           (properties (cddr face)))
+        (defface name (list (list t properties)) docstring :group group))))
 
   (defun my-pad (w s)
     "Integer -> String -> String
@@ -448,6 +486,7 @@ Pad string s to width w; a negative width means add the padding on the right."
               (cadr val)))))))
 
   (defun my-shift-color (color reference &optional away?)
+    "Shift color toward or away from reference. Color and reference should be emacs color triples."
     (let ((toner (cond ((not away?) reference)
                        ((> (apply '+ color)
                            (apply '+ reference))
@@ -516,8 +555,45 @@ Make the foreground of a string closer to or farther from its background."
   ;;; ----------------------------------------------
   ;;; Mode Line, Header Line, and Frame Title Format
 
-  (defun my-mode-line-fade (string)
-    (my-fade (format-mode-line (list string) t)))
+  (my-define-faces
+   'my-statusbar
+   '(my-active-statusbar-face
+     "an alias for mode-line-active face")
+   '(my-inactive-statusbar-face
+     "an alias for mode-line-inactive face"
+     (:inherit mode-line-inactive))
+   '(my-active-statusbar-shadow-face
+     "a faded version of my-active-statusbar-face"
+     (:inherit my-active-statusbar-face))
+   '(my-inactive-statusbar-face
+     "a faded version of my-inactive-statusbar-face"
+     (:inherit my-inactive-statusbar-face)))
+
+  (defun my-get-statusbar-face ()
+    "an ersatz face that switches between active- and inactive-statusbar-face"
+    (if my-current-pane
+        'my-active-statusbar-face
+      'my-inactive-statusbar-face))
+
+  (defun my-get-statusbar-shadow-face ()
+    "an ersatz face that switches between active- and inactive-statusbar-shadow-face"
+    (if my-current-pane
+        'my-active-statusbar-shadow-face
+      'my-inactive-statusbar-shadow-face))
+
+  (defun my-reset-statusbar-faces ()
+    "Sets statusbar shadow faces to be faded versions of their counterparts."
+    (cl-flet
+        ((fade (faded reference)
+               (set-face-attribute
+                faded
+                nil
+                :foreground (my-color-values-to-string (my-shift-color
+                             (color-values (face-attribute reference :foreground nil t)) (color-values (face-attribute reference :background nil t)))))))
+      (fade 'my-active-statusbar-shadow-face 'my-active-statusbar-face)
+      (fade 'my-inactive-statusbar-shadow-face 'my-inactive-statusbar-face)))
+  (my-reset-statusbar-faces)
+  (add-hook 'after-load-theme-hook 'my-reset-statusbar-faces)
 
   ;; To do: Check for derived mode to determine whether buffer is file-like. prog-mode and text-mode will hopefully do it. Do the same for mode line?
 
@@ -624,7 +700,7 @@ Make the foreground of a string closer to or farther from its background."
       (propertize
        (concat (my-pad (length lines)
                        (format-mode-line "%l"))
-               (my-mode-line-fade "/")
+               (propertize "/" :face (my-get-statusbar-shadow-face))
                lines)
        'help-echo "Toggle line numbers."
        'local-map (make-mode-line-mouse-map 'mouse-1 #'linum-mode))))
@@ -639,7 +715,7 @@ Make the foreground of a string closer to or farther from its background."
                (if (string= b "")
                    ""
                  (concat
-                  (my-fade (format-mode-line "("))
+     ;;             (propertize "(" :face (my-get-statusbar-shadow-face))
                   b))))
       "  "
       (:eval (my-line-position))
@@ -971,7 +1047,6 @@ Make the foreground of a string closer to or farther from its background."
     (my-box-to-lines 'mode-line)
     (my-box-to-lines 'mode-line-inactive)
     (my-set-shadow-face)
-    ;; (add-hook 'after-load-theme-hook #'my-set-shadow-face)
     (my-set-face-attributes
      `(
        ;; (cursor :background) -- this is just a stub to remind me of the cursor face.
@@ -1012,3 +1087,24 @@ Make the foreground of a string closer to or farther from its background."
   )
 
 ;; Do not write anything past this comment. This is where Emacs will auto-generate custom variable definitions.
+(defun dotspacemacs/emacs-custom-settings ()
+  "Emacs custom settings.
+This is an auto-generated function, do not modify its content directly, use
+Emacs customize menu instead.
+This function is called at the very end of Spacemacs initialization."
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(adaptive-fill-regexp "[ 	]*\\([-–!|#%;>·•‣⁃◦]+[ 	]*\\)*")
+ '(package-selected-packages
+   (quote
+    (org-plus-contrib yapfify xterm-color ws-butler winum which-key wgrep web-mode web-beautify vimrc-mode uuidgen use-package unfill tagedit srefactor smex smeargle slim-mode shen-elisp shell-pop scss-mode sass-mode restart-emacs ranger rainbow-mode pyvenv pytest pyenv-mode py-isort pug-mode pip-requirements pcre2el paren-face paradox ox-gfm org-projectile org-pomodoro org-download open-junk-file mwim multi-term move-text mmm-mode markdown-toc magithub magit-gitflow magit-gh-pulls macrostep lorem-ipsum livid-mode live-py-mode linum-relative link-hint less-css-mode json-mode js2-refactor js-doc ivy-hydra intero info+ hy-mode hungry-delete htmlize hlint-refactor hindent help-fns+ helm-make haskell-snippets gnuplot gitignore-mode github-search github-clone github-browse-file gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gist gh-md fuzzy flyspell-correct-ivy flycheck-pos-tip flycheck-haskell flycheck-elm flx-ido expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help emmet-mode elm-mode elisp-slime-nav diff-hl dactyl-mode cython-mode counsel-projectile company-web company-tern company-statistics company-ghci company-ghc company-cabal company-anaconda coffee-mode cmm-mode clean-aindent-mode auto-yasnippet auto-dictionary auto-compile aggressive-indent adaptive-wrap ace-window ace-link ac-ispell))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
+)
