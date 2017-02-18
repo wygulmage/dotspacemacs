@@ -622,11 +622,11 @@ Pad string s to width w; a negative width means add the padding on the right."
     "Current line / total lines. Click to toggle line numbers."
     (let ((lines (number-to-string (my-buffer-line-count))))
       (propertize
-       (concat (my-pad (length lines)
-                       (format-mode-line "%l"))
-               (propertize "/" 'face (my-get-statusbar-shadow-face))
-               lines)
-       'help-echo "Toggle line numbers."
+       (concat
+        (my-pad (length lines) (format-mode-line "%l"))
+        (propertize "/" 'face (my-get-statusbar-shadow-face))
+        lines)
+       'help-echo (if linum-mode "Hide line numbers." "Show line numbers.")
        'local-map (make-mode-line-mouse-map 'mouse-1 #'linum-mode))))
 
   ;; (defvar my-base-mode-line-format
