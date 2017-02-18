@@ -549,19 +549,20 @@ Pad string s to width w; a negative width means add the padding on the right."
     "Sets statusbar shadow faces to be faded versions of their counterparts."
     (cl-flet
         ((fade (faded reference)
-               (set-face-attribute
-                faded
-                nil
-                :foreground (my-color-values-to-string
-                             (my-shift-color
-                              (color-values (face-attribute reference :foreground nil t))
-                              (color-values (face-attribute reference :background nil t)))))))
+               (cl-flet
+                   ((color-of (key)
+                              (color-values (face-attribute reference key nil t))))
+                 (set-face-attribute
+                  faded
+                  nil
+                  :foreground (my-color-values-to-string
+                               (my-shift-color
+                                (color-of :foreground)
+                                (color-of :background )))))))
       (fade 'my-active-statusbar-shadow-face 'my-active-statusbar-face)
       (fade 'my-inactive-statusbar-shadow-face 'my-inactive-statusbar-face)))
   (my-reset-statusbar-faces)
   (add-hook 'after-load-theme-hook 'my-reset-statusbar-faces)
-
-  ;; To do: Check for derived mode to determine whether buffer is file-like. prog-mode and text-mode will hopefully do it. Do the same for mode line?
 
   (defun my-buffer-name ()
     "The name of the buffer. If it's a file, shows the directory on hover and opens dired with a click."
@@ -628,16 +629,29 @@ Pad string s to width w; a negative width means add the padding on the right."
        'help-echo "Toggle line numbers."
        'local-map (make-mode-line-mouse-map 'mouse-1 #'linum-mode))))
 
+  ;; (defvar my-base-mode-line-format
+  ;;   '(
+  ;;     (:eval (my-buffer-write-status))
+  ;;     " "
+  ;;     (:eval (my-buffer-name))
+  ;;     " "
+  ;;     (:eval (my-simpler-vc-branch))
+  ;;     "  "
+  ;;     (:eval (my-line-position))
+  ;;     )
+  ;;   "a simple status bar")
+
   (defvar my-base-mode-line-format
-    '(
-      (:eval (my-buffer-write-status))
-      " "
-      (:eval (my-buffer-name))
-      " "
-      (:eval (my-simpler-vc-branch))
-      "  "
-      (:eval (my-line-position))
-      )
+    '(:eval
+      (concat
+       (my-buffer-write-status)
+       " "
+       (my-buffer-name)
+       " "
+       (my-simpler-vc-branch)
+       "  "
+       (my-line-position)
+       ))
     "a simple status bar")
 
   (defun my-format-text-mode-line ()
