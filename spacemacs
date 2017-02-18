@@ -423,8 +423,19 @@ Warning: will create null hooks if hooks are not defined."
 
   (add-hook 'focus-out-hook 'my-unset-current-pane)
 
+  (my-add-hooks-to-procedures
+   '(my-after-switch-frame-hook)
+   :after
+   '(
+     handle-switch-frame
+     select-window
+     ))
+
   (my-hook-up
-   '(focus-in-hook)
+   '(
+     focus-in-hook
+     window-configuration-change-hook
+     )
    '(my-set-current-pane))
 
   (defun my-current-pane-active? ()
@@ -444,12 +455,12 @@ The number of decimal digits in n, including any period as a digit."
 ;;; Strings, Colors, and Faces:
 
   (defun my-define-faces (group &rest faces)
-    "Creates faces (name docstring properties) in group. No fancy business here; the display is always t."
+    "Creates faces (name docstring properties) in group. No fancy business here; the display is always t. Currently broken."
     (dolist (face faces)
-      (let((name (car face))
-           (docstring (cadr face))
-           (properties (cddr face)))
-        (defface name (list (list t properties)) docstring :group group))))
+      (let ((name (car face))
+            (docstring (cadr face))
+            (properties (cddr face)))
+        (defface name (list (cons t properties)) docstring :group group))))
 
   (defun my-pad (w s)
     "Integer -> String -> String
@@ -555,29 +566,28 @@ Make the foreground of a string closer to or farther from its background."
   ;;; ----------------------------------------------
   ;;; Mode Line, Header Line, and Frame Title Format
 
-  (my-define-faces
-   'my-statusbar
-   '(my-active-statusbar-face
-     "an alias for mode-line-active face")
-   '(my-inactive-statusbar-face
-     "an alias for mode-line-inactive face"
-     (:inherit mode-line-inactive))
-   '(my-active-statusbar-shadow-face
-     "a faded version of my-active-statusbar-face"
-     (:inherit my-active-statusbar-face))
-   '(my-inactive-statusbar-face
-     "a faded version of my-inactive-statusbar-face"
-     (:inherit my-inactive-statusbar-face)))
+  (defface my-active-statusbar-face
+    '((t :inherit mode-line))
+    "an alias for mode-line face.")
+  (defface my-inactive-statusbar-face
+    '((t :inherit mode-line-inactive))
+    "an alias for mode-line-inactive face.")
+  (defface my-active-statusbar-shadow-face
+    '((t :inherit my-active-statusbar-face))
+    "an alias for mode-line face.")
+  (defface my-inactive-statusbar-shadow-face
+    '((t :inherit my-inactive-statusbar-face))
+    "an alias for mode-line-inactive face.")
 
   (defun my-get-statusbar-face ()
     "an ersatz face that switches between active- and inactive-statusbar-face"
-    (if my-current-pane
+    (if (my-current-pane-active?)
         'my-active-statusbar-face
       'my-inactive-statusbar-face))
 
   (defun my-get-statusbar-shadow-face ()
     "an ersatz face that switches between active- and inactive-statusbar-shadow-face"
-    (if my-current-pane
+    (if (my-current-pane-active?)
         'my-active-statusbar-shadow-face
       'my-inactive-statusbar-shadow-face))
 
@@ -588,8 +598,10 @@ Make the foreground of a string closer to or farther from its background."
                (set-face-attribute
                 faded
                 nil
-                :foreground (my-color-values-to-string (my-shift-color
-                             (color-values (face-attribute reference :foreground nil t)) (color-values (face-attribute reference :background nil t)))))))
+                :foreground (my-color-values-to-string
+                             (my-shift-color
+                              (color-values (face-attribute reference :foreground nil t))
+                              (color-values (face-attribute reference :background nil t)))))))
       (fade 'my-active-statusbar-shadow-face 'my-active-statusbar-face)
       (fade 'my-inactive-statusbar-shadow-face 'my-inactive-statusbar-face)))
   (my-reset-statusbar-faces)
@@ -690,9 +702,13 @@ Make the foreground of a string closer to or farther from its background."
   (defun my-simpler-vc-branch ()
     (if (not vc-mode)
         ""
-      (propertize
-       (replace-regexp-in-string " Git[:\-]" "" vc-mode)
-       'local-map (make-mode-line-mouse-map 'mouse-1 #'magit-status))))
+      (concat
+       (propertize "(" 'face (my-get-statusbar-shadow-face))
+       (propertize
+        (replace-regexp-in-string " Git[:\-]" "" vc-mode)
+        'local-map (make-mode-line-mouse-map 'mouse-1 #'magit-status))
+       (propertize ")" 'face (my-get-statusbar-shadow-face))
+       )))
 
   (defun my-line-position ()
     "Current line / total lines. Click to toggle line numbers."
@@ -700,7 +716,7 @@ Make the foreground of a string closer to or farther from its background."
       (propertize
        (concat (my-pad (length lines)
                        (format-mode-line "%l"))
-               (propertize "/" :face (my-get-statusbar-shadow-face))
+               (propertize "/" 'face (my-get-statusbar-shadow-face))
                lines)
        'help-echo "Toggle line numbers."
        'local-map (make-mode-line-mouse-map 'mouse-1 #'linum-mode))))
@@ -711,12 +727,7 @@ Make the foreground of a string closer to or farther from its background."
       " "
       (:eval (my-buffer-name))
       " "
-      (:eval (let ((b (my-simpler-vc-branch)))
-               (if (string= b "")
-                   ""
-                 (concat
-     ;;             (propertize "(" :face (my-get-statusbar-shadow-face))
-                  b))))
+      (:eval (my-simpler-vc-branch))
       "  "
       (:eval (my-line-position))
       )
@@ -1108,3 +1119,18 @@ This function is called at the very end of Spacemacs initialization."
  ;; If there is more than one, they won't work right.
  )
 )
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(adaptive-fill-regexp "[ 	]*\\([-–!|#%;>·•‣⁃◦]+[ 	]*\\)*")
+ '(package-selected-packages
+   (quote
+    (ox-gfm org-projectile org-present org-pomodoro alert log4e gntp org-download htmlize gnuplot zonokai-theme zenburn-theme zen-and-art-theme yapfify yaml-mode xterm-color ws-butler window-numbering which-key wgrep web-mode web-beautify vimrc-mode uuidgen use-package underwater-theme ujelly-theme twilight-theme twilight-bright-theme twilight-anti-bright-theme tronesque-theme toxi-theme tao-theme tangotango-theme tango-plus-theme tango-2-theme tagedit sunny-day-theme sublime-themes subatomic256-theme subatomic-theme srefactor spacemacs-theme spacegray-theme soothe-theme soft-stone-theme soft-morning-theme soft-charcoal-theme smyx-theme smex smeargle slim-mode shen-elisp shell-pop seti-theme scss-mode sass-mode reverse-theme restart-emacs ranger rainbow-mode railscasts-theme quelpa pyvenv pytest pyenv-mode py-isort purple-haze-theme pug-mode professional-theme planet-theme pip-requirements phoenix-dark-pink-theme phoenix-dark-mono-theme pcre2el pastels-on-dark-theme paren-face paradox orgit organic-green-theme open-junk-file omtose-phellack-theme oldlace-theme occidental-theme obsidian-theme noctilux-theme niflheim-theme naquadah-theme mwim mustang-theme multi-term move-text monokai-theme monochrome-theme molokai-theme moe-theme mmm-mode minimal-theme material-theme markdown-toc majapahit-theme magit-gitflow magit-gh-pulls macrostep lush-theme lorem-ipsum livid-mode live-py-mode linum-relative link-hint light-soap-theme less-css-mode json-mode js2-refactor js-doc jbeans-theme jazz-theme ivy-hydra ir-black-theme intero inkpot-theme info+ ido-vertical-mode hy-mode hungry-delete hlint-refactor hindent heroku-theme hemisu-theme help-fns+ helm-make hc-zenburn-theme haskell-snippets gruvbox-theme gruber-darker-theme grandshell-theme gotham-theme gitignore-mode github-search github-clone github-browse-file gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gist gh-md gandalf-theme flyspell-correct-ivy flycheck-pos-tip flycheck-haskell flycheck-elm flx-ido flatui-theme flatland-theme firebelly-theme farmhouse-theme expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu espresso-theme eshell-z eshell-prompt-extras esh-help emmet-mode elm-mode elisp-slime-nav dracula-theme django-theme diff-hl darktooth-theme darkokai-theme darkmine-theme darkburn-theme dakrone-theme dactyl-mode cython-mode cyberpunk-theme counsel-projectile company-web company-tern company-statistics company-ghci company-ghc company-cabal company-anaconda color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized coffee-mode cmm-mode clues-theme clean-aindent-mode cherry-blossom-theme busybee-theme bubbleberry-theme birds-of-paradise-plus-theme badwolf-theme auto-yasnippet auto-dictionary auto-compile apropospriate-theme anti-zenburn-theme ample-zen-theme ample-theme alect-themes aggressive-indent afternoon-theme adaptive-wrap ace-window ace-link ac-ispell))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
