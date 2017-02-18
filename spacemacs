@@ -467,35 +467,6 @@ The number of decimal digits in n, including any period as a digit."
 Pad string s to width w; a negative width means add the padding on the right."
     (format (concat "%" (number-to-string w) "s") s))
 
-  (defun my-find (f l &optional no-match)
-    "Return the first non-nil result of f.car l, or no-match."
-    (if (null l) no-match
-      (let ((candidate (funcall f (car l))))
-        (if candidate
-            candidate
-          (my-find f (cdr l) no-match)))))
-
-  (defun my-get-string-face-property (s key)
-    "Given a string and a keyword, get the value of the string's face's key's property. If it does not have that property, return the property of the default face."
-    (let ((face (and (> (length s) 0)
-                     (get-text-property 0 'face s))))
-      (cond
-       ((null face) (face-attribute 'default key))
-       ((facep face) (face-attribute face key nil t))
-       ((facep (car face)) ; face is actually a list of face names.
-        (car (my-find (lambda (x) ; Wraps return value in a list because nil is a valid attribute value.
-                        (let (result (face-attribute x key nil t))
-                          (if (or (eq 'unspecified result)
-                                  (eq 'undefined result))
-                              nil
-                            (list result))))
-                      face
-                      (list undefined))))
-       (t (let ((val (plist-member face key))) ; face is actually a property list.
-            (if (null val)
-                (face-attribute 'default key)
-              (cadr val)))))))
-
   (defun my-shift-color (color reference &optional away?)
     "Shift color toward or away from reference. Color and reference should be emacs color triples."
     (let ((toner (cond ((not away?) reference)
@@ -504,23 +475,6 @@ Pad string s to width w; a negative width means add the padding on the right."
                         (color-values "white"))
                        (t '(0 0 0)))))
       (my-blend-colors color toner)))
-
-  (defun my-shift-string-color (s &optional fade?)
-    "String ->? Boolean -> String
-Make the foreground of a string closer to or farther from its background."
-    (cl-flet ((color-of (key)
-                        (color-values (my-get-string-face-property s key))))
-      (let ((color (my-color-values-to-string
-                    (my-shift-color (color-of :foreground)
-                                    (color-of :background)
-                                    (not fade?)))))
-        (propertize s 'face `(:foreground ,color)))))
-
-  (defun my-emphasize (s)
-    (my-shift-string-color s))
-
-  (defun my-fade (s)
-    (my-shift-string-color s t))
 
   (defun my-shift-face-color (face reference &optional fade?)
     "Make a face's foreground a more or less intense version of another face's."
@@ -631,58 +585,11 @@ Make the foreground of a string closer to or farther from its background."
         (file-name-directory (abbreviate-file-name buffer-file-truename))
       ""))
 
-  (defvar my-point-string
-    '(:eval (propertize "(%l, %c)"
-                        'help-echo "Toggle line numbers."
-                        'local-map (make-mode-line-mouse-map 'mouse-1 #'linum-mode)))
-    "The row and column coordinates of the point.")
-  (put 'my-point-string 'risky-local-variable t)
-
   (defun my-major-mode-name ()
     "The buffer's major-mode"
     (propertize mode-name
                 'help-echo "Click mouse 1 for mode menu, mouse 2 for mode info, or mouse 3 to toggle minor modes."
                 'local-map mode-line-major-mode-keymap))
-
-  (defun my-vc-status ()
-    (if buffer-file-name
-        (vc-state buffer-file-truename)
-      nil))
-
-  (defun my-vc-branch ()
-    "Propertized VC status."
-    (let ((status (my-vc-status)))
-      (if status
-          (cl-multiple-value-bind
-              (description color)
-              (pcase status
-                ;; backquote is needed so Emacs 24 doesn't choke on the cases.
-                (`up-to-date
-                 `("up to date" ,(face-attribute 'mode-line :foreground)))
-                (`edited
-                 '("edited" "#BBDAFF"))
-                (`added
-                 '("added" "#88CC99"))
-                (`needs-update
-                 '("needs to be updated" "#ffc58f"))
-                (`needs-merge
-                 '("needs to be merged" "#ffc58F"))
-                (`removed
-                 '("deleted" "#ff5555"))
-                (`conflict
-                 '("conflicted" "#EEAA33"))
-                (`ignored
-                 '("ignored" "#888888"))
-                (`unregistered
-                 '("untracked" "#888888"))
-                (_
-                 `(,(symbol-name status) "#FFFFFF")))
-            (propertize
-             (concat
-              (replace-regexp-in-string "Git[:\-]" "" vc-mode) " (" description ")")
-             'face `(:foreground ,color :inherit font-lock-comment-face)
-             'local-map (make-mode-line-mouse-map 'mouse-1 #'magit-status)))
-        "")))
 
   (defun my-buffer-write-status ()
     "Show whether a file-like buffer has been modified since its last save; click to save. Should 'do what I mean'."
