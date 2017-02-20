@@ -381,7 +381,7 @@ This function is called at the very end of Spacemacs initialization, after layer
 ;;; Hooks:
 
   (defun my-hook-up (mode-hooks hook-functions)
-    "Add all hook-functions to all mode-hooks."
+    "Run all hook-functions with all mode-hooks."
     (dolist (mode-hook mode-hooks)
       (dolist (hook-function hook-functions)
         (add-hook mode-hook hook-function))))
@@ -390,13 +390,15 @@ This function is called at the very end of Spacemacs initialization, after layer
     "Run hook :before or :after procedure.
 Warning: will create a null hook if the hook is not defined."
     (unless (boundp hook) (defvar hook nil))
-    (pcase when
-      (:before
-       (add-function :before procedure
-                     (lambda (ignored) (run-hooks hook))))
-      (:after
-       (add-function :filter-return procedure
-                     (lambda (result) (run-hooks hook) result)))))
+    ;; (pcase when
+    ;; (:before
+    ;;  (add-function :before procedure
+    ;;                (lambda (_) (run-hooks hook))))
+    ;; (:after
+    ;;  (add-function :filter-return procedure
+    ;;                (lambda (result) (run-hooks hook) result)))
+    (add-function when procedure
+                  (lambda (_) (run-hooks hook))))
 
   (defun my-add-hooks-to-procedures (hooks when procedures)
     "Run all hooks :before or :after all procedures.
@@ -411,20 +413,20 @@ Warning: will create null hooks if hooks are not defined."
     "The pane that has an active mode-line")
 
   (defun my-set-current-pane ()
-    "Sets my-current-pane to the active pane (unless the active pane is a minibuffer)."
+    "Set my-current-pane to the active pane (unless the active pane is a minibuffer)."
     (let ((p (frame-selected-window)))
       (unless (minibuffer-window-active-p p)
         (setq my-current-pane p))))
 
   (defun my-unset-current-pane ()
-    "Sets my-current-pane to nil."
+    "Set my-current-pane to nil."
     (setq my-current-pane nil)
     (force-mode-line-update))
 
   (add-hook 'focus-out-hook 'my-unset-current-pane)
 
   (my-add-hooks-to-procedures
-   '(my-after-switch-frame-hook)
+   '(my-after-switch-pane-hook)
    :after
    '(
      handle-switch-frame
@@ -433,6 +435,7 @@ Warning: will create null hooks if hooks are not defined."
 
   (my-hook-up
    '(
+     my-after-switch-pane-hook
      focus-in-hook
      window-configuration-change-hook
      )
@@ -547,6 +550,7 @@ Pad string s to width w; a negative width means add the padding on the right."
 
   (defun my-reset-statusbar-faces ()
     "Sets statusbar shadow faces to be faded versions of their counterparts."
+    (interactive)
     (cl-flet
         ((fade (faded reference)
                (cl-flet
@@ -614,6 +618,7 @@ Pad string s to width w; a negative width means add the padding on the right."
        (propertize "(" 'face (my-get-statusbar-shadow-face))
        (propertize
         (replace-regexp-in-string " Git[:\-]" "" vc-mode)
+        'mouse-face (my-get-statusbar-face)
         'local-map (make-mode-line-mouse-map 'mouse-1 #'magit-status))
        (propertize ")" 'face (my-get-statusbar-shadow-face))
        )))
@@ -626,20 +631,8 @@ Pad string s to width w; a negative width means add the padding on the right."
         (my-pad (length lines) (format-mode-line "%l"))
         (propertize "/" 'face (my-get-statusbar-shadow-face))
         lines)
-       'help-echo (if linum-mode "Hide line numbers." "Show line numbers.")
+       'help-echo (if (bound-and-true-p linum-mode) "Hide line numbers." "Show line numbers.")
        'local-map (make-mode-line-mouse-map 'mouse-1 #'linum-mode))))
-
-  ;; (defvar my-base-mode-line-format
-  ;;   '(
-  ;;     (:eval (my-buffer-write-status))
-  ;;     " "
-  ;;     (:eval (my-buffer-name))
-  ;;     " "
-  ;;     (:eval (my-simpler-vc-branch))
-  ;;     "  "
-  ;;     (:eval (my-line-position))
-  ;;     )
-  ;;   "a simple status bar")
 
   (defvar my-base-mode-line-format
     '(:eval
@@ -660,12 +653,12 @@ Pad string s to width w; a negative width means add the padding on the right."
   (defvar my-prog-mode-line-format
     (append
      my-base-mode-line-format
-     '(
-       "  "
-       (:eval (my-major-mode-name))
-       "  "
-       (:eval (when (bound-and-true-p anzu-mode)(anzu--update-mode-line)))
-       ))
+     '(:eval (concat
+              "  "
+              (my-major-mode-name)
+              "  "
+              (when (bound-and-true-p anzu-mode)(anzu--update-mode-line))
+              )))
     "simple status bar that indicates the current mode")
 
   (defun my-format-prog-mode-line ()
@@ -674,12 +667,12 @@ Pad string s to width w; a negative width means add the padding on the right."
   (defun my-format-frame-title ()
     (when (display-graphic-p)
       (setq frame-title-format
-            '(
-              (:eval (my-buffer-write-status))
-              " "
-              (:eval (my-file-directory))
-              (:eval (my-buffer-or-file-name))
-              ))))
+            '(:eval (concat
+                     (my-buffer-write-status)
+                     " "
+                     (my-file-directory)
+                     (my-buffer-or-file-name)
+                     )))))
   (my-format-frame-title)
 
   ;;; --------------------------------
@@ -710,11 +703,6 @@ Pad string s to width w; a negative width means add the padding on the right."
               "Garamond"
               )))
 
-  ;; (defun my-reset-font-height-by-platform ()
-  ;;   (let ((h (if (string= system-type "gnu/linux") 148 120)))
-  ;;     (mapc (lambda (face) (set-face-attribute face nil :height h))
-  ;;           '(default fixed-pitch variable-pitch ))))
-
   (defun my-reset-font-height-by-platform ()
     (let ((h (if (string= system-type "gnu/linux") 148 120)))
       (dolist (face '(
@@ -738,15 +726,6 @@ Pad string s to width w; a negative width means add the padding on the right."
   ;;; Set Evil to not behave like Vim.
   (customize-set-variable 'evil-move-beyond-eol t) ; Allow the cursor to move beyond the end of the line.
   (customize-set-variable 'evil-move-cursor-back nil) ; Don't move the cursor when exiting insert mode.
-
-  ;; ;; Make the cursor always a bar.
-  ;; (dolist (cursor '(
-  ;;                   evil-emacs-state-cursor
-  ;;                   evil-insert-state-cursor
-  ;;                   evil-motion-state-cursor
-  ;;                   evil-normal-state-cursor
-  ;;                   evil-visual-state-cursor))
-  ;;   (set cursor 'bar))
 
   ;; Flip Vi a/A behavior.
   (define-key evil-normal-state-map "a" 'evil-append-line)
@@ -779,14 +758,6 @@ Pad string s to width w; a negative width means add the padding on the right."
 
   ;;; ----------------------------------
   ;;; Hooks
-
-  ;; * first-change-hook is called immediately before changing an unmodified buffer.
-  ;; * after-change-major-mode-hook
-  ;; * buffer-list-update-hook
-  ;; * magit-refresh-buffer-hook
-
-
-  ;; (add-hook 'minibuffer-inactive-mode-hook (lambda () (setq max-mini-window-height 0))) ; -- does not work; you can't make the minibuffer zero lines.
 
   (my-hook-up
    '(
@@ -896,7 +867,7 @@ Pad string s to width w; a negative width means add the padding on the right."
    kill-do-not-save-duplicates t ; Don't copy identical text twice.
    )
 
-  ;;; ---------------------------
+  ;;; -------------------------
   ;;; Major Mode Configurations
 
   ;;; Git
@@ -952,12 +923,13 @@ Pad string s to width w; a negative width means add the padding on the right."
              (face-attribute 'shadow :foreground))))
       (my-set-face-attributes
        `(
-         (mode-line :box nil
-                    :foreground unspecified
-                    :background unspecified
-                    :underline ,c
-                    :overline ,c
-                    :inherit font-lock-comment-face)
+         (mode-line
+          :box nil
+          :foreground unspecified
+          :background unspecified
+          :underline ,c
+          :overline ,c
+          :inherit font-lock-comment-face)
          (window-divider :foreground ,c)
          ))))
 
@@ -981,12 +953,10 @@ Pad string s to width w; a negative width means add the padding on the right."
     (my-set-shadow-face)
     (my-set-face-attributes
      `(
-       ;; (cursor :background) -- this is just a stub to remind me of the cursor face.
        ;;; Things that don't do stuff:
        (font-lock-comment-face
         :background unspecified
         :slant normal)
-       ;; (font-lock-comment-delimiter-face :slant normal :inherit font-lock-comment-face)
        (font-lock-doc-face
         :inherit font-lock-comment-face)
        (fringe
@@ -997,14 +967,10 @@ Pad string s to width w; a negative width means add the padding on the right."
         :background unspecified
         :foreground unspecified
         :inherit font-lock-comment-face)
-       ;; (mode-line :inherit font-lock-comment-face)
        ;;; Things that do stuff:
-       ;; (font-lock-builtin-face :inherit default)
-       ;; (font-lock-constant-face :inherit default)
        (font-lock-keyword-face
         :foreground unspecified
         :inherit default)
-       ;; (font-lock-type-face :inherit default)
        (font-lock-function-name-face
         :foreground unspecified
         :inherit default)
@@ -1019,39 +985,3 @@ Pad string s to width w; a negative width means add the padding on the right."
   )
 
 ;; Do not write anything past this comment. This is where Emacs will auto-generate custom variable definitions.
-(defun dotspacemacs/emacs-custom-settings ()
-  "Emacs custom settings.
-This is an auto-generated function, do not modify its content directly, use
-Emacs customize menu instead.
-This function is called at the very end of Spacemacs initialization."
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(adaptive-fill-regexp "[ 	]*\\([-–!|#%;>·•‣⁃◦]+[ 	]*\\)*")
- '(package-selected-packages
-   (quote
-    (org-plus-contrib yapfify xterm-color ws-butler winum which-key wgrep web-mode web-beautify vimrc-mode uuidgen use-package unfill tagedit srefactor smex smeargle slim-mode shen-elisp shell-pop scss-mode sass-mode restart-emacs ranger rainbow-mode pyvenv pytest pyenv-mode py-isort pug-mode pip-requirements pcre2el paren-face paradox ox-gfm org-projectile org-pomodoro org-download open-junk-file mwim multi-term move-text mmm-mode markdown-toc magithub magit-gitflow magit-gh-pulls macrostep lorem-ipsum livid-mode live-py-mode linum-relative link-hint less-css-mode json-mode js2-refactor js-doc ivy-hydra intero info+ hy-mode hungry-delete htmlize hlint-refactor hindent help-fns+ helm-make haskell-snippets gnuplot gitignore-mode github-search github-clone github-browse-file gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gist gh-md fuzzy flyspell-correct-ivy flycheck-pos-tip flycheck-haskell flycheck-elm flx-ido expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help emmet-mode elm-mode elisp-slime-nav diff-hl dactyl-mode cython-mode counsel-projectile company-web company-tern company-statistics company-ghci company-ghc company-cabal company-anaconda coffee-mode cmm-mode clean-aindent-mode auto-yasnippet auto-dictionary auto-compile aggressive-indent adaptive-wrap ace-window ace-link ac-ispell))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
-)
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(adaptive-fill-regexp "[ 	]*\\([-–!|#%;>·•‣⁃◦]+[ 	]*\\)*")
- '(package-selected-packages
-   (quote
-    (ox-gfm org-projectile org-present org-pomodoro alert log4e gntp org-download htmlize gnuplot zonokai-theme zenburn-theme zen-and-art-theme yapfify yaml-mode xterm-color ws-butler window-numbering which-key wgrep web-mode web-beautify vimrc-mode uuidgen use-package underwater-theme ujelly-theme twilight-theme twilight-bright-theme twilight-anti-bright-theme tronesque-theme toxi-theme tao-theme tangotango-theme tango-plus-theme tango-2-theme tagedit sunny-day-theme sublime-themes subatomic256-theme subatomic-theme srefactor spacemacs-theme spacegray-theme soothe-theme soft-stone-theme soft-morning-theme soft-charcoal-theme smyx-theme smex smeargle slim-mode shen-elisp shell-pop seti-theme scss-mode sass-mode reverse-theme restart-emacs ranger rainbow-mode railscasts-theme quelpa pyvenv pytest pyenv-mode py-isort purple-haze-theme pug-mode professional-theme planet-theme pip-requirements phoenix-dark-pink-theme phoenix-dark-mono-theme pcre2el pastels-on-dark-theme paren-face paradox orgit organic-green-theme open-junk-file omtose-phellack-theme oldlace-theme occidental-theme obsidian-theme noctilux-theme niflheim-theme naquadah-theme mwim mustang-theme multi-term move-text monokai-theme monochrome-theme molokai-theme moe-theme mmm-mode minimal-theme material-theme markdown-toc majapahit-theme magit-gitflow magit-gh-pulls macrostep lush-theme lorem-ipsum livid-mode live-py-mode linum-relative link-hint light-soap-theme less-css-mode json-mode js2-refactor js-doc jbeans-theme jazz-theme ivy-hydra ir-black-theme intero inkpot-theme info+ ido-vertical-mode hy-mode hungry-delete hlint-refactor hindent heroku-theme hemisu-theme help-fns+ helm-make hc-zenburn-theme haskell-snippets gruvbox-theme gruber-darker-theme grandshell-theme gotham-theme gitignore-mode github-search github-clone github-browse-file gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gist gh-md gandalf-theme flyspell-correct-ivy flycheck-pos-tip flycheck-haskell flycheck-elm flx-ido flatui-theme flatland-theme firebelly-theme farmhouse-theme expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu espresso-theme eshell-z eshell-prompt-extras esh-help emmet-mode elm-mode elisp-slime-nav dracula-theme django-theme diff-hl darktooth-theme darkokai-theme darkmine-theme darkburn-theme dakrone-theme dactyl-mode cython-mode cyberpunk-theme counsel-projectile company-web company-tern company-statistics company-ghci company-ghc company-cabal company-anaconda color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized coffee-mode cmm-mode clues-theme clean-aindent-mode cherry-blossom-theme busybee-theme bubbleberry-theme birds-of-paradise-plus-theme badwolf-theme auto-yasnippet auto-dictionary auto-compile apropospriate-theme anti-zenburn-theme ample-zen-theme ample-theme alect-themes aggressive-indent afternoon-theme adaptive-wrap ace-window ace-link ac-ispell))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
