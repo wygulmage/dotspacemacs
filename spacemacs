@@ -390,13 +390,6 @@ This function is called at the very end of Spacemacs initialization, after layer
     "Run hook :before or :after procedure.
 Warning: will create a null hook if the hook is not defined."
     (unless (boundp hook) (defvar hook nil))
-    ;; (pcase when
-    ;; (:before
-    ;;  (add-function :before procedure
-    ;;                (lambda (_) (run-hooks hook))))
-    ;; (:after
-    ;;  (add-function :filter-return procedure
-    ;;                (lambda (result) (run-hooks hook) result)))
     (add-function when procedure
                   (lambda (_) (run-hooks hook))))
 
