@@ -380,6 +380,23 @@ This function is called at the very end of Spacemacs initialization, after layer
 
 ;;; Hooks:
 
+  (defun my-make-hook (when procedure &optional docstring)
+    "Take keyword 'when' and procedure 'procedure', and create a hook named [when]-[procedure]-hook (without the colon on 'when') that runs [when] 'procedure' runs, unless a hook of that name already exists.
+'when' can be ':before' or ':after'."
+    (let*
+        ((name (concat
+                (pcase when
+                  (`:before "before")
+                  (`:after "after")
+                  (_ (error "'when' must be either ':before' or ':after'.")))
+                "-"
+                (symbol-name procedure)
+                "-hook")))
+      (unless (boundp (make-symbol name))
+        (set (intern name) nil)
+        (add-function when procedure
+                      (lambda (_) (run-hooks hook))))))
+
   (defun my-hook-up (mode-hooks hook-functions)
     "Run all hook-functions with all mode-hooks."
     (dolist (mode-hook mode-hooks)
@@ -389,7 +406,7 @@ This function is called at the very end of Spacemacs initialization, after layer
   (defun my-add-procedure-hook (hook when procedure)
     "Run hook :before or :after procedure.
 Warning: will create a null hook if the hook is not defined."
-    (unless (boundp hook) (defvar hook nil))
+    (unless (boundp hook) (set hook nil))
     (add-function when procedure
                   (lambda (_) (run-hooks hook))))
 
@@ -402,40 +419,67 @@ Warning: will create null hooks if hooks are not defined."
 
 ;;; Buffers and panes:
 
-  (defvar my-current-pane (frame-selected-window)
-    "The pane that has an active mode-line")
+  ;;; Track primary pane.
+  (defvar my-primary-pane (frame-selected-window)
+    "The pane that has an active mode-line.")
 
-  (defun my-set-current-pane ()
-    "Set my-current-pane to the active pane (unless the active pane is a minibuffer)."
+  (defun my-set-primary-pane ()
+    "Set the primary pane."
     (let ((p (frame-selected-window)))
       (unless (minibuffer-window-active-p p)
-        (setq my-current-pane p))))
+        (setq my-focused-pane p))))
 
-  (defun my-unset-current-pane ()
-    "Set my-current-pane to nil."
-    (setq my-current-pane nil)
-    (force-mode-line-update))
+  (defun my-primary-pane-active? ()
+    (eq my-primary-pane (selected-window)))
 
-  (add-hook 'focus-out-hook 'my-unset-current-pane)
+  (my-make-hook :after #'select-frame)
 
-  (my-add-hooks-to-procedures
-   '(my-after-switch-pane-hook)
-   :after
-   '(
-     handle-switch-frame
-     select-window
-     ))
+  (my-make-hook :after #'handle-select-window)
 
   (my-hook-up
    '(
-     my-after-switch-pane-hook
+     after-select-frame-hook
+     after-handle-select-window-hook
+     buffer-list-update-hook
      focus-in-hook
      window-configuration-change-hook
      )
-   '(my-set-current-pane))
+   '(my-set-primary-pane))
 
-  (defun my-current-pane-active? ()
-    (eq my-current-pane (selected-window)))
+  ;; (defvar my-focused-pane (frame-selected-window)
+  ;;   "The pane that has an active mode-line")
+
+  ;; (defun my-set-focused-pane ()
+  ;;   "Set my-focused-pane to the active pane (unless the active pane is a minibuffer)."
+  ;;   (let ((p (frame-selected-window)))
+  ;;     (unless (minibuffer-window-active-p p)
+  ;;       (setq my-focused-pane p))))
+
+  ;; (defun my-unset-focused-pane ()
+  ;;   "Set my-focused-pane to nil."
+  ;;   (setq my-focused-pane nil)
+  ;;   (force-mode-line-update))
+
+  ;; (add-hook 'focus-out-hook 'my-unset-focused-pane)
+
+  ;; (my-add-hooks-to-procedures
+  ;;  '(my-after-switch-pane-hook)
+  ;;  :after
+  ;;  '(
+  ;;    handle-switch-frame
+  ;;    select-window
+  ;;    ))
+
+  ;; (my-hook-up
+  ;;  '(
+  ;;    my-after-switch-pane-hook
+  ;;    focus-in-hook
+  ;;    window-configuration-change-hook
+  ;;    )
+  ;;  '(my-set-focused-pane))
+
+  ;; (defun my-focused-pane-active? ()
+  ;;   (eq my-focused-pane (selected-window)))
 
   (defun my-buffer-line-count ()
     "Number of lines in the current buffer. If the last line of the buffer is empty, it won't be counted."
@@ -531,13 +575,13 @@ Pad string s to width w; a negative width means add the padding on the right."
 
   (defun my-get-statusbar-face ()
     "an ersatz face that switches between active- and inactive-statusbar-face"
-    (if (my-current-pane-active?)
+    (if (my-primary-pane-active?)
         'my-active-statusbar-face
       'my-inactive-statusbar-face))
 
   (defun my-get-statusbar-shadow-face ()
     "an ersatz face that switches between active- and inactive-statusbar-shadow-face"
-    (if (my-current-pane-active?)
+    (if (my-primary-pane-active?)
         'my-active-statusbar-shadow-face
       'my-inactive-statusbar-shadow-face))
 
@@ -639,6 +683,9 @@ Pad string s to width w; a negative width means add the padding on the right."
        (my-line-position)
        ))
     "a simple status bar")
+
+  (setq-default
+   mode-line-format my-base-mode-line-format)
 
   (defun my-format-text-mode-line ()
     (setq mode-line-format my-base-mode-line-format))
