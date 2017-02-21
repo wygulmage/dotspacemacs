@@ -21,6 +21,7 @@ This function should only set values."
    ;; 'used-only ; (default) installs only explicitly used packages and uninstalls others.
    'used-but-keep-unused ; installs only explicitly used packages but keeps others.
    ;; 'all ; installs all supported packages and never uninstalls them.
+   ;;; NOTE: This would be better as `dotspacemacs-install-all-packages' with values of nil (default) and t.
 
    ;; Deferred layer installation:
    dotspacemacs-enable-lazy-installation
@@ -43,8 +44,7 @@ This function should only set values."
              :variables
              rainbow-x-colors nil
              rainbow-html-colors nil)
-     (org :variables
-          org-enable-github-support t)
+     ;; (org :variables org-enable-github-support t)
      (ranger :variables
              ranger-override-dired t
              ranger-show-preview t
@@ -383,19 +383,23 @@ This function is called at the very end of Spacemacs initialization, after layer
   (defun my-make-hook (when procedure &optional docstring)
     "Take keyword 'when' and procedure 'procedure', and create a hook named [when]-[procedure]-hook (without the colon on 'when') that runs [when] 'procedure' runs, unless a hook of that name already exists.
 'when' can be ':before' or ':after'."
-    (let*
-        ((name (concat
-                (pcase when
-                  (`:before "before")
-                  (`:after "after")
-                  (_ (error "'when' must be either ':before' or ':after'.")))
-                "-"
-                (symbol-name procedure)
-                "-hook")))
-      (unless (boundp (make-symbol name))
-        (set (intern name) nil)
-        (add-function when procedure
-                      (lambda (_) (run-hooks hook))))))
+    (if (not (boundp procedure))
+        (error "The procedure %s is not bound." (symbol-name procedure))
+      (let*
+          ((name (concat
+                  (pcase when
+                    (`:before "before")
+                    (`:after "after")
+                    (_ (error "'when' must be either ':before' or ':after'.")))
+                  "-"
+                  (symbol-name procedure)
+                  "-hook")))
+        (if (boundp (make-symbol name))
+            (error "The hook %s already exists." name)
+          (progn
+            (set (intern name) nil)
+            (add-function when procedure
+                          (lambda (_) (run-hooks hook))))))))
 
   (defun my-hook-up (mode-hooks hook-functions)
     "Run all hook-functions with all mode-hooks."
@@ -941,9 +945,11 @@ Pad string s to width w; a negative width means add the padding on the right."
   ;;; The main point is to, as much as possible without being distracting, distinguish stuff that does stuff from stuff that does not do stuff and things that look similar and act differently.
 
   ;; How to use advice to create a hook:
-  (defvar after-load-theme-hook nil
-    "Functions to run after a theme is loaded.")
-  (my-add-procedure-hook 'after-load-theme-hook :after 'load-theme)
+  ;; (defvar after-load-theme-hook nil
+  ;;   "Functions to run after a theme is loaded.")
+  ;; (my-add-procedure-hook 'after-load-theme-hook :after 'load-theme)
+  (my-make-hook :after #'load-theme
+                "functions to run after a theme is loaded")
 
   (defun my-box-to-lines (face)
     (let ((color
