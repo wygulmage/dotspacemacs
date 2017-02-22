@@ -1,6 +1,5 @@
 ;; -*- mode: emacs-lisp -*-
 ;; This file is loaded by Spacemacs at startup. It must be stored in your home directory.
-
 (defun dotspacemacs/layers ()
   "Configuration Layers declaration.
 This function should only set values."
@@ -116,6 +115,7 @@ This function should only set values."
      helm ; Use ivy instead.
      highlight-indentation ; Indentation shows this.
      highlight-parentheses ; Use paren-face-mode instead.
+     orgit ; Doesn't fetch Org properly.
      powerline ; Use customized modeline instead.
      spray ; Not currently using spacemacs for speed reading.
      )
@@ -358,7 +358,7 @@ This function is called at the very startup of Spacemacs initialization before l
   "Initialization function for user code.
 This function is called immediately after `dotspacemacs/init', before layer configuration. It is mostly useful for variables that must be set before packages are loaded. If you are unsure, try setting them in `dotspacemacs/user-config' first."
 
-  (setq the-default-mode-line mode-line-format) ; Save in case you want to know.
+  (defconst the-default-mode-line mode-line-format) ; Save in case you want to know.
 
   (customize-set-variable 'adaptive-fill-regexp "[ \t]*\\([-–!|#%;>·•‣⁃◦]+[ \t]*\\)*") ; Removed '*' so I can make non-unicode bullet lists. Ideally there should be two separate variables: adaptive-fill-regexp and adaptive-indent-regexp. The first would indent with the 'whitespace' character, but the second would indent with actual whitespace.
 
@@ -383,23 +383,24 @@ This function is called at the very end of Spacemacs initialization, after layer
   (defun my-make-hook (when procedure &optional docstring)
     "Take keyword 'when' and procedure 'procedure', and create a hook named [when]-[procedure]-hook (without the colon on 'when') that runs [when] 'procedure' runs, unless a hook of that name already exists.
 'when' can be ':before' or ':after'."
-    (if (not (boundp procedure))
-        (error "The procedure %s is not bound." (symbol-name procedure))
+    (if (not (fboundp procedure))
+        (error "The procedure %s is not bound. " (symbol-name procedure)) ; ends with a space instead of a period to make flycheck hoppy.
       (let*
           ((name (concat
                   (pcase when
                     (`:before "before")
                     (`:after "after")
-                    (_ (error "'when' must be either ':before' or ':after'.")))
+                    (_ (error "'when' must be either ':before' or ':after'. ")))
                   "-"
                   (symbol-name procedure)
                   "-hook")))
         (if (boundp (make-symbol name))
-            (error "The hook %s already exists." name)
-          (progn
-            (set (intern name) nil)
+            (error "The hook %s already exists. " name)
+          (let ((hook (intern name)))
+            (set hook nil)
             (add-function when procedure
-                          (lambda (_) (run-hooks hook))))))))
+                          (lambda (_) (run-hooks hook)))
+            (message "my-make-hook: %s created. " name))))))
 
   (defun my-hook-up (mode-hooks hook-functions)
     "Run all hook-functions with all mode-hooks."
@@ -431,7 +432,7 @@ Warning: will create null hooks if hooks are not defined."
     "Set the primary pane."
     (let ((p (frame-selected-window)))
       (unless (minibuffer-window-active-p p)
-        (setq my-focused-pane p))))
+        (setq my-primary-pane p))))
 
   (defun my-primary-pane-active? ()
     (eq my-primary-pane (selected-window)))
@@ -566,16 +567,20 @@ Pad string s to width w; a negative width means add the padding on the right."
 
   (defface my-active-statusbar-face
     '((t :inherit mode-line))
-    "an alias for mode-line face.")
+    "an alias for mode-line face."
+    :group 'statusbar)
   (defface my-inactive-statusbar-face
     '((t :inherit mode-line-inactive))
-    "an alias for mode-line-inactive face.")
+    "an alias for mode-line-inactive face."
+    :group 'statusbar)
   (defface my-active-statusbar-shadow-face
     '((t :inherit my-active-statusbar-face))
-    "an alias for mode-line face.")
+    "an alias for mode-line face."
+    :group 'statusbar)
   (defface my-inactive-statusbar-shadow-face
     '((t :inherit my-inactive-statusbar-face))
-    "an alias for mode-line-inactive face.")
+    "an alias for mode-line-inactive face."
+    :group 'statusbar)
 
   (defun my-get-statusbar-face ()
     "an ersatz face that switches between active- and inactive-statusbar-face"
@@ -782,7 +787,7 @@ Pad string s to width w; a negative width means add the padding on the right."
 
   (evil-define-motion my-evil-forward-word-end (count &optional bigword)
     "Move the cursor past the end of the count-th next word."
-    :type inclusive ; I don't know what this does!
+    :type 'inclusive ; I don't know what this does!
     (let ((thing (if bigword
                      'evil-WORD
                    'evil-word))
@@ -792,7 +797,7 @@ Pad string s to width w; a negative width means add the padding on the right."
 
   (evil-define-motion my-evil-forward-WORD-end (count)
     "Move the cursor past the end of the count-th next WORD."
-    :type exclusive ; I don't know what this does!
+    :type 'exclusive ; I don't know what this does!
     (my-evil-forward-word-end count t))
 
   ;; Flip Vi e/E behavior to make a more useful distiction from w/W.
