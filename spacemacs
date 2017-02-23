@@ -383,23 +383,23 @@ This function is called at the very end of Spacemacs initialization, after layer
   (defun my-make-hook (when procedure &optional docstring)
     "Take keyword 'when' and procedure 'procedure', and create a hook named [when]-[procedure]-hook (without the colon on 'when') that runs [when] 'procedure' runs, unless a hook of that name already exists.
 'when' can be ':before' or ':after'."
-    (if (not (fboundp procedure))
-        (error "The procedure %s is not bound. " (symbol-name procedure)) ; ends with a space instead of a period to make flycheck hoppy.
-      (let*
-          ((name (concat
-                  (pcase when
-                    (`:before "before")
-                    (`:after "after")
-                    (_ (error "'when' must be either ':before' or ':after'. ")))
-                  "-"
-                  (symbol-name procedure)
-                  "-hook")))
-        (if (boundp (make-symbol name))
-            (error "The hook %s already exists. " name)
-          (let ((hook (intern name)))
+    (let ((name (concat
+                 (substring (symbol-name when) 1)
+                 "-"
+                 (symbol-name procedure)
+                 "-hook")))
+      (cond
+       ((not (fboundp procedure))
+        (error "my-make-hook: %s is not a bound procedure. "
+               (symbol-name procedure)))
+       ((not (or (eq :before when) (eq :after when)))
+        (error "my-make-hook: 'when' must be :before or :after; %s is not implemented. "
+               (symbol-name when)))
+       ((boundp (make-symbol name))
+        (error "my-make-hook: hook %s already exists. " name))
+       (t (let ((hook (intern name)))
             (set hook nil)
-            (add-function when procedure
-                          (lambda (_) (run-hooks hook)))
+            (add-function when procedure (lambda (_) (run-hooks hook)))
             (message "my-make-hook: %s created. " name))))))
 
   (defun my-hook-up (mode-hooks hook-functions)
@@ -612,6 +612,9 @@ Pad string s to width w; a negative width means add the padding on the right."
       (fade 'my-active-statusbar-shadow-face 'my-active-statusbar-face)
       (fade 'my-inactive-statusbar-shadow-face 'my-inactive-statusbar-face)))
   (my-reset-statusbar-faces)
+
+  (my-make-hook :after #'load-theme
+                "functions to run after a theme is loaded")
   (add-hook 'after-load-theme-hook 'my-reset-statusbar-faces)
 
   (defun my-buffer-name ()
@@ -953,8 +956,6 @@ Pad string s to width w; a negative width means add the padding on the right."
   ;; (defvar after-load-theme-hook nil
   ;;   "Functions to run after a theme is loaded.")
   ;; (my-add-procedure-hook 'after-load-theme-hook :after 'load-theme)
-  (my-make-hook :after #'load-theme
-                "functions to run after a theme is loaded")
 
   (defun my-box-to-lines (face)
     (let ((color
