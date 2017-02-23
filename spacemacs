@@ -380,47 +380,47 @@ This function is called at the very end of Spacemacs initialization, after layer
 
 ;;; Hooks:
 
-  (defun my-make-hook (when procedure &optional docstring)
-    "Take keyword 'when' and procedure 'procedure', and create a hook named [when]-[procedure]-hook (without the colon on 'when') that runs [when] 'procedure' runs, unless a hook of that name already exists.
-'when' can be ':before' or ':after'."
-    (let ((name (concat
-                 (substring (symbol-name when) 1)
-                 "-"
-                 (symbol-name procedure)
-                 "-hook")))
-      (cond
-       ((not (fboundp procedure))
-        (error "my-make-hook: %s is not a bound procedure. "
-               (symbol-name procedure)))
-       ((not (or (eq :before when) (eq :after when)))
-        (error "my-make-hook: 'when' must be :before or :after; %s is not implemented. "
-               (symbol-name when)))
-       ((boundp (make-symbol name))
-        (error "my-make-hook: hook %s already exists. " name))
-       (t (let ((hook (intern name)))
-            (set hook nil)
-            (add-function when procedure (lambda (_) (run-hooks hook)))
-            (message "my-make-hook: %s created. " name))))))
+  ;;   (defun my-make-hook (when procedure &optional docstring)
+  ;;     "Take keyword 'when' and procedure 'procedure', and create a hook named [when]-[procedure]-hook (without the colon on 'when') that runs [when] 'procedure' runs, unless a hook of that name already exists.
+  ;; 'when' can be ':before' or ':after'."
+  ;;     (let ((name (concat
+  ;;                  (substring (symbol-name when) 1)
+  ;;                  "-"
+  ;;                  (symbol-name procedure)
+  ;;                  "-hook")))
+  ;;       (cond
+  ;;        ((not (fboundp procedure))
+  ;;         (error "my-make-hook: %s is not a bound procedure. "
+  ;;                (symbol-name procedure)))
+  ;;        ((not (or (eq :before when) (eq :after when)))
+  ;;         (error "my-make-hook: 'when' must be :before or :after; %s is not implemented. "
+  ;;                (symbol-name when)))
+  ;;        ((boundp (make-symbol name))
+  ;;         (error "my-make-hook: hook %s already exists. " name))
+  ;;        (t (let ((hook (intern name)))
+  ;;             (set hook nil)
+  ;;             (advice-add procedure when (lambda (&rest _) (let ((this-hook hook))(run-hooks this-hook))))
+  ;;             (message "my-make-hook: %s created. " (symbol-name hook)))))))
+
+  (defmacro my-make-hook (where procedure &optional docstring)
+    (let* ((hook-name (concat
+                      (substring (symbol-name where) 1)
+                      "-"
+                      (symbol-name procedure)
+                      "-hook"))
+          (hook-symbol (intern hook-name)))
+      `(progn
+         (defvar ,hook-symbol nil)
+         (advice-add ,procedure
+                     ,where
+                     (lambda (&rest _) (run-hooks ,hook-symbol)))
+         ,hook-symbol)))
 
   (defun my-hook-up (mode-hooks hook-functions)
     "Run all hook-functions with all mode-hooks."
     (dolist (mode-hook mode-hooks)
       (dolist (hook-function hook-functions)
         (add-hook mode-hook hook-function))))
-
-  (defun my-add-procedure-hook (hook when procedure)
-    "Run hook :before or :after procedure.
-Warning: will create a null hook if the hook is not defined."
-    (unless (boundp hook) (set hook nil))
-    (add-function when procedure
-                  (lambda (_) (run-hooks hook))))
-
-  (defun my-add-hooks-to-procedures (hooks when procedures)
-    "Run all hooks :before or :after all procedures.
-Warning: will create null hooks if hooks are not defined."
-    (dolist (hook hooks)
-      (dolist (procedure procedures)
-        (my-add-procedure-hook hook when procedure))))
 
 ;;; Buffers and panes:
 
@@ -437,9 +437,9 @@ Warning: will create null hooks if hooks are not defined."
   (defun my-primary-pane-active? ()
     (eq my-primary-pane (selected-window)))
 
-  (my-make-hook :after #'select-frame)
+  (my-make-hook :after 'select-frame)
 
-  (my-make-hook :after #'handle-select-window)
+  (my-make-hook :after 'handle-select-window)
 
   (my-hook-up
    '(
@@ -466,14 +466,6 @@ Warning: will create null hooks if hooks are not defined."
   ;;   (force-mode-line-update))
 
   ;; (add-hook 'focus-out-hook 'my-unset-focused-pane)
-
-  ;; (my-add-hooks-to-procedures
-  ;;  '(my-after-switch-pane-hook)
-  ;;  :after
-  ;;  '(
-  ;;    handle-switch-frame
-  ;;    select-window
-  ;;    ))
 
   ;; (my-hook-up
   ;;  '(
@@ -822,16 +814,14 @@ Pad string s to width w; a negative width means add the padding on the right."
 
   ;; Refresh VC state to update mode line info. Fall back to expensive vc-find-file-hook if `vc-refresh-state' is not available.
 
-  (my-add-hooks-to-procedures
-   '(my-after-magit-runs-git-hook)
-   :after
-   '(
-     magit-run-git
-     magit-start-process
-     ))
+  (make-hook :after 'magit-run-git)
+  (make-hook :after 'magit-start-process)
 
   (my-hook-up
-   '(my-after-magit-runs-git-hook)
+   '(
+     after-magit-run-git-hook
+     after-magit-start-process-hook
+     )
    `(
      ,(if (fboundp 'vc-refresh-state)
           'vc-refresh-state 'vc-find-file-hook)
@@ -951,11 +941,6 @@ Pad string s to width w; a negative width means add the padding on the right."
   ;;; ---------------------------------------
   ;;; Lastly, some hackish theming:
   ;;; The main point is to, as much as possible without being distracting, distinguish stuff that does stuff from stuff that does not do stuff and things that look similar and act differently.
-
-  ;; How to use advice to create a hook:
-  ;; (defvar after-load-theme-hook nil
-  ;;   "Functions to run after a theme is loaded.")
-  ;; (my-add-procedure-hook 'after-load-theme-hook :after 'load-theme)
 
   (defun my-box-to-lines (face)
     (let ((color
