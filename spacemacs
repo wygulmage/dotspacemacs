@@ -761,7 +761,12 @@ Pad string s to width w; a negative width means add the padding on the right."
                       ))
         (set-face-attribute face nil :height h))))
 
-  (add-hook 'window-setup-hook 'my-reset-font-height-by-platform)
+  (my-hook-up
+   '(
+     after-load-theme-hook
+     window-setup-hook
+     )
+   '(my-reset-font-height-by-platform))
 
   ;;; ---------------------------------
   ;;; Miscelaneous Global Stuff
