@@ -826,11 +826,11 @@ Pad string s to width w; a negative width means add the padding on the right."
 
   ;; (my-make-hook :after 'magit-run-git)
   (defvar after-magit-run-git-hook nil)
-  (advice-add 'magit-run-git :after 'after-magit-run-git-hook)
+  (advice-add 'magit-run-git :after (lambda (&rest _) (run-hooks 'after-magit-run-git-hook)))
 
   ;; (my-make-hook :after 'magit-start-process)
   (defvar after-magit-start-process-hook nil)
-  (advice-add 'magit-start-process :after 'after-magit-start-process-hook)
+  (advice-add 'magit-start-process :after (lambda (&rest _) (run-hooks 'after-magit-start-process-hook)))
 
   (my-hook-up
    '(
@@ -1035,6 +1035,9 @@ Pad string s to width w; a negative width means add the padding on the right."
        )))
   (my-theme-tweaks)
   (add-hook 'after-load-theme-hook 'my-theme-tweaks)
+
+  (make-local-variable 'before-save-hook)
+  (add-hook 'before-save-hook 'spacemacs//delete-emacs-custom-settings)
   )
 
 ;; Do not write anything past this comment. This is where Emacs will auto-generate custom variable definitions.
