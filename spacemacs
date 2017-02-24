@@ -404,11 +404,11 @@ This function is called at the very end of Spacemacs initialization, after layer
 
   (defmacro my-make-hook (where procedure &optional docstring)
     (let* ((hook-name (concat
-                      (substring (symbol-name where) 1)
-                      "-"
-                      (symbol-name procedure)
-                      "-hook"))
-          (hook-symbol (intern hook-name)))
+                       (substring (symbol-name where) 1)
+                       "-"
+                       (symbol-name procedure)
+                       "-hook"))
+           (hook-symbol (intern hook-name)))
       `(progn
          (defvar ,hook-symbol nil)
          (advice-add ,procedure
@@ -437,9 +437,13 @@ This function is called at the very end of Spacemacs initialization, after layer
   (defun my-primary-pane-active? ()
     (eq my-primary-pane (selected-window)))
 
-  (my-make-hook :after 'select-frame)
+  ;; (my-make-hook :after 'select-frame)
+  (defvar after-select-frame-hook nil)
+  (advice-add 'select-frame :after (lambda (&rest _) (run-hooks 'after-select-frame-hook)))
 
-  (my-make-hook :after 'handle-select-window)
+  ;; (my-make-hook :after 'handle-select-window)
+  (defvar after-handle-select-window-hook nil)
+  (advice-add 'handle-select-window :after (lambda (&rest _) (run-hooks 'after-handle-select-window-hook)))
 
   (my-hook-up
    '(
@@ -605,8 +609,9 @@ Pad string s to width w; a negative width means add the padding on the right."
       (fade 'my-inactive-statusbar-shadow-face 'my-inactive-statusbar-face)))
   (my-reset-statusbar-faces)
 
-  (my-make-hook :after #'load-theme
-                "functions to run after a theme is loaded")
+  ;; (my-make-hook :after #'load-theme "functions to run after a theme is loaded")
+  (defvar after-load-theme-hook nil)
+  (advice-add 'load-theme :after (lambda (&rest _) (run-hooks 'after-load-theme-hook)))
   (add-hook 'after-load-theme-hook 'my-reset-statusbar-faces)
 
   (defun my-buffer-name ()
@@ -814,8 +819,13 @@ Pad string s to width w; a negative width means add the padding on the right."
 
   ;; Refresh VC state to update mode line info. Fall back to expensive vc-find-file-hook if `vc-refresh-state' is not available.
 
-  (make-hook :after 'magit-run-git)
-  (make-hook :after 'magit-start-process)
+  ;; (my-make-hook :after 'magit-run-git)
+  (defvar after-magit-run-git-hook nil)
+  (advice-add 'magit-run-git :after 'after-magit-run-git-hook)
+
+  ;; (my-make-hook :after 'magit-start-process)
+  (defvar after-magit-start-process-hook nil)
+  (advice-add 'magit-start-process :after 'after-magit-start-process-hook)
 
   (my-hook-up
    '(
@@ -985,6 +995,7 @@ Pad string s to width w; a negative width means add the padding on the right."
     (my-shift-face-color 'shadow 'default t))
 
   (defun my-theme-tweaks ()
+    "Tweak faces to simplify themes."
     (my-box-to-lines 'mode-line)
     (my-box-to-lines 'mode-line-inactive)
     (my-set-shadow-face)
