@@ -380,47 +380,22 @@ This function is called at the very end of Spacemacs initialization, after layer
 
 ;;; Hooks:
 
-  ;;   (defun my-make-hook (when procedure &optional docstring)
-  ;;     "Take keyword 'when' and procedure 'procedure', and create a hook named [when]-[procedure]-hook (without the colon on 'when') that runs [when] 'procedure' runs, unless a hook of that name already exists.
-  ;; 'when' can be ':before' or ':after'."
-  ;;     (let ((name (concat
-  ;;                  (substring (symbol-name when) 1)
-  ;;                  "-"
-  ;;                  (symbol-name procedure)
-  ;;                  "-hook")))
-  ;;       (cond
-  ;;        ((not (fboundp procedure))
-  ;;         (error "my-make-hook: %s is not a bound procedure. "
-  ;;                (symbol-name procedure)))
-  ;;        ((not (or (eq :before when) (eq :after when)))
-  ;;         (error "my-make-hook: 'when' must be :before or :after; %s is not implemented. "
-  ;;                (symbol-name when)))
-  ;;        ((boundp (make-symbol name))
-  ;;         (error "my-make-hook: hook %s already exists. " name))
-  ;;        (t (let ((hook (intern name)))
-  ;;             (set hook nil)
-  ;;             (advice-add procedure when (lambda (&rest _) (let ((this-hook hook))(run-hooks this-hook))))
-  ;;             (message "my-make-hook: %s created. " (symbol-name hook)))))))
+  ;; (defun my-make-hook (when procedure &optional docstring)
+  ;;   (let ((hook-symbol (intern (concat
+  ;;                               (substring (symbol-name when) 1)
+  ;;                               "-"
+  ;;                               (symbol-name procedure)
+  ;;                               "-hook"))))
+  ;;     (unless (boundp hook-symbol)
+  ;;       (set hook-symbol nil)
+  ;;       (advice-add procedure when (lambda (&rest _) (run-hooks hook-symbol)))
+  ;;       hook-symbol)))
 
-  (defmacro my-make-hook (where procedure &optional docstring)
-    (let* ((hook-name (concat
-                       (substring (symbol-name where) 1)
-                       "-"
-                       (symbol-name procedure)
-                       "-hook"))
-           (hook-symbol (intern hook-name)))
-      `(progn
-         (defvar ,hook-symbol nil)
-         (advice-add ,procedure
-                     ,where
-                     (lambda (&rest _) (run-hooks ,hook-symbol)))
-         ,hook-symbol)))
-
-  (defun my-hook-up (mode-hooks hook-functions)
-    "Run all hook-functions with all mode-hooks."
-    (dolist (mode-hook mode-hooks)
-      (dolist (hook-function hook-functions)
-        (add-hook mode-hook hook-function))))
+  (defun my-hook-up (hooks functions)
+    "Run all functions with all hooks."
+    (dolist (hook hooks)
+      (dolist (function functions)
+        (add-hook hook function))))
 
 ;;; Buffers and panes:
 
@@ -454,33 +429,6 @@ This function is called at the very end of Spacemacs initialization, after layer
      window-configuration-change-hook
      )
    '(my-set-primary-pane))
-
-  ;; (defvar my-focused-pane (frame-selected-window)
-  ;;   "The pane that has an active mode-line")
-
-  ;; (defun my-set-focused-pane ()
-  ;;   "Set my-focused-pane to the active pane (unless the active pane is a minibuffer)."
-  ;;   (let ((p (frame-selected-window)))
-  ;;     (unless (minibuffer-window-active-p p)
-  ;;       (setq my-focused-pane p))))
-
-  ;; (defun my-unset-focused-pane ()
-  ;;   "Set my-focused-pane to nil."
-  ;;   (setq my-focused-pane nil)
-  ;;   (force-mode-line-update))
-
-  ;; (add-hook 'focus-out-hook 'my-unset-focused-pane)
-
-  ;; (my-hook-up
-  ;;  '(
-  ;;    my-after-switch-pane-hook
-  ;;    focus-in-hook
-  ;;    window-configuration-change-hook
-  ;;    )
-  ;;  '(my-set-focused-pane))
-
-  ;; (defun my-focused-pane-active? ()
-  ;;   (eq my-focused-pane (selected-window)))
 
   (defun my-buffer-line-count ()
     "Number of lines in the current buffer. If the last line of the buffer is empty, it won't be counted."
@@ -609,7 +557,7 @@ Pad string s to width w; a negative width means add the padding on the right."
       (fade 'my-inactive-statusbar-shadow-face 'my-inactive-statusbar-face)))
   (my-reset-statusbar-faces)
 
-  ;; (my-make-hook :after #'load-theme "functions to run after a theme is loaded")
+  ;; (my-make-hook :after 'load-theme "functions to run after a theme is loaded")
   (defvar after-load-theme-hook nil)
   (advice-add 'load-theme :after (lambda (&rest _) (run-hooks 'after-load-theme-hook)))
   (add-hook 'after-load-theme-hook 'my-reset-statusbar-faces)
@@ -838,8 +786,7 @@ Pad string s to width w; a negative width means add the padding on the right."
      after-magit-start-process-hook
      )
    `(
-     ,(if (fboundp 'vc-refresh-state)
-          'vc-refresh-state 'vc-find-file-hook)
+     ,(if (fboundp 'vc-refresh-state) 'vc-refresh-state 'vc-find-file-hook)
      ,(lambda () (force-mode-line-update t)) ; refresh all mode lines.
      ))
 
@@ -1036,8 +983,6 @@ Pad string s to width w; a negative width means add the padding on the right."
   (my-theme-tweaks)
   (add-hook 'after-load-theme-hook 'my-theme-tweaks)
 
-  (make-local-variable 'before-save-hook)
-  (add-hook 'before-save-hook 'spacemacs//delete-emacs-custom-settings)
   )
 
 ;; Do not write anything past this comment. This is where Emacs will auto-generate custom variable definitions.
