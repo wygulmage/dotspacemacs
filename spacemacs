@@ -1,4 +1,4 @@
-;; -*- mode: emacs-lisp -*-
+;; -*- mode: emacs-lisp; lexical-binding: t -*-
 ;; This file is loaded by Spacemacs at startup. It must be stored in your home directory.
 (defun dotspacemacs/layers ()
   "Configuration Layers declaration.
@@ -380,16 +380,17 @@ This function is called at the very end of Spacemacs initialization, after layer
 
 ;;; Hooks:
 
-  ;; (defun my-make-hook (when procedure &optional docstring)
-  ;;   (let ((hook-symbol (intern (concat
-  ;;                               (substring (symbol-name when) 1)
-  ;;                               "-"
-  ;;                               (symbol-name procedure)
-  ;;                               "-hook"))))
-  ;;     (unless (boundp hook-symbol)
-  ;;       (set hook-symbol nil)
-  ;;       (advice-add procedure when (lambda (&rest _) (run-hooks hook-symbol)))
-  ;;       hook-symbol)))
+  (defun my-make-hook (when procedure &optional docstring)
+    "Create the special variable 'when'-'procedure'-hook and run it with 'run-hooks' 'when' 'procedure' is evaluated."
+    (let ((hook-symbol (intern (concat
+                                (substring (symbol-name when) 1)
+                                "-"
+                                (symbol-name procedure)
+                                "-hook"))))
+      (unless (boundp hook-symbol)
+        (set hook-symbol nil) ; Because hook-symbol is evaluated, this should set the global 'special' value of the newly interned symbol.
+        (advice-add procedure when (lambda (&rest _) (run-hooks hook-symbol))) ; This lambda form references the lexical variable 'hook-symbol' to get the newly interned symbol.
+        hook-symbol)))
 
   (defun my-hook-up (hooks functions)
     "Run all functions with all hooks."
