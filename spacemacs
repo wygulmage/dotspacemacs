@@ -381,7 +381,7 @@ This function is called at the very end of Spacemacs initialization, after layer
 ;;; Hooks:
 
   (defun my-make-hook (WHEN PROCEDURE &optional DOCSTRING) ; This procedure does not work.
-    "Create the special variable WHEN-PROCEDURE-hook and run it with `run-hooks' WHEN PROCEDURE is called. DOCSTRING is ignored."
+    "Create the special variable WHEN-PROCEDURE-hook and run it with `run-hooks' WHEN PROCEDURE is called."
     (let ((hook-symbol (intern (concat
                                 (substring (symbol-name WHEN) 1)
                                 "-"
@@ -389,6 +389,7 @@ This function is called at the very end of Spacemacs initialization, after layer
                                 "-hook"))))
       (unless (boundp hook-symbol)
         (set hook-symbol nil) ; Because hook-symbol is evaluated, this should set the global 'special' value of the newly interned symbol.
+        (when DOCSTRING (put hook-symbol 'documentation DOCSTRING))
         (advice-add PROCEDURE WHEN (lambda (&rest _) (run-hooks hook-symbol))) ; This lambda form references the lexical variable 'hook-symbol' to get the newly interned symbol.
         hook-symbol)))
 
