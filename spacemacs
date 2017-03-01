@@ -373,29 +373,29 @@ This function is called at the very end of Spacemacs initialization, after layer
 
   ;; TODO: Implement compose function.
 
-  (defun my-customize-set-variables (&rest assocs)
+  (defun my-customize-set-variables (&rest ASSOCS)
     "Takes zero or more ('symbol . value) arguments and customizes symbol to value."
-    (dolist (key.val assocs)
+    (dolist (key.val ASSOCS)
       (customize-set-variable (car key.val) (cdr key.val))))
 
 ;;; Hooks:
 
-  (defun my-make-hook (when procedure &optional docstring)
-    "Create the special variable 'when'-'procedure'-hook and run it with 'run-hooks' 'when' 'procedure' is evaluated."
+  (defun my-make-hook (WHEN PROCEDURE &optional DOCSTRING) ; This procedure does not work.
+    "Create the special variable WHEN-PROCEDURE-hook and run it with `run-hooks' WHEN PROCEDURE is called. DOCSTRING is ignored."
     (let ((hook-symbol (intern (concat
-                                (substring (symbol-name when) 1)
+                                (substring (symbol-name WHEN) 1)
                                 "-"
-                                (symbol-name procedure)
+                                (symbol-name PROCEDURE)
                                 "-hook"))))
       (unless (boundp hook-symbol)
         (set hook-symbol nil) ; Because hook-symbol is evaluated, this should set the global 'special' value of the newly interned symbol.
-        (advice-add procedure when (lambda (&rest _) (run-hooks hook-symbol))) ; This lambda form references the lexical variable 'hook-symbol' to get the newly interned symbol.
+        (advice-add PROCEDURE WHEN (lambda (&rest _) (run-hooks hook-symbol))) ; This lambda form references the lexical variable 'hook-symbol' to get the newly interned symbol.
         hook-symbol)))
 
-  (defun my-hook-up (hooks functions)
-    "Run all functions with all hooks."
-    (dolist (hook hooks)
-      (dolist (function functions)
+  (defun my-hook-up (HOOKS FUNCTIONS)
+    "Add all FUNCTIONS to all HOOKS."
+    (dolist (hook HOOKS)
+      (dolist (function FUNCTIONS)
         (add-hook hook function))))
 
 ;;; Buffers and panes:
@@ -437,75 +437,75 @@ This function is called at the very end of Spacemacs initialization, after layer
 
 ;;; Numbers:
 
-  (defun my-digits (n)
+  (defun my-digits (N)
     "Number -> String
-The number of decimal digits in n, including any period as a digit."
-    (length (number-to-string n)))
+The number of decimal digits of N, including any period as a digit."
+    (length (number-to-string N)))
 
 ;;; Strings, Colors, and Faces:
 
-  (defun my-define-faces (group &rest faces)
-    "Creates faces (name docstring properties) in group. No fancy business here; the display is always t. Currently broken."
-    (dolist (face faces)
+  (defun my-define-faces (GROUP &rest FACES)
+    "Creates FACES (name docstring properties) in GROUP. No fancy business here; the display is always t. Currently broken."
+    (dolist (face FACES)
       (let ((name (car face))
             (docstring (cadr face))
             (properties (cddr face)))
-        (defface name (list (cons t properties)) docstring :group group))))
+        (defface name (list (cons t properties)) docstring :group GROUP))))
 
-  (defun my-pad (w s)
+  (defun my-pad (W S)
     "Integer -> String -> String
 Pad string s to width w; a negative width means add the padding on the right."
-    (format (concat "%" (number-to-string w) "s") s))
+    (format (concat "%" (number-to-string W) "s") S))
 
-  (defun my-shift-color (color reference &optional away?)
-    "Shift color toward or away from reference. Color and reference should be emacs color triples."
-    (let ((toner (cond ((not away?) reference)
-                       ((> (apply '+ color)
-                           (apply '+ reference))
+  (defun my-shift-color (COLOR REFERENCE &optional AWAY?)
+    "Shift COLOR toward or away from REFERENCE. COLOR and REFERENCE should be emacs color triples."
+    (let ((toner (cond ((not AWAY?) REFERENCE)
+                       ((> (apply '+ COLOR)
+                           (apply '+ REFERENCE))
                         (color-values "white"))
                        (t '(0 0 0)))))
-      (my-blend-colors color toner)))
+      (my-blend-colors COLOR toner)))
 
-  (defun my-shift-face-color (face reference &optional fade?)
-    "Make a face's foreground a more or less intense version of another face's."
-    (cl-flet ((color-of (key)
-                        (color-values (face-attribute reference key))))
+  (defun my-shift-face-color (FACE REFERENCE &optional FADE?)
+    "Make FACE's foreground a more or less intense version of REFERENCE's."
+    (cl-flet ((color-of (KEY)
+                        (color-values (face-attribute REFERENCE KEY))))
       (let ((color (my-color-values-to-string
                     (my-shift-color (color-of :foreground)
                                     (color-of :background)
-                                    (not fade?)))))
-        (set-face-attribute face nil :foreground color))))
+                                    (not FADE?)))))
+        (set-face-attribute FACE nil :foreground color))))
 
-  (defun my-select-font (fonts)
-    "Return the first available font in `fonts', or the default font if none are available."
-    (cond ((null fonts) (face-attribute 'default :family))
-          ((member (car fonts) (font-family-list)) (car fonts))
-          (t (my-select-font (cdr fonts)))))
+  (defun my-select-font (FONTS)
+    "Return the first available font in FONTS, or the default font if none are available."
+    (cond ((null FONTS) (face-attribute 'default :family))
+          ((member (car FONTS) (font-family-list)) (car FONTS))
+          (t (my-select-font (cdr FONTS)))))
 
-  (defun my-set-face-attributes (l &optional buffer)
-    "From a list of (face :attr-1 a1 :attr-2 a2 ...) lists, give each face its attributes. Create undefined faces."
-    (dolist (x l)
+  (defun my-set-face-attributes (L &optional BUFFER)
+    "From list L of (face :attr-1 a1 :attr-2 a2 ...) lists, give each face its attributes. Create undefined faces."
+    (dolist (x L)
       (let ((face (car x))
             (attributes (cdr x)))
         (unless (facep face) (make-face face))
-        (apply 'set-face-attribute face buffer attributes))))
+        (apply 'set-face-attribute face BUFFER attributes))))
 
   (defun max-color-val ()
     "The current maximum value for emacs color triplets."
     (car (color-values "white")))
 
-  (defun my-color-values-to-string (c)
+  (defun my-color-values-to-string (C)
     "Create a color string from and Emacs numerical color triplet."
     (let ((color-ratio (/ (max-color-val) 255)))
       (cl-multiple-value-bind (r g b)
-          (mapcar (lambda (x) (truncate x color-ratio)) c)
+          (mapcar (lambda (x) (truncate x color-ratio)) C)
         (format "#%02X%02X%02X" r g b))))
 
-  (defun my-blend-colors (c1 c2)
-    "Evenly blend two emacs color triplets."
-    (-zip-with (lambda (x y)
-                 (truncate (+ x y) 2))
-               c1 c2))
+  (defun my-blend-colors (C1 C2)
+    "Evenly blend C1 and C2, two emacs color triplets."
+    (-zip-with (lambda (X Y)
+                 (truncate (+ X Y) 2))
+               C1 C2))
 
   ;;; ----------------------------------------------
   ;;; Mode Line, Header Line, and Frame Title Format
@@ -734,25 +734,25 @@ Pad string s to width w; a negative width means add the padding on the right."
   (define-key evil-normal-state-map "a" 'evil-append-line)
   (define-key evil-normal-state-map "A" 'evil-append)
 
-  (defun my-evil-forward-end (thing &optional count)
-    "Move forward past the end of thing. Repeat count times."
+  (defun my-evil-forward-end (THING &optional COUNT)
+    "Move forward past the end of THING. Repeat COUNT times."
     ;; (unless (eobp) (forward-char))
-    (forward-thing thing (or count 1)))
+    (forward-thing THING (or COUNT 1)))
 
-  (evil-define-motion my-evil-forward-word-end (count &optional bigword)
-    "Move the cursor past the end of the count-th next word."
+  (evil-define-motion my-evil-forward-word-end (COUNT &optional BIGWORD)
+    "Move the cursor past the end of the COUNT-th next word."
     :type 'inclusive ; I don't know what this does!
-    (let ((thing (if bigword
+    (let ((thing (if BIGWORD
                      'evil-WORD
                    'evil-word))
-          (n (or count 1)))
+          (n (or COUNT 1)))
       (evil-signal-at-bob-or-eob n)
       (my-evil-forward-end thing n)))
 
-  (evil-define-motion my-evil-forward-WORD-end (count)
-    "Move the cursor past the end of the count-th next WORD."
+  (evil-define-motion my-evil-forward-WORD-end (COUNT)
+    "Move the cursor past the end of the COUNT-th next bigword."
     :type 'exclusive ; I don't know what this does!
-    (my-evil-forward-word-end count t))
+    (my-evil-forward-word-end COUNT t))
 
   ;; Flip Vi e/E behavior to make a more useful distiction from w/W.
   (define-key evil-motion-state-map "E" 'my-evil-forward-word-end)
@@ -905,21 +905,21 @@ Pad string s to width w; a negative width means add the padding on the right."
   ;;; Lastly, some hackish theming:
   ;;; The main point is to, as much as possible without being distracting, distinguish stuff that does stuff from stuff that does not do stuff and things that look similar and act differently.
 
-  (defun my-box-to-lines (face)
+  (defun my-box-to-lines (FACE)
     (let ((color
-           (pcase (face-attribute face :box)
+           (pcase (face-attribute FACE :box)
              (`nil nil)
              (`t (face-attribute 'default :color))
              ((and (pred stringp) c) c)
              (plist (plist-get plist :color)))))
       (when color (set-face-attribute
-                   face nil :box nil :underline color :overline color))))
+                   FACE nil :box nil :underline color :overline color))))
 
-  (defun my-laser-minor-theme (&optional color)
+  (defun my-laser-minor-theme (&optional COLOR)
     "Add borders to the mode-line and disable its background color."
     (interactive)
     (let ((c
-           (if color color
+           (if COLOR COLOR
              (face-attribute 'shadow :foreground))))
       (my-set-face-attributes
        `(
