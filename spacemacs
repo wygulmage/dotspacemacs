@@ -1,7 +1,7 @@
 ;; -*- mode: emacs-lisp; lexical-binding: t -*-
 ;; This file is loaded by Spacemacs at startup. It must be stored in your home directory.
 (defun dotspacemacs/layers ()
-  "Configuration Layers declaration.
+  "Configuration Layers
 This function should only set values."
   (setq-default
    ;; Base setup, a layer contained in the directory `+distribution':
@@ -987,4 +987,4 @@ Pad string s to width w; a negative width means add the padding on the right."
 
   )
 
-;; Do not write anything past this comment. This is where Emacs will auto-generate custom variable definitions.
+;; Do not write anything past this comment. This is where Emacs will auto-generate custom variable definitions (I wish it wouldn't).
