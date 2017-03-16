@@ -469,24 +469,6 @@ The number of decimal digits of N, including any period as a digit."
 Pad string s to width w; a negative width means add the padding on the right."
     (format (concat "%" (number-to-string W) "s") S))
 
-  (defun my-shift-color (COLOR REFERENCE &optional AWAY?)
-    "Shift COLOR toward or away from REFERENCE. COLOR and REFERENCE should be emacs color triples."
-    (let ((toner (cond ((not AWAY?) REFERENCE)
-                       ((> (apply '+ COLOR)
-                           (apply '+ REFERENCE))
-                        (color-values "white"))
-                       (t '(0 0 0)))))
-      (my-blend-colors COLOR toner)))
-
-  (defun my-shift-face-color (FACE REFERENCE &optional FADE?)
-    "Make FACE's foreground a more or less intense version of REFERENCE's."
-    (cl-flet ((color-of (KEY)
-                        (color-values (face-attribute REFERENCE KEY))))
-      (let ((color (my-color-values-to-string
-                    (my-shift-color (color-of :foreground)
-                                    (color-of :background)
-                                    (not FADE?)))))
-        (set-face-attribute FACE nil :foreground color))))
 
   (defun my-select-font (FONTS)
     "Return the first available font in FONTS, or the default font if none are available."
@@ -518,6 +500,39 @@ Pad string s to width w; a negative width means add the padding on the right."
     (-zip-with (lambda (X Y)
                  (truncate (+ X Y) 2))
                C1 C2))
+
+  (defun my-shift-color (COLOR REFERENCE &optional AWAY?)
+    "Shift COLOR toward or away from REFERENCE. COLOR and REFERENCE should be emacs color triples."
+    (let ((toner (if (not AWAY?)
+                     REFERENCE
+                   (color-values (if (> (apply '+ COLOR)
+                                        (apply '+ REFERENCE))
+                                     "white"
+                                   "black")))))
+      (my-blend-colors COLOR toner)))
+
+  (defun my-intensify-color (COLOR REFERENCE)
+    "Shift COLOR away from REFERENCE."
+    (my-blend-colors COLOR
+                     (color-values (if (> (apply '+ COLOR)
+                                          (apply '+ REFERENCE))
+                                       "white"
+                                     "black"))))
+
+  (defun my-shift-face-foreground (FACE REFERENCE &optional AWAY?)
+    "Make FACE's foreground a more or less intense version of REFERENCE's.
+REFERENCE is used to avoid divergent effects in repeated application. If you are not worried about divergence, feel free to use (my-shift-face-foreground FACE FACE)."
+    (cl-flet
+        ((color-of (KEY)
+                   (color-values (face-attribute REFERENCE KEY nil t))))
+      (set-face-attribute FACE
+                          nil
+                          :foreground (my-color-values-to-string
+                                       (funcall (if AWAY?
+                                                    #'my-intensify-color
+                                                  #'my-blend-colors)
+                                                (color-of :foreground)
+                                                (color-of :background))))))
 
   ;;; ----------------------------------------------
   ;;; Mode Line, Header Line, and Frame Title Format
@@ -555,17 +570,20 @@ Pad string s to width w; a negative width means add the padding on the right."
     "Sets statusbar shadow faces to be faded versions of their counterparts."
     (interactive)
     (cl-flet
-        ((fade (faded reference)
+        ((fade (FADED REFERENCE)
                (cl-flet
-                   ((color-of (key)
-                              (color-values (face-attribute reference key nil t))))
+                   ((color-of (KEY)
+                              (color-values (face-attribute REFERENCE
+                                                            KEY
+                                                            nil
+                                                            t))))
                  (set-face-attribute
-                  faded
+                  FADED
                   nil
                   :foreground (my-color-values-to-string
-                               (my-shift-color
+                               (my-blend-colors
                                 (color-of :foreground)
-                                (color-of :background )))))))
+                                (color-of :background)))))))
       (fade 'my-active-statusbar-shadow-face 'my-active-statusbar-face)
       (fade 'my-inactive-statusbar-shadow-face 'my-inactive-statusbar-face)))
   (my-reset-statusbar-faces)
@@ -933,7 +951,7 @@ Pad string s to width w; a negative width means add the padding on the right."
     (interactive)
     (let ((c
            (if COLOR COLOR
-             (face-attribute 'shadow :foreground))))
+             (face-attribute 'my-active-statusbar-face :foreground))))
       (my-set-face-attributes
        `(
          (mode-line
@@ -957,14 +975,8 @@ Pad string s to width w; a negative width means add the padding on the right."
                           :overline nil
                           :inherit font-lock-comment-face)))
 
-  (defun my-set-shadow-face ()
-    (my-shift-face-color 'shadow 'default t))
-
   (defun my-theme-tweaks ()
     "Tweak faces to simplify themes."
-    (my-box-to-lines 'mode-line)
-    (my-box-to-lines 'mode-line-inactive)
-    (my-set-shadow-face)
     (my-set-face-attributes
      `(
        ;;; Things that don't do stuff:
@@ -993,8 +1005,12 @@ Pad string s to width w; a negative width means add the padding on the right."
         :inherit default)
        ;;; Things that look like other things:
        (font-lock-string-face :slant italic)
-       )))
-  (my-theme-tweaks)
+       ))
+    (my-shift-face-foreground 'shadow 'default)
+    (my-shift-face-foreground 'font-lock-comment-delimiter-face 'font-lock-comment-face)
+    (my-box-to-lines 'mode-line)
+    (my-box-to-lines 'mode-line-inactive))
+  ;; (my-theme-tweaks)
   (add-hook 'after-load-theme-hook 'my-theme-tweaks)
 
   )
