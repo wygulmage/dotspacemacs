@@ -359,9 +359,20 @@ This function is called at the very startup of Spacemacs initialization before l
 This function is called immediately after `dotspacemacs/init', before layer configuration. It is mostly useful for variables that must be set before packages are loaded. If you are unsure, try setting them in `dotspacemacs/user-config' first."
 
   (defconst the-default-mode-line mode-line-format) ; Save in case you want to know.
-
-  (customize-set-variable 'adaptive-fill-regexp "[ \t]*\\([-–!|#%;>·•‣⁃◦]+[ \t]*\\)*") ; Removed '*' so I can make non-unicode bullet lists. Ideally there should be two separate variables: adaptive-fill-regexp and adaptive-indent-regexp. The first would indent with the 'whitespace' character, but the second would indent with actual whitespace.
-
+  (if (display-graphic-p)
+      (progn
+        (customize-set-variable 'adaptive-fill-first-line-regexp
+                                "\\`[ \t]*\\'\\([*;]+\\)*")
+        (customize-set-variable 'adaptive-fill-regexp
+                                "[ \t]*\\([-–!|#%>·•‣⁃◦]+[ \t]*\\)*"))
+    (progn
+      (customize-set-variable 'adaptive-fill-first-line-regexp
+                              "\\`[ \t]*\\'\\*")
+      (customize-set-variable 'adaptive-fill-regexp
+                              "[ \t]*\\([-–!|#%;>·•‣⁃◦]+[ \t]*\\)*")))
+  ;; Removed ';' in graphic mode, since comments are indicated by text color. Removed '*' so I can make non-unicode bullet lists. Ideally there should be two separate variables: adaptive-fill-regexp and adaptive-indent-regexp. The first would indent with the 'whitespace' character, but the second would indent with actual whitespace.
+  ;; Default `adaptive-fill-regexp': [ \t]*\\([-–!|#%;>*·•‣⁃◦]+[ \t]*\\)*".
+  ;; Default `adaptive-fill-first-line-regexp': "\\`[ \t]*\\'".
   )
 
 (defun dotspacemacs/user-config ()
@@ -650,14 +661,15 @@ Pad string s to width w; a negative width means add the padding on the right."
     (setq mode-line-format my-base-mode-line-format))
 
   (defvar my-prog-mode-line-format
-    (append
+    (list
      my-base-mode-line-format
-     '(:eval (concat
-              "  "
-              (my-major-mode-name)
-              "  "
-              (when (bound-and-true-p anzu-mode)(anzu--update-mode-line))
-              )))
+     '(:eval
+       (concat
+        "  "
+        (my-major-mode-name)
+        "  "
+        (when (bound-and-true-p anzu-mode)(anzu--update-mode-line))
+        )))
     "simple status bar that indicates the current mode")
 
   (defun my-format-prog-mode-line ()
