@@ -164,8 +164,9 @@ This function is called at the very startup of Spacemacs initialization before l
 
    ;; Items to show in startup buffer:
    ;; A list or an association list of of the form `(list-type . list-size)`. If nil it is disabled. Possible values for list-type are: recents bookmarks projects agenda todos.
-   dotspacemacs-startup-lists '((recents . 7)
-                                (projects . 7))
+   dotspacemacs-startup-lists
+   '((recents . 7)
+     (projects . 7))
    ;; Will the startup buffer resize?
    dotspacemacs-startup-buffer-responsive t ; default t
 
@@ -383,6 +384,9 @@ This function is called at the very end of Spacemacs initialization, after layer
 ;;; Helpful Procedures
 
   ;; TODO: Implement compose function.
+  (defun my-eval-first (MACRO &rest ARGS)
+    "Evaluate ARGS before applying MACRO to them (in a lexical context)."
+    (eval `(,MACRO ,@ARGS) t))
 
   (defun my-customize-set-variables (&rest ASSOCS)
     "Takes zero or more ('symbol . value) arguments and customizes symbol to value."
@@ -393,17 +397,19 @@ This function is called at the very end of Spacemacs initialization, after layer
 
   (defun my-make-hook (WHEN PROCEDURE &optional DOCSTRING)
     "Create the special variable WHEN-PROCEDURE-hook and run it with `run-hooks' WHEN PROCEDURE is called."
-    (let ((hook-symbol (intern (concat
-                                (substring (symbol-name WHEN) 1)
-                                "-"
-                                (symbol-name PROCEDURE)
-                                "-hook"))))
-      (unless (default-boundp hook-symbol)
-        ;; (set hook-symbol nil) ; Because hook-symbol is evaluated, this should set the global 'special' value of the newly interned symbol.
-        (when DOCSTRING (put hook-symbol 'variable-documentation DOCSTRING))
-        (eval `(defvar ,hook-symbol nil ,@(when DOCSTRING (list DOCSTRING))))
-        (eval `(advice-add ,PROCEDURE ,WHEN (lambda (&rest _) (run-hooks ,hook-symbol))))
-        hook-symbol)))
+    (let ((hook-name (concat
+                      (substring (symbol-name WHEN) 1)
+                      "-"
+                      (symbol-name PROCEDURE)
+                      "-hook")))
+      (if (intern-soft hook-name)
+          (message "%s already exists, doing nothing." hook-name)
+        (let ((hook-symbol (intern hook-name)))
+          (eval `(defvar ,hook-symbol nil))
+          (eval `(advice-add ,PROCEDURE
+                             ,WHEN
+                             (lambda (&rest _)
+                               (run-hooks (quote ,hook-symbol)))))))))
 
   (defun my-hook-up (HOOKS FUNCTIONS)
     "Add all FUNCTIONS to all HOOKS."
@@ -426,13 +432,13 @@ This function is called at the very end of Spacemacs initialization, after layer
   (defun my-primary-pane-active? ()
     (eq my-primary-pane (selected-window)))
 
-  ;; (my-make-hook :after 'select-frame)
-  (defvar after-select-frame-hook nil)
-  (advice-add 'select-frame :after (lambda (&rest _) (run-hooks 'after-select-frame-hook)))
+  (my-make-hook :after 'select-frame)
+  ;; (defvar after-select-frame-hook nil)
+  ;; (advice-add 'select-frame :after (lambda (&rest _) (run-hooks 'after-select-frame-hook)))
 
-  ;; (my-make-hook :after 'handle-select-window)
-  (defvar after-handle-select-window-hook nil)
-  (advice-add 'handle-select-window :after (lambda (&rest _) (run-hooks 'after-handle-select-window-hook)))
+  (my-make-hook :after 'handle-select-window)
+  ;; (defvar after-handle-select-window-hook nil)
+  ;; (advice-add 'handle-select-window :after (lambda (&rest _) (run-hooks 'after-handle-select-window-hook)))
 
   (my-hook-up
    '(
@@ -589,9 +595,9 @@ REFERENCE is used to avoid divergent effects in repeated application. If you are
       (fade 'my-inactive-statusbar-shadow-face 'my-inactive-statusbar-face)))
   (my-reset-statusbar-faces)
 
-  ;; (my-make-hook :after 'load-theme "functions to run after a theme is loaded")
-  (defvar after-load-theme-hook nil)
-  (advice-add 'load-theme :after (lambda (&rest _) (run-hooks 'after-load-theme-hook)))
+  (my-make-hook :after 'load-theme "functions to run after a theme is loaded")
+  ;; (defvar after-load-theme-hook nil)
+  ;; (advice-add 'load-theme :after (lambda (&rest _) (run-hooks 'after-load-theme-hook)))
   (add-hook 'after-load-theme-hook 'my-reset-statusbar-faces)
 
   (defun my-buffer-name ()
@@ -805,13 +811,13 @@ REFERENCE is used to avoid divergent effects in repeated application. If you are
 
   ;; Refresh VC state to update mode line info. Fall back to expensive vc-find-file-hook if `vc-refresh-state' is not available.
 
-  ;; (my-make-hook :after 'magit-run-git)
-  (defvar after-magit-run-git-hook nil)
-  (advice-add 'magit-run-git :after (lambda (&rest _) (run-hooks 'after-magit-run-git-hook)))
+  (my-make-hook :after 'magit-run-git)
+  ;; (defvar after-magit-run-git-hook nil)
+  ;; (advice-add 'magit-run-git :after (lambda (&rest _) (run-hooks 'after-magit-run-git-hook)))
 
-  ;; (my-make-hook :after 'magit-start-process)
-  (defvar after-magit-start-process-hook nil)
-  (advice-add 'magit-start-process :after (lambda (&rest _) (run-hooks 'after-magit-start-process-hook)))
+  (my-make-hook :after 'magit-start-process)
+  ;; (defvar after-magit-start-process-hook nil)
+  ;; (advice-add 'magit-start-process :after (lambda (&rest _) (run-hooks 'after-magit-start-process-hook)))
 
   (my-hook-up
    '(
