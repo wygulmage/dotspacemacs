@@ -1,7 +1,7 @@
 ;; -*- mode: emacs-lisp; lexical-binding: t -*-
 ;; This file is loaded by Spacemacs at startup. It must be stored in your home directory.
 (defun dotspacemacs/layers ()
-  "Configuration Layers
+  "Configuration layers:
 This function should only set values."
   (setq-default
    ;; Base setup, a layer contained in the directory `+distribution':
@@ -391,17 +391,18 @@ This function is called at the very end of Spacemacs initialization, after layer
 
 ;;; Hooks:
 
-  (defun my-make-hook (WHEN PROCEDURE &optional DOCSTRING) ; This procedure does not work.
+  (defun my-make-hook (WHEN PROCEDURE &optional DOCSTRING)
     "Create the special variable WHEN-PROCEDURE-hook and run it with `run-hooks' WHEN PROCEDURE is called."
     (let ((hook-symbol (intern (concat
                                 (substring (symbol-name WHEN) 1)
                                 "-"
                                 (symbol-name PROCEDURE)
                                 "-hook"))))
-      (unless (boundp hook-symbol)
-        (set hook-symbol nil) ; Because hook-symbol is evaluated, this should set the global 'special' value of the newly interned symbol.
-        (when DOCSTRING (put hook-symbol 'documentation DOCSTRING))
-        (advice-add PROCEDURE WHEN (lambda (&rest _) (run-hooks hook-symbol))) ; This lambda form references the lexical variable 'hook-symbol' to get the newly interned symbol.
+      (unless (default-boundp hook-symbol)
+        ;; (set hook-symbol nil) ; Because hook-symbol is evaluated, this should set the global 'special' value of the newly interned symbol.
+        (when DOCSTRING (put hook-symbol 'variable-documentation DOCSTRING))
+        (eval `(defvar ,hook-symbol nil ,@(when DOCSTRING (list DOCSTRING))))
+        (eval `(advice-add ,PROCEDURE ,WHEN (lambda (&rest _) (run-hooks ,hook-symbol))))
         hook-symbol)))
 
   (defun my-hook-up (HOOKS FUNCTIONS)
@@ -457,12 +458,12 @@ The number of decimal digits of N, including any period as a digit."
 ;;; Strings, Colors, and Faces:
 
   (defun my-define-faces (GROUP &rest FACES)
-    "Creates FACES (name docstring properties) in GROUP. No fancy business here; the display is always t. Currently broken."
+    "Creates FACES (name docstring properties) in GROUP. No fancy business here; the display is always t."
     (dolist (face FACES)
       (let ((name (car face))
             (docstring (cadr face))
             (properties (cddr face)))
-        (defface name (list (cons t properties)) docstring :group GROUP))))
+        (custom-declare-face name (list (cons t properties)) docstring :group GROUP))))
 
   (defun my-pad (W S)
     "Integer -> String -> String
