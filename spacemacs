@@ -544,22 +544,30 @@ REFERENCE is used to avoid divergent effects in repeated application. If you are
   ;;; ----------------------------------------------
   ;;; Mode Line, Header Line, and Frame Title Format
 
-  (defface my-active-statusbar-face
-    '((t :inherit mode-line))
-    "an alias for mode-line face."
-    :group 'statusbar)
-  (defface my-inactive-statusbar-face
-    '((t :inherit mode-line-inactive))
-    "an alias for mode-line-inactive face."
-    :group 'statusbar)
-  (defface my-active-statusbar-shadow-face
-    '((t :inherit my-active-statusbar-face))
-    "an alias for mode-line face."
-    :group 'statusbar)
-  (defface my-inactive-statusbar-shadow-face
-    '((t :inherit my-inactive-statusbar-face))
-    "an alias for mode-line-inactive face."
-    :group 'statusbar)
+  (my-define-faces
+   'statusbar
+     '(my-active-statusbar-face "an alias for mode-line face" :inherit mode-line)
+     '(my-inactive-statusbar-face "an alias for mode-line-inactive face" :inherit mode-line-inactive)
+     '(my-active-statusbar-shadow-face :inherit "a dimmed face for the active mode-line" my-active-statusbar-face)
+     '(my-inactive-statusbar-shadow-face :inherit "a dimmed face for the inactive mode-line" my-inactive-statusbar-face)
+     )
+
+  ;; (defface my-active-statusbar-face
+  ;;   '((t :inherit mode-line))
+  ;;   "an alias for mode-line face."
+  ;;   :group 'statusbar)
+  ;; (defface my-inactive-statusbar-face
+  ;;   '((t :inherit mode-line-inactive))
+  ;;   "an alias for mode-line-inactive face."
+  ;;   :group 'statusbar)
+  ;; (defface my-active-statusbar-shadow-face
+  ;;   '((t :inherit my-active-statusbar-face))
+  ;;   "an alias for mode-line face."
+  ;;   :group 'statusbar)
+  ;; (defface my-inactive-statusbar-shadow-face
+  ;;   '((t :inherit my-inactive-statusbar-face))
+  ;;   "an alias for mode-line-inactive face."
+  ;;   :group 'statusbar)
 
   (defun my-get-statusbar-face ()
     "an ersatz face that switches between active- and inactive-statusbar-face"
