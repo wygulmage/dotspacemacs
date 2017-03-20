@@ -823,17 +823,17 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
   (define-key evil-normal-state-map
     (kbd "k") 'evil-previous-visual-line)
 
-      ;; (evil-define-command my-greedy-delete-backward ()
-      ;;   (evil-delete (save-excursion
-      ;;                  (evil-backward-word-begin)
-      ;;                  (point))
-      ;;                (point)
-      ;;                'exclusive
-      ;;                nil)
-      ;;   (delete-horizontal-space t))
+  ;; (evil-define-command my-greedy-delete-backward () ;; commented out because it was bugging things.
+  ;;   (evil-delete (save-excursion
+  ;;                  (evil-backward-word-begin)
+  ;;                  (point))
+  ;;                (point)
+  ;;                'exclusive
+  ;;                nil)
+  ;;   (delete-horizontal-space t))
 
-      ;; (define-key evil-insert-state-map
-      ;;   (kbd "<backspace>") 'my-greedy-delete-backward) ; Make backspace delete the whole word.
+  ;; (define-key evil-insert-state-map
+  ;;   (kbd "<backspace>") 'my-greedy-delete-backward) ; Make backspace delete the whole word.
 
  ;;; Paste with Ctrl p.
   (define-key evil-insert-state-map
