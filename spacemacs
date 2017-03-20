@@ -433,12 +433,8 @@ This function is called at the very end of Spacemacs initialization, after layer
     (eq my-primary-pane (selected-window)))
 
   (my-make-hook :after 'select-frame)
-  ;; (defvar after-select-frame-hook nil)
-  ;; (advice-add 'select-frame :after (lambda (&rest _) (run-hooks 'after-select-frame-hook)))
 
   (my-make-hook :after 'handle-select-window)
-  ;; (defvar after-handle-select-window-hook nil)
-  ;; (advice-add 'handle-select-window :after (lambda (&rest _) (run-hooks 'after-handle-select-window-hook)))
 
   (my-hook-up
    '(
@@ -546,28 +542,11 @@ REFERENCE is used to avoid divergent effects in repeated application. If you are
 
   (my-define-faces
    'statusbar
-     '(my-active-statusbar-face "an alias for mode-line face" :inherit mode-line)
-     '(my-inactive-statusbar-face "an alias for mode-line-inactive face" :inherit mode-line-inactive)
-     '(my-active-statusbar-shadow-face :inherit "a dimmed face for the active mode-line" my-active-statusbar-face)
-     '(my-inactive-statusbar-shadow-face :inherit "a dimmed face for the inactive mode-line" my-inactive-statusbar-face)
-     )
-
-  ;; (defface my-active-statusbar-face
-  ;;   '((t :inherit mode-line))
-  ;;   "an alias for mode-line face."
-  ;;   :group 'statusbar)
-  ;; (defface my-inactive-statusbar-face
-  ;;   '((t :inherit mode-line-inactive))
-  ;;   "an alias for mode-line-inactive face."
-  ;;   :group 'statusbar)
-  ;; (defface my-active-statusbar-shadow-face
-  ;;   '((t :inherit my-active-statusbar-face))
-  ;;   "an alias for mode-line face."
-  ;;   :group 'statusbar)
-  ;; (defface my-inactive-statusbar-shadow-face
-  ;;   '((t :inherit my-inactive-statusbar-face))
-  ;;   "an alias for mode-line-inactive face."
-  ;;   :group 'statusbar)
+   '(my-active-statusbar-face "an alias for mode-line face" :inherit mode-line)
+   '(my-inactive-statusbar-face "an alias for mode-line-inactive face" :inherit mode-line-inactive)
+   '(my-active-statusbar-shadow-face :inherit "a dimmed face for the active mode-line" my-active-statusbar-face)
+   '(my-inactive-statusbar-shadow-face :inherit "a dimmed face for the inactive mode-line" my-inactive-statusbar-face)
+   )
 
   (defun my-get-statusbar-face ()
     "an ersatz face that switches between active- and inactive-statusbar-face"
@@ -604,8 +583,6 @@ REFERENCE is used to avoid divergent effects in repeated application. If you are
   (my-reset-statusbar-faces)
 
   (my-make-hook :after 'load-theme "functions to run after a theme is loaded")
-  ;; (defvar after-load-theme-hook nil)
-  ;; (advice-add 'load-theme :after (lambda (&rest _) (run-hooks 'after-load-theme-hook)))
   (add-hook 'after-load-theme-hook 'my-reset-statusbar-faces)
 
   (defun my-buffer-name ()
@@ -820,12 +797,8 @@ REFERENCE is used to avoid divergent effects in repeated application. If you are
   ;; Refresh VC state to update mode line info. Fall back to expensive vc-find-file-hook if `vc-refresh-state' is not available.
 
   (my-make-hook :after 'magit-run-git)
-  ;; (defvar after-magit-run-git-hook nil)
-  ;; (advice-add 'magit-run-git :after (lambda (&rest _) (run-hooks 'after-magit-run-git-hook)))
 
   (my-make-hook :after 'magit-start-process)
-  ;; (defvar after-magit-start-process-hook nil)
-  ;; (advice-add 'magit-start-process :after (lambda (&rest _) (run-hooks 'after-magit-start-process-hook)))
 
   (my-hook-up
    '(
