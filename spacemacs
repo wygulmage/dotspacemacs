@@ -395,7 +395,7 @@ This function is called at the very end of Spacemacs initialization, after layer
 
 ;;; Hooks:
 
-  (defun my-make-hook (WHEN PROCEDURE &optional DOCSTRING)
+  (defun my-make-hook (WHEN PROCEDURE &optional _DOCSTRING)
     "Create the special variable WHEN-PROCEDURE-hook and run it with `run-hooks' WHEN PROCEDURE is called."
     (let ((hook-name (concat
                       (substring (symbol-name WHEN) 1)
@@ -433,7 +433,6 @@ This function is called at the very end of Spacemacs initialization, after layer
     (eq my-primary-pane (selected-window)))
 
   (my-make-hook :after 'select-frame)
-
   (my-make-hook :after 'handle-select-window)
 
   (my-hook-up
@@ -504,16 +503,6 @@ Pad string s to width w; a negative width means add the padding on the right."
                  (truncate (+ X Y) 2))
                C1 C2))
 
-  (defun my-shift-color (COLOR REFERENCE &optional AWAY?)
-    "Shift COLOR toward or away from REFERENCE. COLOR and REFERENCE should be emacs color triples."
-    (let ((toner (if (not AWAY?)
-                     REFERENCE
-                   (color-values (if (> (apply '+ COLOR)
-                                        (apply '+ REFERENCE))
-                                     "white"
-                                   "black")))))
-      (my-blend-colors COLOR toner)))
-
   (defun my-intensify-color (COLOR REFERENCE)
     "Shift COLOR away from REFERENCE."
     (my-blend-colors COLOR
@@ -522,12 +511,25 @@ Pad string s to width w; a negative width means add the padding on the right."
                                        "white"
                                      "black"))))
 
+  (defun my-fade-face-foreground (FACE REFERENCE)
+    "Make FACE's foreground a less intense version of REFERECE's.
+REFERENCE is used to avoid fading FACE into oblivion with repreated applications."
+    (cl-flet
+        ((color-of (KEY)
+                   (color-values (face-attribute REFERENCE KEY nil 'default))))
+      (set-face-attribute
+       FACE
+       nil
+       :foreground (my-color-values-to-string
+                    (my-blend-colors (color-of :foreground)
+                                     (color-of :background))))))
+
   (defun my-shift-face-foreground (FACE REFERENCE &optional AWAY?)
     "Make FACE's foreground a more or less intense version of REFERENCE's.
 REFERENCE is used to avoid divergent effects in repeated application. If you are not worried about divergence, feel free to use (my-shift-face-foreground FACE FACE)."
     (cl-flet
         ((color-of (KEY)
-                   (color-values (face-attribute REFERENCE KEY nil t))))
+                   (color-values (face-attribute REFERENCE KEY nil 'default))))
       (set-face-attribute FACE
                           nil
                           :foreground (my-color-values-to-string
@@ -563,23 +565,12 @@ REFERENCE is used to avoid divergent effects in repeated application. If you are
   (defun my-reset-statusbar-faces ()
     "Sets statusbar shadow faces to be faded versions of their counterparts."
     (interactive)
-    (cl-flet
-        ((fade (FADED REFERENCE)
-               (cl-flet
-                   ((color-of (KEY)
-                              (color-values (face-attribute REFERENCE
-                                                            KEY
-                                                            nil
-                                                            t))))
-                 (set-face-attribute
-                  FADED
-                  nil
-                  :foreground (my-color-values-to-string
-                               (my-blend-colors
-                                (color-of :foreground)
-                                (color-of :background)))))))
-      (fade 'my-active-statusbar-shadow-face 'my-active-statusbar-face)
-      (fade 'my-inactive-statusbar-shadow-face 'my-inactive-statusbar-face)))
+    (my-fade-face-foreground
+     'my-active-statusbar-shadow-face
+     'my-active-statusbar-face)
+    (my-fade-face-foreground
+     'my-inactive-statusbar-shadow-face
+     'my-inactive-statusbar-face))
   (my-reset-statusbar-faces)
 
   (my-make-hook :after 'load-theme "functions to run after a theme is loaded")
@@ -887,7 +878,8 @@ REFERENCE is used to avoid divergent effects in repeated application. If you are
 
   ;;; Mouse & copy / paste / delete
   (setq
-   mouse-drag-copy-region t ; Copy on select -- disable for acme-mouse.
+   ;; mouse-drag-copy-region t ; Copy on select -- disable for acme-mouse.
+   delete-selection-mode t ; Allow typing over the selection.
    kill-do-not-save-duplicates t ; Don't copy identical text twice.
    )
 
@@ -939,7 +931,7 @@ REFERENCE is used to avoid divergent effects in repeated application. If you are
     (interactive)
     (let ((c
            (if COLOR COLOR
-             (face-attribute 'my-active-statusbar-face :foreground))))
+             (face-attribute 'my-active-statusbar-face :foreground nil 'default))))
       (my-set-face-attributes
        `(
          (mode-line
@@ -955,13 +947,18 @@ REFERENCE is used to avoid divergent effects in repeated application. If you are
   (defun my-material-minor-theme ()
     "Remove borders from the mode-line when its background is different from the buffer's."
     (interactive)
-    (unless (equal (face-attribute 'default :background)
-                   (face-attribute 'mode-line :background))
-      (set-face-attribute 'mode-line nil
-                          :box nil
-                          :underline nil
-                          :overline nil
-                          :inherit font-lock-comment-face)))
+    (cl-flet
+        ((unbox (FACE)
+                (unless (equal
+                         (face-attribute 'default :background)
+                         (face-attribute FACE :background nil 'default))
+                  (set-face-attribute
+                   FACE nil
+                   :box nil
+                   :underline nil
+                   :overline nil))))
+      (unbox 'mode-line)
+      (unbox 'mode-line-inactive)))
 
   (defun my-theme-tweaks ()
     "Tweak faces to simplify themes."
@@ -994,12 +991,13 @@ REFERENCE is used to avoid divergent effects in repeated application. If you are
        ;;; Things that look like other things:
        (font-lock-string-face :slant italic)
        ))
-    (my-shift-face-foreground 'shadow 'default)
-    (my-shift-face-foreground 'font-lock-comment-delimiter-face 'font-lock-comment-face)
+    (my-fade-face-foreground 'shadow 'default)
+    (my-fade-face-foreground 'font-lock-comment-delimiter-face 'font-lock-comment-face)
     (my-box-to-lines 'mode-line)
-    (my-box-to-lines 'mode-line-inactive))
-  ;; (my-theme-tweaks)
-  (add-hook 'after-load-theme-hook 'my-theme-tweaks)
+    (my-box-to-lines 'mode-line-inactive)
+    (my-material-minor-theme))
+  (my-theme-tweaks)
+  (add-hook 'after-load-theme-hook #'my-theme-tweaks)
 
   )
 
