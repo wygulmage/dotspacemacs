@@ -384,9 +384,10 @@ This function is called at the very end of Spacemacs initialization, after layer
 ;;; Helpful Procedures
 
   ;; TODO: Implement compose function.
-  (defun my-eval-first (MACRO &rest ARGS)
-    "Evaluate ARGS before applying MACRO to them (in a lexical context)."
-    (eval `(,MACRO ,@ARGS) t))
+
+  ;; (defun my-eval-first (MACRO &rest ARGS) ; unused
+  ;;   "Evaluate ARGS before applying MACRO to them (in a lexical context)."
+  ;;   (eval `(,MACRO ,@ARGS) t))
 
   (defun my-customize-set-variables (&rest ASSOCS)
     "Takes zero or more ('symbol . value) arguments and customizes symbol to value."
@@ -523,21 +524,6 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
        :foreground (my-color-values-to-string
                     (my-blend-colors (color-of :foreground)
                                      (color-of :background))))))
-
-  (defun my-shift-face-foreground (FACE REFERENCE &optional AWAY?)
-    "Make FACE's foreground a more or less intense version of REFERENCE's.
-REFERENCE is used to avoid divergent effects in repeated application. If you are not worried about divergence, feel free to use (my-shift-face-foreground FACE FACE)."
-    (cl-flet
-        ((color-of (KEY)
-                   (color-values (face-attribute REFERENCE KEY nil 'default))))
-      (set-face-attribute FACE
-                          nil
-                          :foreground (my-color-values-to-string
-                                       (funcall (if AWAY?
-                                                    #'my-intensify-color
-                                                  #'my-blend-colors)
-                                                (color-of :foreground)
-                                                (color-of :background))))))
 
   ;;; ----------------------------------------------
   ;;; Mode Line, Header Line, and Frame Title Format
@@ -741,37 +727,37 @@ REFERENCE is used to avoid divergent effects in repeated application. If you are
 
   ;;; ----------------------------------
   ;;; Set Evil to not behave like Vim.
-  (customize-set-variable 'evil-move-beyond-eol t) ; Allow the cursor to move beyond the end of the line.
-  (customize-set-variable 'evil-move-cursor-back nil) ; Don't move the cursor when exiting insert mode.
+  ;; commented out in case it's causing errors.
+  ;; (customize-set-variable 'evil-move-beyond-eol t) ; Allow the cursor to move beyond the end of the line.
+  ;; (customize-set-variable 'evil-move-cursor-back nil) ; Don't move the cursor when exiting insert mode.
 
-  ;; Flip Vi a/A behavior.
-  (define-key evil-normal-state-map "a" 'evil-append-line)
-  (define-key evil-normal-state-map "A" 'evil-append)
+  ;; ;; Flip Vi a/A behavior.
+  ;; (define-key evil-normal-state-map "a" 'evil-append-line)
+  ;; (define-key evil-normal-state-map "A" 'evil-append)
 
-  (defun my-evil-forward-end (THING &optional COUNT)
-    "Move forward past the end of THING. Repeat COUNT times."
-    ;; (unless (eobp) (forward-char))
-    (forward-thing THING (or COUNT 1)))
+  ;; (defun my-evil-forward-end (THING &optional COUNT)
+  ;;   "Move forward past the end of THING. Repeat COUNT times."
+  ;;   ;; (unless (eobp) (forward-char))
+  ;;   (forward-thing THING (or COUNT 1)))
 
-  (evil-define-motion my-evil-forward-word-end (COUNT &optional BIGWORD)
-    "Move the cursor past the end of the COUNT-th next word."
-    :type 'inclusive ; I don't know what this does!
-    (let ((thing (if BIGWORD
-                     'evil-WORD
-                   'evil-word))
-          (n (or COUNT 1)))
-      (evil-signal-at-bob-or-eob n)
-      (my-evil-forward-end thing n)))
+  ;; (evil-define-motion my-evil-forward-word-end (COUNT &optional BIGWORD)
+  ;;   "Move the cursor past the end of the COUNT-th next word."
+  ;;   :type 'inclusive ; I don't know what this does!
+  ;;   (let ((thing (if BIGWORD
+  ;;                    'evil-WORD
+  ;;                  'evil-word))
+  ;;         (n (or COUNT 1)))
+  ;;     (evil-signal-at-bob-or-eob n)
+  ;;     (my-evil-forward-end thing n)))
 
-  (evil-define-motion my-evil-forward-WORD-end (COUNT)
-    "Move the cursor past the end of the COUNT-th next bigword."
-    :type 'exclusive ; I don't know what this does!
-    (my-evil-forward-word-end COUNT t))
+  ;; (evil-define-motion my-evil-forward-WORD-end (COUNT)
+  ;;   "Move the cursor past the end of the COUNT-th next bigword."
+  ;;   :type 'exclusive ; I don't know what this does!
+  ;;   (my-evil-forward-word-end COUNT t))
 
-  ;; Flip Vi e/E behavior to make a more useful distiction from w/W.
-  (define-key evil-motion-state-map "E" 'my-evil-forward-word-end)
-  (define-key evil-motion-state-map "e" 'my-evil-forward-WORD-end)
-
+  ;; ;; Flip Vi e/E behavior to make a more useful distiction from w/W.
+  ;; (define-key evil-motion-state-map "E" 'my-evil-forward-word-end)
+  ;; (define-key evil-motion-state-map "e" 'my-evil-forward-WORD-end)
 
   ;;; ----------------------------------
   ;;; Hooks
@@ -837,19 +823,19 @@ REFERENCE is used to avoid divergent effects in repeated application. If you are
   (define-key evil-normal-state-map
     (kbd "k") 'evil-previous-visual-line)
 
-  (evil-define-command my-greedy-delete-backward ()
-    (evil-delete (save-excursion
-                   (evil-backward-word-begin)
-                   (point))
-                 (point)
-                 'exclusive
-                 nil)
-    (delete-horizontal-space t))
+      ;; (evil-define-command my-greedy-delete-backward ()
+      ;;   (evil-delete (save-excursion
+      ;;                  (evil-backward-word-begin)
+      ;;                  (point))
+      ;;                (point)
+      ;;                'exclusive
+      ;;                nil)
+      ;;   (delete-horizontal-space t))
 
-  (define-key evil-insert-state-map
-    (kbd "<backspace>") 'my-greedy-delete-backward) ; Make backspace delete the whole word.
+      ;; (define-key evil-insert-state-map
+      ;;   (kbd "<backspace>") 'my-greedy-delete-backward) ; Make backspace delete the whole word.
 
-  ;;; Paste with Ctrl p.
+ ;;; Paste with Ctrl p.
   (define-key evil-insert-state-map
     (kbd "C-p") 'evil-paste-after)
 
