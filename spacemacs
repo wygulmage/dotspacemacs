@@ -6,7 +6,7 @@ This function should only set values."
   (setq-default
    ;; Base setup, a layer contained in the directory `+distribution':
    dotspacemacs-distribution
-   ;; 'spacemacs ; default
+   ;; 'spacemacs ; (default)
    'spacemacs-base ; minimal
 
    ;; Layer installation & uninstalling:
@@ -14,7 +14,6 @@ This function should only set values."
    ;; 'used-only ; (default) installs only explicitly used packages and uninstalls others.
    'used-but-keep-unused ; installs only explicitly used packages but keeps others.
    ;; 'all ; installs all supported packages and never uninstalls them.
-   ;;; NOTE: This would be better as `dotspacemacs-install-all-packages' with values of nil (default) and t.
 
    ;; Deferred layer installation:
    dotspacemacs-enable-lazy-installation
@@ -36,19 +35,22 @@ This function should only set values."
              rainbow-mode ; for color strings only
              :variables
              rainbow-x-colors nil
-             rainbow-html-colors nil)
+             rainbow-html-colors nil
+             )
      ;; (org :variables org-enable-github-support t)
      (ranger :variables
              ranger-override-dired t
              ranger-show-preview t
-             ranger-show-literal nil)
+             ranger-show-literal nil
+             )
      (shell :variables
             shell-default-height 30
             shell-default-position 'bottom)
      spacemacs-completion
      spacemacs-editing
      (spacemacs-evil :packages
-                     (not vi-tilde-fringe))
+                     (not vi-tilde-fringe)
+                     )
      spacemacs-ui ; includes restart-emacs
      ;;; Bindings:
      better-defaults
@@ -58,9 +60,11 @@ This function should only set values."
      ivy
      (spell-checking :variables
                      spell-checking-enable-by-default nil
-                     flyspell-sort-corrections nil)
+                     flyspell-sort-corrections nil
+                     )
      (syntax-checking :variables
-                      syntax-checking-enable-by-default nil)
+                      syntax-checking-enable-by-default nil
+                      )
      ;;; Languages:
      ;; (semantic :packages
      ;;           semantic
@@ -92,15 +96,16 @@ This function should only set values."
      company
      dash ; list functions
      paren-face
-     (shen-elisp
-      :location (recipe :repo "deech/shen-elisp"
-                        :fetcher github
-                        :files ("shen*.el"))
-      :upgrade 't)
+     ;; (shen-elisp ; I have not been using shen-elisp.
+     ;;  :location (recipe :repo "deech/shen-elisp"
+     ;;                    :fetcher github
+     ;;                    :files ("shen*.el"))
+     ;;  :upgrade 't
+     ;;  )
      )
 
    ;; Packages that will not be updated:
-   dotspacemacs-frozen-packages '() ; default '()
+   dotspacemacs-frozen-packages '()
 
    ;; Packages and extensions that will not be installed or loaded:
    dotspacemacs-excluded-packages
@@ -121,10 +126,13 @@ This function is called at the very startup of Spacemacs initialization before l
   ;;; Spacemacs settings:
   (setq-default
    ;;; ELPA
-   ;; Will ELPA repositories be contacted via HTTPS? Disable only if you have no way to use HTTPS. Launching Emacs with the parameter --insecure sets this variable to nil.
+   ;; Will ELPA repositories be contacted via HTTPS?
+   ;; Disable only if you have no way to use HTTPS. Launching Emacs with the parameter --insecure sets this variable to nil.
    dotspacemacs-elpa-https t ; default t
+
    ;; Maximum allowed time in seconds to contact an ELPA repository:
    dotspacemacs-elpa-timeout 5 ; default 5
+
    ;; Package subdirectory:
    ;; A form that evaluates to a directory. For example, to use different package directories for different Emacs versions, set this to `emacs-version'.
    dotspacemacs-elpa-subdirectory nil ; default nil
@@ -141,7 +149,8 @@ This function is called at the very startup of Spacemacs initialization before l
    dotspacemacs-editing-style
    'vim ; (default)
    ;; 'emacs
-   ;; 'hybrid ; like vim except that insert state is replaced by the hybrid state with emacs key bindings. The value can also be a list with :variables keyword. Check the editing styles section of the documentation for details on available variables.
+   ;; 'hybrid ; like vim except that insert state is replaced by the hybrid state with emacs key bindings.
+   ;; The value can also be a list with :variables keyword. Check the editing styles section of the documentation for details on available variables.
 
    ;; Will Spacemacs output loading progress to the *Messages* buffer?
    dotspacemacs-verbose-loading nil ; default nil
@@ -161,10 +170,11 @@ This function is called at the very startup of Spacemacs initialization before l
    dotspacemacs-startup-lists
    '((recents . 7)
      (projects . 7))
+
    ;; Will the startup buffer resize?
    dotspacemacs-startup-buffer-responsive t ; default t
 
-   ;; Default major mode of the scratch buffer:
+   ;; Major mode of the scratch buffer:
    dotspacemacs-scratch-mode 'text-mode ; default 'text-mode
 
    ;; Themes:
@@ -184,7 +194,7 @@ This function is called at the very startup of Spacemacs initialization before l
    ;; Will the cursor color match the state color in GUI Spacemacs?
    dotspacemacs-colorize-cursor-according-to-state t
 
-   ;; Default font or prioritized list of fonts:
+   ;; Default font (or prioritized list of fonts):
    ;; `powerline-scale' provides tweaking of the mode-line size to make separators look better.
    dotspacemacs-default-font
    '(
@@ -273,7 +283,7 @@ This function is called at the very startup of Spacemacs initialization before l
    ;; 'right-then-bottom ; tries to display the frame to the right; if there is insufficient space it is displayed at the bottom.
 
    ;; Should switch-to-buffer put the buffer in a same-purpose window even if the buffer can be put in the current window?
-   dotspacemacs-switch-to-buffer-prefers-purpose t; default nil
+   dotspacemacs-switch-to-buffer-prefers-purpose t ; default nil
 
    ;;; Fullscreen
    ;; Will Spacemacs start up fullscreen? (Emacs 24.4+ only)
@@ -335,7 +345,7 @@ This function is called at the very startup of Spacemacs initialization before l
 
    ;; Whitespace cleanup on save:
    dotspacemacs-whitespace-cleanup
-   ;; nil ; (default) disables cleanup.
+   ;; nil ; disables cleanup (default).
    ;; 'all ; aggressively deletes empty lines and long sequences of whitespace.
    ;; 'trailing ; deletes only the whitespace at end of lines.
    'changed ; deletes whitespace only for changed lines.
