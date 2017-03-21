@@ -9,11 +9,11 @@ This function should only set values."
    ;; 'spacemacs ; default
    'spacemacs-base ; minimal
 
-   ;; Package downloading & retention:
-   dotspacemacs-download-packages
-   ;; 'used ; (default) only downloads explicitly used packages and removes any unused packages and dependencies.
-   'used-but-keep-unused ; only downloads used packages but won't delete unused packages.
-   ;; 'all ; downloads all the packages regardless of whether they are used, and won't delete packages.
+   ;; ;; Package downloading & retention: ; REMOVED FROM TEMPLATE
+   ;; dotspacemacs-download-packages
+   ;; ;; 'used ; (default) only downloads explicitly used packages and removes any unused packages and dependencies.
+   ;; 'used-but-keep-unused ; only downloads used packages but won't delete unused packages.
+   ;; ;; 'all ; downloads all the packages regardless of whether they are used, and won't delete packages.
 
    ;; Layer installation & uninstalling:
    dotspacemacs-install-packages
