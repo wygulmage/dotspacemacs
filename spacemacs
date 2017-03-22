@@ -385,6 +385,7 @@ This function is called at the very end of Spacemacs initialization, after layer
 
   (defun my-eval-args (PROCEDURE &rest ARGS)
     "Evaluate ARGS before applying PROCEDURE to them (in a lexical context)."
+    (declare (indent defun))
     (eval `(,PROCEDURE ,@ARGS) t))
 
   (defun my-customize-set-variables (&rest ASSOCS)
@@ -404,17 +405,12 @@ This function is called at the very end of Spacemacs initialization, after layer
       (if (intern-soft hook-name)
           (message "%s already exists, doing nothing." hook-name)
         (let ((hook-symbol (intern hook-name)))
-          ;; (eval `(defvar ,hook-symbol nil))
           (my-eval-args 'defvar hook-symbol nil DOCSTRING)
-          ;; (eval `(advice-add ,PROCEDURE
-          ;;                    ,WHEN
-          ;;                    (lambda (&rest _)
-          ;;                      (run-hooks (quote ,hook-symbol)))))
           (my-eval-args 'advice-add
-                        PROCEDURE
-                        WHEN
-                        `(lambda (&rest _)
-                           (run-hooks (quote ,hook-symbol))))))))
+            PROCEDURE
+            WHEN
+            `(lambda (&rest _)
+               (run-hooks (quote ,hook-symbol))))))))
 
   (defun my-hook-up (HOOKS FUNCTIONS)
     "Add all FUNCTIONS to all HOOKS."
