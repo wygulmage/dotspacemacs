@@ -26,7 +26,7 @@ This function should only set values."
 
    ;; Additional paths for configuration layers:
    ;; Paths must have a trailing slash (e.g. "~/.mycontribs/").
-   dotspacemacs-configuration-layer-path '() ; default '()
+   dotspacemacs-configuration-layer-path '()
 
    ;; Configuration layers to install & load:
    dotspacemacs-configuration-layers
@@ -269,7 +269,7 @@ This function is called at the very startup of Spacemacs initialization before l
    ;; nil ; disable fuzzy matching in all sources.
 
    ;; Paste micro-state:
-   ;; Will `p' cycle through the kill ring content?
+   ;; Will 'p' cycle through the kill ring content?
    dotspacemacs-enable-paste-transient-state t ; default nil
 
    ;; Which-key popup delay in seconds:
@@ -318,14 +318,7 @@ This function is called at the very startup of Spacemacs initialization before l
    nil ; (default) disables line numbers.
    ;; t ; turns on line numbers in all `prog-mode' and `text-mode' derivatives.
    ;; 'relative ; also turns on relative line numbers.
-   ;; '(:relative nil ; A property list can be used for finer control.
-   ;;   :disabled-for-modes dired-mode
-   ;;                       doc-view-mode
-   ;;                       markdown-mode
-   ;;                       org-mode
-   ;;                       pdf-view-mode
-   ;;                       text-mode
-   ;;   :size-limit-kb 1000)
+   ;; '(:relative nil :disabled-for-modes dired-mode doc-view-mode markdown-mode org-mode pdf-view-mode text-mode :size-limit-kb 1000) ; A property list can be used for finer control.
 
 
    ;; Code folding:
@@ -334,7 +327,7 @@ This function is called at the very startup of Spacemacs initialization before l
    ;; 'origami
 
    ;; Scope for highlighting delimiters:
-   ;; Possible values are `any', `current', `all' or `nil'. `all' highlights any scope and emphasizes the current one.
+   ;; Possible values are 'any', 'current', 'all' or nil. 'all' highlights any scope and emphasizes the current one.
    dotspacemacs-highlight-delimiters 'current ; default nil
 
    ;;; Smartparens
@@ -364,17 +357,18 @@ This function is called at the very startup of Spacemacs initialization before l
 This function is called immediately after `dotspacemacs/init', before layer configuration. It is mostly useful for variables that must be set before packages are loaded. If you are unsure, try setting them in `dotspacemacs/user-config' first."
 
   (defconst the-default-mode-line mode-line-format) ; Save in case you want to know.
-  (if (display-graphic-p)
-      (progn
-        (customize-set-variable 'adaptive-fill-first-line-regexp
-                                "\\`[ \t]*\\'\\([*;]+\\)*")
-        (customize-set-variable 'adaptive-fill-regexp
-                                "[ \t]*\\([-–!|#%>·•‣⁃◦]+[ \t]*\\)*"))
-    (progn
-      (customize-set-variable 'adaptive-fill-first-line-regexp
-                              "\\`[ \t]*\\'\\*")
-      (customize-set-variable 'adaptive-fill-regexp
-                              "[ \t]*\\([-–!|#%;>·•‣⁃◦]+[ \t]*\\)*")))
+
+  ;; (if (display-graphic-p)
+  ;;     (progn
+  ;;       (customize-set-variable 'adaptive-fill-first-line-regexp
+  ;;                               "\\`[ \t]*\\'\\([*;]+\\)*")
+  ;;       (customize-set-variable 'adaptive-fill-regexp
+  ;;                               "[ \t]*\\([-–!|#%>·•‣⁃◦]+[ \t]*\\)*"))
+  ;;   (progn
+  ;;     (customize-set-variable 'adaptive-fill-first-line-regexp
+  ;;                             "\\`[ \t]*\\'\\*")
+  ;;     (customize-set-variable 'adaptive-fill-regexp
+  ;;                             "[ \t]*\\([-–!|#%;>·•‣⁃◦]+[ \t]*\\)*")))
   ;; Removed ';' in graphic mode, since comments are indicated by text color. Removed '*' so I can make non-unicode bullet lists. Ideally there should be two separate variables: adaptive-fill-regexp and adaptive-indent-regexp. The first would indent with the 'whitespace' character, but the second would indent with actual whitespace.
   ;; Default `adaptive-fill-regexp': [ \t]*\\([-–!|#%;>*·•‣⁃◦]+[ \t]*\\)*".
   ;; Default `adaptive-fill-first-line-regexp': "\\`[ \t]*\\'".
@@ -389,9 +383,9 @@ This function is called at the very end of Spacemacs initialization, after layer
 
   ;; TODO: Implement compose function.
 
-  ;; (defun my-eval-first (MACRO &rest ARGS) ; unused
-  ;;   "Evaluate ARGS before applying MACRO to them (in a lexical context)."
-  ;;   (eval `(,MACRO ,@ARGS) t))
+  (defun my-eval-args (PROCEDURE &rest ARGS)
+    "Evaluate ARGS before applying PROCEDURE to them (in a lexical context)."
+    (eval `(,PROCEDURE ,@ARGS) t))
 
   (defun my-customize-set-variables (&rest ASSOCS)
     "Takes zero or more ('symbol . value) arguments and customizes symbol to value."
@@ -400,7 +394,7 @@ This function is called at the very end of Spacemacs initialization, after layer
 
 ;;; Hooks:
 
-  (defun my-make-hook (WHEN PROCEDURE &optional _DOCSTRING)
+  (defun my-make-hook (WHEN PROCEDURE &optional DOCSTRING)
     "Create the special variable WHEN-PROCEDURE-hook and run it with `run-hooks' WHEN PROCEDURE is called."
     (let ((hook-name (concat
                       (substring (symbol-name WHEN) 1)
@@ -410,11 +404,17 @@ This function is called at the very end of Spacemacs initialization, after layer
       (if (intern-soft hook-name)
           (message "%s already exists, doing nothing." hook-name)
         (let ((hook-symbol (intern hook-name)))
-          (eval `(defvar ,hook-symbol nil))
-          (eval `(advice-add ,PROCEDURE
-                             ,WHEN
-                             (lambda (&rest _)
-                               (run-hooks (quote ,hook-symbol)))))))))
+          ;; (eval `(defvar ,hook-symbol nil))
+          (my-eval-args 'defvar hook-symbol nil DOCSTRING)
+          ;; (eval `(advice-add ,PROCEDURE
+          ;;                    ,WHEN
+          ;;                    (lambda (&rest _)
+          ;;                      (run-hooks (quote ,hook-symbol)))))
+          (my-eval-args 'advice-add
+                        PROCEDURE
+                        WHEN
+                        `(lambda (&rest _)
+                           (run-hooks (quote ,hook-symbol))))))))
 
   (defun my-hook-up (HOOKS FUNCTIONS)
     "Add all FUNCTIONS to all HOOKS."
