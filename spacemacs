@@ -378,8 +378,7 @@ This function is called immediately after `dotspacemacs/init', before layer conf
   "Configuration function for user code.
 This function is called at the very end of Spacemacs initialization, after layers configuration. Put your configuration code--except for variables that should be set before a package is loaded--here."
 
-;;; ------------------
-;;; Helpful Procedures
+;;;; Helpful Procedures
 
   ;; TODO: Implement compose function.
 
@@ -411,6 +410,22 @@ This hook was created by `my-make-hook'.")))
             WHEN
             `(lambda (&rest _)
                (run-hooks (quote ,hook-symbol))))))))
+
+  (defun my-build-hook (WHEN PROCEDURE &optional CONTINGENT)
+    (let* ((when-str (substring (symbol-name WHEN)1))
+           (proc-name (symbol-name PROCEDURE))
+           (hook-name (concat when-str "-" proc-name "-hook"))
+           (hook-symbol (make-symbol hook-name)))
+      (unless (boundp hook-symbol)
+        (set hook-symbol nil)
+        (put hook-symbol 'variable-documentation
+             (concat "procedures to run " when-str " `" "'" proc-name "
+Created by my-build-hook."))
+        (my-eval-args 'advice-add
+          PROCEDURE WHERE `(lambda (&rest _)
+                             (run-hooks (quote ,hook-symbol)))))
+      (dolist (contingent-proc (reverse CONTINGENT))
+        (add-hook hook-symbol contingent-proc))))
 
   (defun my-hook-up (HOOKS FUNCTIONS)
     "Hang all FUNCTIONS on all HOOKS."
