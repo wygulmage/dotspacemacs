@@ -559,7 +559,7 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
      'my-inactive-statusbar-face))
   (my-reset-statusbar-faces)
 
-  (my-make-hook :after 'load-theme "functions to run after a theme is loaded")
+  (my-make-hook :after 'load-theme)
   (add-hook 'after-load-theme-hook 'my-reset-statusbar-faces)
 
   (defun my-buffer-name ()
