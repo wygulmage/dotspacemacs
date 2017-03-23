@@ -389,31 +389,31 @@ This function is called at the very end of Spacemacs initialization, after layer
     (eval `(,PROCEDURE ,@ARGS) t))
 
   (defun my-customize-set-variables (&rest ASSOCS)
-    "Takes zero or more ('symbol . value) arguments and customizes symbol to value."
+    "Takes zero or more (SYMBOL . VALUE) arguments and customizes SYMBOL to VALUE."
     (dolist (key.val ASSOCS)
       (customize-set-variable (car key.val) (cdr key.val))))
 
 ;;; Hooks:
 
-  (defun my-make-hook (WHEN PROCEDURE &optional DOCSTRING)
-    "Create the special variable WHEN-PROCEDURE-hook and run it with `run-hooks' WHEN PROCEDURE is called."
-    (let ((hook-name (concat
-                      (substring (symbol-name WHEN) 1)
-                      "-"
-                      (symbol-name PROCEDURE)
-                      "-hook")))
+  (defun my-make-hook (WHEN PROCEDURE &optional _UNUSED-DOCSTRING)
+    "Create the special variable WHEN-PROCEDURE-hook and run it with `run-hooks' WHEN the PROCEDURE is called."
+    (let* ((when-str (substring (symbol-name WHEN) 1))
+           (proc-name (symbol-name PROCEDURE))
+           (hook-name (concat when-str "-" proc-name "-hook")))
       (if (intern-soft hook-name)
           (message "%s already exists, doing nothing." hook-name)
-        (let ((hook-symbol (intern hook-name)))
-          (my-eval-args 'defvar hook-symbol nil DOCSTRING)
-          (my-eval-args 'advice-add
+        (let ((hook-symbol (intern hook-name))
+              (docstring (concat "procedures to run " when-str " `" proc-name "'
+This hook was created by `my-make-hook'.")))
+          (my-eval-args 'defvar hook-symbol nil docstring)
+          (my-eval-args #'advice-add
             PROCEDURE
             WHEN
             `(lambda (&rest _)
                (run-hooks (quote ,hook-symbol))))))))
 
   (defun my-hook-up (HOOKS FUNCTIONS)
-    "Add all FUNCTIONS to all HOOKS."
+    "Hang all FUNCTIONS on all HOOKS."
     (dolist (hook HOOKS)
       (dolist (function FUNCTIONS)
         (add-hook hook function))))
