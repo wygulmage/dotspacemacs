@@ -395,7 +395,7 @@ This function is called at the very end of Spacemacs initialization, after layer
 
 ;;; Hooks:
 
-  (defun my-make-hook (WHEN PROCEDURE &optional _UNUSED-DOCSTRING)
+  (defun my-make-hook (WHEN PROCEDURE)
     "Create the special variable WHEN-PROCEDURE-hook and run it with `run-hooks' WHEN the PROCEDURE is called."
     (let* ((when-str (substring (symbol-name WHEN) 1))
            (proc-name (symbol-name PROCEDURE))
