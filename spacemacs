@@ -394,43 +394,61 @@ This function is called at the very end of Spacemacs initialization, after layer
 
 ;;; Hooks:
 
-  (defun my-make-hook (WHEN PROCEDURE)
-    "Create the special variable WHEN-PROCEDURE-hook and run it with `run-hooks' WHEN the PROCEDURE is called."
+;;   (defun my-make-hook (WHEN PROCEDURE)
+;;     "Create the special variable WHEN-PROCEDURE-hook and run it with `run-hooks' WHEN the PROCEDURE is called."
+;;     (let* ((when-str (substring (symbol-name WHEN) 1))
+;;            (proc-name (symbol-name PROCEDURE))
+;;            (hook-name (concat when-str "-" proc-name "-hook")))
+;;       (if (intern-soft hook-name)
+;;           (message "%s already exists, doing nothing." hook-name)
+;;         (let ((hook-symbol (intern hook-name))
+;;               (docstring (concat "procedures to run " when-str " `" proc-name "'
+;; This hook was created by `my-make-hook'.")))
+;;           (my-eval-args 'defvar hook-symbol nil docstring)
+;;           (my-eval-args #'advice-add
+;;             PROCEDURE
+;;             WHEN
+;;             `(lambda (&rest _)
+;;                (run-hooks (quote ,hook-symbol))))))))
+
+  (defun my-make-hook (WHEN PROCEDURE &optional CONTINGENT)
     (let* ((when-str (substring (symbol-name WHEN) 1))
            (proc-name (symbol-name PROCEDURE))
-           (hook-name (concat when-str "-" proc-name "-hook")))
-      (if (intern-soft hook-name)
-          (message "%s already exists, doing nothing." hook-name)
-        (let ((hook-symbol (intern hook-name))
-              (docstring (concat "procedures to run " when-str " `" proc-name "'
-This hook was created by `my-make-hook'.")))
-          (my-eval-args 'defvar hook-symbol nil docstring)
-          (my-eval-args #'advice-add
-            PROCEDURE
-            WHEN
-            `(lambda (&rest _)
-               (run-hooks (quote ,hook-symbol))))))))
-
-  (defun my-build-hook (WHEN PROCEDURE &optional CONTINGENT)
-    (let* ((when-str (substring (symbol-name WHEN)1))
-           (proc-name (symbol-name PROCEDURE))
            (hook-name (concat when-str "-" proc-name "-hook"))
-           (hook-symbol (make-symbol hook-name)))
-      (unless (boundp hook-symbol)
+           (existing-hook (intern-soft hook-name))
+           (hook-symbol (or existing-hook (intern hook-name))))
+      (unless existing-hook
         (set hook-symbol nil)
         (put hook-symbol 'variable-documentation
-             (concat "procedures to run " when-str " `" "'" proc-name "
-Created by my-build-hook."))
-        (my-eval-args 'advice-add
-          PROCEDURE WHERE `(lambda (&rest _)
-                             (run-hooks (quote ,hook-symbol)))))
+             (concat "procedures to run " when-str " `" proc-name "'"))
+        (advice-add
+         PROCEDURE
+         WHEN
+         (lambda (&rest _)
+           (run-hooks `,hook-symbol))))
       (dolist (contingent-proc (reverse CONTINGENT))
-        (add-hook hook-symbol contingent-proc))))
+        (add-hook hook-symbol contingent-proc))
+      hook-symbol))
+
+  (defun my-build-hook (WHEN PROCEDURE)
+    (let* ((when-str (substring (symbol-name WHEN) 1))
+           (proc-name (symbol-name PROCEDURE))
+           (hook-name (concat when-str "-" proc-name "-hook"))
+           (hook-symbol (intern hook-name)))
+      (set hook-symbol nil)
+      (put hook-symbol 'variable-documentation
+           (concat "procedures to run " when-str " `" proc-name "'"))
+      (advice-add
+        PROCEDURE
+        WHEN
+        (lambda (&rest _)
+          (run-hooks `,hook-symbol)))
+      hook-symbol))
 
   (defun my-hook-up (HOOKS FUNCTIONS)
-    "Hang all FUNCTIONS on all HOOKS."
+    "Hang all FUNCTIONS in order on all HOOKS."
     (dolist (hook HOOKS)
-      (dolist (function FUNCTIONS)
+      (dolist (function (reverse FUNCTIONS))
         (add-hook hook function))))
 
 ;;; Buffers and panes:
@@ -528,7 +546,7 @@ Pad string s to width w; a negative width means add the padding on the right."
                                      "black"))))
 
   (defun my-fade-face-foreground (FACE REFERENCE)
-    "Make FACE's foreground a less intense version of REFERECE's.
+    "Make FACE's foreground a less intense version of REFERENCE's.
 REFERENCE is used to avoid fading FACE into oblivion with repreated applications."
     (cl-flet
         ((color-of (KEY)
