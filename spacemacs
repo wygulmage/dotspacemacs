@@ -394,23 +394,6 @@ This function is called at the very end of Spacemacs initialization, after layer
 
 ;;; Hooks:
 
-;;   (defun my-make-hook (WHEN PROCEDURE)
-;;     "Create the special variable WHEN-PROCEDURE-hook and run it with `run-hooks' WHEN the PROCEDURE is called."
-;;     (let* ((when-str (substring (symbol-name WHEN) 1))
-;;            (proc-name (symbol-name PROCEDURE))
-;;            (hook-name (concat when-str "-" proc-name "-hook")))
-;;       (if (intern-soft hook-name)
-;;           (message "%s already exists, doing nothing." hook-name)
-;;         (let ((hook-symbol (intern hook-name))
-;;               (docstring (concat "procedures to run " when-str " `" proc-name "'
-;; This hook was created by `my-make-hook'.")))
-;;           (my-eval-args 'defvar hook-symbol nil docstring)
-;;           (my-eval-args #'advice-add
-;;             PROCEDURE
-;;             WHEN
-;;             `(lambda (&rest _)
-;;                (run-hooks (quote ,hook-symbol))))))))
-
   (defun my-make-hook (WHEN PROCEDURE &optional CONTINGENT)
     (let* ((when-str (substring (symbol-name WHEN) 1))
            (proc-name (symbol-name PROCEDURE))
@@ -419,6 +402,7 @@ This function is called at the very end of Spacemacs initialization, after layer
            (hook-symbol (or existing-hook (intern hook-name))))
       (unless existing-hook
         (set hook-symbol nil)
+        (set-default hook-symbol nil)
         (put hook-symbol 'variable-documentation
              (concat "procedures to run " when-str " `" proc-name "'"))
         (advice-add
@@ -428,21 +412,6 @@ This function is called at the very end of Spacemacs initialization, after layer
            (run-hooks `,hook-symbol))))
       (dolist (contingent-proc (reverse CONTINGENT))
         (add-hook hook-symbol contingent-proc))
-      hook-symbol))
-
-  (defun my-build-hook (WHEN PROCEDURE)
-    (let* ((when-str (substring (symbol-name WHEN) 1))
-           (proc-name (symbol-name PROCEDURE))
-           (hook-name (concat when-str "-" proc-name "-hook"))
-           (hook-symbol (intern hook-name)))
-      (set hook-symbol nil)
-      (put hook-symbol 'variable-documentation
-           (concat "procedures to run " when-str " `" proc-name "'"))
-      (advice-add
-        PROCEDURE
-        WHEN
-        (lambda (&rest _)
-          (run-hooks `,hook-symbol)))
       hook-symbol))
 
   (defun my-hook-up (HOOKS FUNCTIONS)
