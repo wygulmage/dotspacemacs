@@ -589,6 +589,13 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
         (file-name-directory (abbreviate-file-name buffer-file-truename))
       ""))
 
+  (defun my-primary-file-or-buffer-name ()
+    "The name of the file in the primary pane, or if it isn't a file, the buffer name."
+    (let* ((b (window-buffer my-primary-pane))
+           (f (buffer-file-name b)))
+      (if f (abbreviate-file-name (file-truename f))
+        (buffer-name b))))
+
   (defun my-major-mode-name ()
     "The buffer's major-mode"
     (propertize mode-name
@@ -673,8 +680,7 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
             '(:eval (concat
                      (my-buffer-write-status)
                      " "
-                     (my-file-directory)
-                     (my-file-or-buffer-name)
+                     (my-primary-file-or-buffer-name)
                      )))))
   (my-format-frame-title)
 
