@@ -402,7 +402,7 @@ This function is called at the very end of Spacemacs initialization, after layer
            (hook-symbol (or existing-hook (intern hook-name))))
       (unless existing-hook
         (set hook-symbol nil)
-        (set-default hook-symbol nil)
+        (set-default hook-symbol nil) ; Should not need this, because if the hook doesn't exist it can't be buffer-local.
         (put hook-symbol 'variable-documentation
              (concat "procedures to run " when-str " `" proc-name "'"))
         (advice-add
@@ -459,35 +459,14 @@ This function is called at the very end of Spacemacs initialization, after layer
 The number of decimal digits of N, including any period as a digit."
     (length (number-to-string N)))
 
-;;; Strings, Colors, and Faces:
-
-  (defun my-define-faces (GROUP &rest FACES)
-    "Creates FACES (name docstring properties) in GROUP. No fancy business here; the display is always t."
-    (dolist (face FACES)
-      (let ((name (car face))
-            (docstring (cadr face))
-            (properties (cddr face)))
-        (custom-declare-face name (list (cons t properties)) docstring :group GROUP))))
+;;; Strings:
 
   (defun my-pad (W S)
     "Integer -> String -> String
 Pad string s to width w; a negative width means add the padding on the right."
     (format (concat "%" (number-to-string W) "s") S))
 
-
-  (defun my-select-font (FONTS)
-    "Return the first available font in FONTS, or the default font if none are available."
-    (cond ((null FONTS) (face-attribute 'default :family))
-          ((member (car FONTS) (font-family-list)) (car FONTS))
-          (t (my-select-font (cdr FONTS)))))
-
-  (defun my-set-face-attributes (L &optional BUFFER)
-    "From list L of (face :attr-1 a1 :attr-2 a2 ...) lists, give each face its attributes. Create undefined faces."
-    (dolist (x L)
-      (let ((face (car x))
-            (attributes (cdr x)))
-        (unless (facep face) (make-face face))
-        (apply 'set-face-attribute face BUFFER attributes))))
+;;; Colors
 
   (defun max-color-val ()
     "The current maximum value for emacs color triplets."
@@ -514,6 +493,30 @@ Pad string s to width w; a negative width means add the padding on the right."
                                        "white"
                                      "black"))))
 
+;;; Fonts & Faces
+
+  (defun my-select-font (FONTS)
+    "Return the first available font in FONTS, or the default font if none are available."
+    (cond ((null FONTS) (face-attribute 'default :family))
+          ((member (car FONTS) (font-family-list)) (car FONTS))
+          (t (my-select-font (cdr FONTS)))))
+
+  (defun my-define-faces (GROUP &rest FACES)
+    "Creates FACES (name docstring properties) in GROUP. No fancy business here; the display is always t."
+    (dolist (face FACES)
+      (let ((name (car face))
+            (docstring (cadr face))
+            (properties (cddr face)))
+        (custom-declare-face name (list (cons t properties)) docstring :group GROUP))))
+
+  (defun my-set-face-attributes (L &optional BUFFER)
+    "From list L of (face :attr-1 a1 :attr-2 a2 ...) lists, give each face its attributes. Create undefined faces."
+    (dolist (x L)
+      (let ((face (car x))
+            (attributes (cdr x)))
+        (unless (facep face) (make-face face))
+        (apply 'set-face-attribute face BUFFER attributes))))
+
   (defun my-fade-face-foreground (FACE REFERENCE)
     "Make FACE's foreground a less intense version of REFERENCE's.
 REFERENCE is used to avoid fading FACE into oblivion with repreated applications."
@@ -532,33 +535,33 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
 
   (my-define-faces
    'statusbar
-   '(my-active-statusbar-face "an alias for mode-line face" :inherit mode-line)
-   '(my-inactive-statusbar-face "an alias for mode-line-inactive face" :inherit mode-line-inactive)
-   '(my-active-statusbar-shadow-face :inherit "a dimmed face for the active mode-line" my-active-statusbar-face)
-   '(my-inactive-statusbar-shadow-face :inherit "a dimmed face for the inactive mode-line" my-inactive-statusbar-face)
+   '(my-statusbar-active-face "an alias for mode-line face" :inherit mode-line)
+   '(my-statusbar-inactive-face "an alias for mode-line-inactive face" :inherit mode-line-inactive)
+   '(my-statusbar-active-shadow-face :inherit "a dimmed face for the active mode-line" my-statusbar-active-face)
+   '(my-statusbar-inactive-shadow-face :inherit "a dimmed face for the inactive mode-line" my-statusbar-inactive-face)
    )
 
   (defun my-get-statusbar-face ()
     "an ersatz face that switches between active- and inactive-statusbar-face"
     (if (my-primary-pane-active?)
-        'my-active-statusbar-face
-      'my-inactive-statusbar-face))
+        'my-statusbar-active-face
+      'my-statusbar-inactive-face))
 
   (defun my-get-statusbar-shadow-face ()
     "an ersatz face that switches between active- and inactive-statusbar-shadow-face"
     (if (my-primary-pane-active?)
-        'my-active-statusbar-shadow-face
-      'my-inactive-statusbar-shadow-face))
+        'my-statusbar-active-shadow-face
+      'my-statusbar-inactive-shadow-face))
 
   (defun my-reset-statusbar-faces ()
     "Sets statusbar shadow faces to be faded versions of their counterparts."
     (interactive)
     (my-fade-face-foreground
-     'my-active-statusbar-shadow-face
-     'my-active-statusbar-face)
+     'my-statusbar-active-shadow-face
+     'my-statusbar-active-face)
     (my-fade-face-foreground
-     'my-inactive-statusbar-shadow-face
-     'my-inactive-statusbar-face))
+     'my-statusbar-inactive-shadow-face
+     'my-statusbar-inactive-face))
   (my-reset-statusbar-faces)
 
   (my-make-hook :after 'load-theme)
@@ -574,7 +577,7 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
                                            (dired (file-name-directory buffer-file-truename)))))
       (buffer-name)))
 
-  (defun my-buffer-or-file-name ()
+  (defun my-file-or-buffer-name ()
     "The filename if there is one; otherwise, the buffer name"
     (if buffer-file-truename
         (file-name-nondirectory buffer-file-truename)
@@ -607,7 +610,7 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
                "‑ click to save")
        'local-map (make-mode-line-mouse-map 'mouse-1 #'save-buffer))))
 
-  (defun my-simpler-vc-branch ()
+  (defun my-vc-branch ()
     (if (not vc-mode)
         ""
       (concat
@@ -637,7 +640,7 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
        " "
        (my-buffer-name)
        " "
-       (my-simpler-vc-branch)
+       (my-vc-branch)
        "  "
        (my-line-position)
        ))
@@ -671,7 +674,7 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
                      (my-buffer-write-status)
                      " "
                      (my-file-directory)
-                     (my-buffer-or-file-name)
+                     (my-file-or-buffer-name)
                      )))))
   (my-format-frame-title)
 
@@ -919,7 +922,7 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
     (interactive)
     (let ((c
            (if COLOR COLOR
-             (face-attribute 'my-active-statusbar-face :foreground nil 'default))))
+             (face-attribute 'my-statusbar-active-face :foreground nil 'default))))
       (my-set-face-attributes
        `(
          (mode-line
