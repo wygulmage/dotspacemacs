@@ -542,19 +542,19 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
    )
 
   (defun my-get-statusbar-face ()
-    "an ersatz face that switches between active- and inactive-statusbar-face"
+    "an ersatz face that switches between statusbar-active- and statusbar-inactive-face"
     (if (my-primary-pane-active?)
         'my-statusbar-active-face
       'my-statusbar-inactive-face))
 
   (defun my-get-statusbar-shadow-face ()
-    "an ersatz face that switches between active- and inactive-statusbar-shadow-face"
+    "an ersatz face that switches between statusbar-active- and statusbar-inactive-shadow-face"
     (if (my-primary-pane-active?)
         'my-statusbar-active-shadow-face
       'my-statusbar-inactive-shadow-face))
 
   (defun my-reset-statusbar-faces ()
-    "Sets statusbar shadow faces to be faded versions of their counterparts."
+    "Set statusbar shadow faces to be faded versions of their counterparts."
     (interactive)
     (my-fade-face-foreground
      'my-statusbar-active-shadow-face
@@ -568,7 +568,7 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
   (add-hook 'after-load-theme-hook 'my-reset-statusbar-faces)
 
   (defun my-buffer-name ()
-    "The name of the buffer. If it's a file, shows the directory on hover and opens dired with a click."
+    "The name of the buffer. If it's a file, show the directory on hover and open dired with a click."
     (if buffer-file-truename
         (propertize (buffer-name)
                     'help-echo (abbreviate-file-name buffer-file-truename)
@@ -577,24 +577,30 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
                                            (dired (file-name-directory buffer-file-truename)))))
       (buffer-name)))
 
-  (defun my-file-or-buffer-name ()
-    "The filename if there is one; otherwise, the buffer name"
-    (if buffer-file-truename
-        (file-name-nondirectory buffer-file-truename)
-      (buffer-name)))
+  ;;; Buffer and File Names
+  ;;; It may seem assinine to separate the file path into directory and file name and then put it back together, but aside from the performance cost it makes the most sense.
 
-  (defun my-file-directory ()
-    "The directory of the current file."
-    (if buffer-file-truename
-        (file-name-directory (abbreviate-file-name buffer-file-truename))
-      ""))
+  (defun my-buffer-file-path (&optional BUFFER)
+    "The file path if BUFFER is a file, otherwise nil. If BUFFER is nil, use the current buffer."
+    (let ((file (buffer-file-name BUFFER)))
+      (when file (file-truename file))))
+
+  (defun my-file-or-buffer-name (&optional BUFFER)
+    "The file name if there is one; otherwise, the buffer name"
+    (let (file (my-buffer-file-path BUFFER))
+      (if file (file-name-nondirectory file)
+        (buffer-name BUFFER))))
+
+  (defun my-buffer-directory (&option BUFFER)
+    "The directory of BUFFER or the current buffer.
+If it's not a file, \"\""
+    (let ((file my-buffer-file-path BUFFER))
+      (if file (file-name-directory (abbreviate-file-name file))
+        "")))
 
   (defun my-primary-file-or-buffer-name ()
     "The name of the file in the primary pane, or if it isn't a file, the buffer name."
-    (let* ((b (window-buffer my-primary-pane))
-           (f (buffer-file-name b)))
-      (if f (abbreviate-file-name (file-truename f))
-        (buffer-name b))))
+    (my-buffer-file-path (window-buffer my-primary-pane)))
 
   (defun my-major-mode-name ()
     "The buffer's major-mode"
@@ -667,7 +673,7 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
         "  "
         (my-major-mode-name)
         "  "
-        (when (bound-and-true-p anzu-mode)(anzu--update-mode-line))
+        (when (bound-and-true-p anzu-mode) (anzu--update-mode-line))
         )))
     "simple status bar that indicates the current mode")
 
@@ -713,6 +719,7 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
               )))
 
   (defun my-reset-font-height-by-platform ()
+    "Make the font bigger if running linux, because my laptop runs linux and my desktop runs Windows."
     (let ((h (if (string= system-type "gnu/linux") 148 120)))
       (dolist (face '(
                       default
