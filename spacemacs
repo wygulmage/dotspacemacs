@@ -415,7 +415,7 @@ This function is called at the very end of Spacemacs initialization, after layer
       hook-symbol))
 
   (defun my-hook-up (HOOKS FUNCTIONS)
-    "Hang all FUNCTIONS in order on all HOOKS."
+    "Hang all FUNCTIONS, in order, on all HOOKS."
     (dolist (hook HOOKS)
       (dolist (function (reverse FUNCTIONS))
         (add-hook hook function))))
@@ -473,20 +473,23 @@ Pad string s to width w; a negative width means add the padding on the right."
     (car (color-values "white")))
 
   (defun my-color-values-to-string (C)
-    "Create a color string from and Emacs numerical color triplet."
+    "(R G B) -> String
+Create a color string from and Emacs numerical color triplet."
     (let ((color-ratio (/ (max-color-val) 255)))
       (cl-multiple-value-bind (r g b)
           (mapcar (lambda (x) (truncate x color-ratio)) C)
         (format "#%02X%02X%02X" r g b))))
 
   (defun my-blend-colors (C1 C2)
-    "Evenly blend C1 and C2, two emacs color triplets."
+    "(R G B) -> (R G B) -> (R G B)
+Evenly blend C1 and C2, two emacs color triplets."
     (-zip-with (lambda (X Y)
                  (truncate (+ X Y) 2))
                C1 C2))
 
   (defun my-intensify-color (COLOR REFERENCE)
-    "Shift COLOR away from REFERENCE."
+    "(R G B) -> (R G B) -> (R G B)
+Shift COLOR away from REFERENCE."
     (my-blend-colors COLOR
                      (color-values (if (> (apply '+ COLOR)
                                           (apply '+ REFERENCE))
@@ -835,11 +838,52 @@ If it's not a file, \"\""
   ;;; ------------------------------
   ;;; Key Maps
 
-  ;;; Navigate wrapped lines.
+  (unless (string= system-type "gnu/linux")
+    (define-key help-mode-map
+      (kbd <mouse-4>) 'help-go-back)
+    (define-key help-mode-map
+      (kbd <mouse-5>) 'help-go-forward))
+
+  ;; Navigate wrapped lines.
   (define-key evil-normal-state-map
     (kbd "j") 'evil-next-visual-line)
   (define-key evil-normal-state-map
     (kbd "k") 'evil-previous-visual-line)
+
+  ;; Paste with Ctrl p.
+  (define-key evil-insert-state-map
+    (kbd "C-p") 'evil-paste-after)
+
+  ;; Insert unicode character with Ctrl Shift u.
+  (defun my-ivy-prefix-sort (name candidates)
+    "Re-sort CANDIDATES.
+Prefix matches to NAME are put ahead of the list, with the shortest matches first."
+    ;; What I want it to push exact matches to the top.
+    (if (or (string-match "^\\^" name) (string= name ""))
+        candidates
+      (let ((re-prefix (concat "^" (funcall ivy--regex-function name)))
+            res-prefix
+            res-noprefix)
+        (dolist (s candidates)
+          (if (string-match re-prefix s)
+              (push s res-prefix)
+            (push s res-noprefix)))
+        (nconc
+         res-prefix
+         (nreverse res-noprefix)))))
+  (add-to-list 'ivy-sort-matches-functions-alist
+               '(counsel-unicode-char . my-ivy-prefix-sort))
+
+  (defun my-ivy-compare-strings-by-length (S1 S2)
+    "Compare first by length (shortest first), then alphabetically (case insensitive)"
+    (let ((L1 (length S1))
+          (L2 (length S2)))
+      (or (< L1 L2) (> L1 L2) (string-collate-lessp S1 S2 nil t))))
+  (add-to-list 'ivy-sort-functions-alist
+               '(counsel-unicode-char . my-ivy-compare-strings-by-length))
+
+  (global-set-key
+   (kbd "C-S-u") 'counsel-unicode-char) ; `counsel-unicode-char' is slow...
 
   ;; (evil-define-command my-greedy-delete-backward () ;; commented out because it was bugging things.
   ;;   (evil-delete (save-excursion
@@ -853,11 +897,8 @@ If it's not a file, \"\""
   ;; (define-key evil-insert-state-map
   ;;   (kbd "<backspace>") 'my-greedy-delete-backward) ; Make backspace delete the whole word.
 
- ;;; Paste with Ctrl p.
-  (define-key evil-insert-state-map
-    (kbd "C-p") 'evil-paste-after)
 
-  ;;; Zoom with Ctrl + mouse wheel.
+  ;; Zoom with Ctrl + mouse wheel.
   (defun my-zoom-in ()
     (interactive)
     (text-scale-increase 1.01))
@@ -873,9 +914,6 @@ If it's not a file, \"\""
               (cadr x)
             (caddr x)))
      (car x)))
-
-  ;;; Insert unicode character with Ctrl Shift u.
-  (global-set-key (kbd "C-S-u") 'insert-char)
 
   ;;; Use hex for unicode character input.
   (setq-default read-quoted-char-radix 16)
@@ -911,7 +949,7 @@ If it's not a file, \"\""
   ;;; Elm:
   ;; (defun my-elm-mode-hook ()
   ;;   "elm setup adapted from http://www.lambdacat.com/post-modern-emacs-setup-for-elm/"
-  ;;   (add-to-list company-backends '(company-elm))
+  ;;   (add-to-list 'company-backends '(company-elm))
   ;;   (elm-oracle-setup-completion))
   ;; (add-hook 'elm-mode-hook 'my-elm-mode-hook)
 
