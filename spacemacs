@@ -840,9 +840,9 @@ If it's not a file, \"\""
 
   (unless (string= system-type "gnu/linux")
     (define-key help-mode-map
-      (kbd <mouse-4>) 'help-go-back)
+      (kbd "<mouse-4>") 'help-go-back) ; mouse forwards
     (define-key help-mode-map
-      (kbd <mouse-5>) 'help-go-forward))
+      (kbd "<mouse-5>") 'help-go-forward)) ; mouse back
 
   ;; Navigate wrapped lines.
   (define-key evil-normal-state-map
