@@ -452,6 +452,11 @@ This function is called at the very end of Spacemacs initialization, after layer
     "Number of lines in the current buffer. If the last line of the buffer is empty, it won't be counted."
     (count-lines (buffer-end -1) (buffer-end 1)))
 
+  (defvar-local my-buffer-line-count (my-buffer-line-count)
+    "the number of lines in the buffer")
+
+  (add-hook 'after-change-functions (lambda (&rest _) (setq my-buffer-line-count (my-buffer-line-count))))
+
 ;;; Numbers:
 
   (defun my-digits (N)
@@ -637,6 +642,8 @@ If it's not a file, \"\""
         'local-map (make-mode-line-mouse-map 'mouse-1 #'magit-status))
        (propertize ")" 'face (my-get-statusbar-shadow-face))
        )))
+
+
 
   (defun my-line-position ()
     "Current line / total lines. Click to toggle line numbers."
