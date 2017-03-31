@@ -448,14 +448,17 @@ This function is called at the very end of Spacemacs initialization, after layer
      )
    '(my-set-primary-pane))
 
+  (defvar-local my-buffer-line-count nil)
   (defun my-buffer-line-count ()
     "Number of lines in the current buffer. If the last line of the buffer is empty, it won't be counted."
     (count-lines (buffer-end -1) (buffer-end 1)))
-
-  (defvar-local my-buffer-line-count (my-buffer-line-count)
-    "the number of lines in the buffer")
-
-  (add-hook 'after-change-functions (lambda (&rest _) (setq my-buffer-line-count (my-buffer-line-count))))
+  (defun my-set-buffer-line-count (&rest _) (set 'my-buffer-line-count (my-buffer-line-count)))
+  (my-hook-up
+   '(
+     buffer-list-update-hook
+     after-change-functions
+     )
+   '(my-set-buffer-line-count))
 
 ;;; Numbers:
 
@@ -599,7 +602,7 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
       (if file (file-name-nondirectory file)
         (buffer-name BUFFER))))
 
-  (defun my-buffer-directory (&option BUFFER)
+  (defun my-buffer-directory (&optional BUFFER)
     "The directory of BUFFER or the current buffer.
 If it's not a file, \"\""
     (let ((file my-buffer-file-path BUFFER))
@@ -643,11 +646,9 @@ If it's not a file, \"\""
        (propertize ")" 'face (my-get-statusbar-shadow-face))
        )))
 
-
-
   (defun my-line-position ()
     "Current line / total lines. Click to toggle line numbers."
-    (let ((lines (number-to-string (my-buffer-line-count))))
+    (let ((lines (number-to-string my-buffer-line-count)))
       (propertize
        (concat
         (my-pad (length lines) (format-mode-line "%l"))
