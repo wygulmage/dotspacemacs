@@ -552,10 +552,10 @@ Pad string s to width w. A negative width means add the padding on the right."
   (defun my-color-values-to-string (C)
     "(R G B) -> String
 Create a color string from and Emacs numerical color triplet."
-    (let ((color-ratio (/ (max-color-val) 255)))
-      (cl-multiple-value-bind (r g b)
-          (mapcar (lambda (x) (truncate x color-ratio)) C)
-        (format "#%02X%02X%02X" r g b))))
+    (-let* ((color-ratio (/ (max-color-val) 255))
+            ((r g b) (mapcar (lambda (x) (truncate x color-ratio))
+                             C)))
+      (format "#%02X%02X%02X" r g b)))
 
   (defun my-blend-colors (C1 C2)
     "(R G B) -> (R G B) -> (R G B)
