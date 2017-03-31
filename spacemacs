@@ -380,8 +380,6 @@ This function is called at the very end of Spacemacs initialization, after layer
 
 ;;;; Helpful Procedures
 
-  ;; TODO: Implement compose function.
-
   (defun my-eval-args (PROCEDURE &rest ARGS)
     "Evaluate ARGS before applying PROCEDURE to them (in a lexical context)."
     (declare (indent defun))
@@ -497,28 +495,23 @@ If it's not a file, \"\""
   ;;   (set 'my-file-VC-status (my-file-VC-status)))
 
   ;; ;; Ways `magit' can run git:
-  ;; ;; `magit-call-git' uses `magit-call-process'.
-  ;; ;; `magit-call-process'
-  ;; ;; `magit-run-git' uses `magit-call-git'
-  ;; ;; `magit-run-git-with-input' uses `magit-start-git' and `call-process-region'.
-  ;; ;; `magit-run-git-with-logfile' uses `magit-process-file'.
-  ;; ;; `magit-run-git-with-editor' uses `magit-run-git-async'.
-  ;; ;; `magit-git' uses `magit-call-git'.
-  ;; ;; `magit-git-wash'
-  ;; ;; `magit-run-git-async' uses `magit-start-git'.
-  ;; ;; `magit-start-git' uses `magit-start-process'.
   ;; ;; `magit-start-process'
-
-  ;; (my-make-hook :after 'magit-git)
+  ;; ;; `magit-call-process'
+  ;; ;; `magit-start-git' uses `magit-start-process'.
+  ;; ;; `magit-call-git' uses `magit-call-process'.
+  ;; ;; `magit-run-git-async' uses `magit-start-git'.
+  ;; ;; `magit-run-git-with-input' uses `magit-start-git' and `call-process-region'.
+  ;; ;; `magit-git' uses `magit-call-git'.
+  ;; ;; `magit-run-git' uses `magit-call-git'
+  ;; ;; `magit-run-git-with-editor' uses `magit-run-git-async'.
+  ;; ;; `magit-run-git-with-logfile' uses `magit-process-file'.
+  ;; ;; `magit-git-wash'
 
   ;; (my-hook-up
   ;;  '(
   ;;    after-save-hook
   ;;    find-file-hook
   ;;    first-change-hook
-  ;;    magit-refresh-status-hook
-  ;;    after-magit-git-hook
-  ;;    after-magit-run-git-hook
   ;;    )
   ;;  '(my-set-file-VC-status))
 
@@ -543,11 +536,16 @@ If it's not a file, \"\""
 The number of decimal digits of N, including any period as a digit."
     (length (number-to-string N)))
 
+  (defun my-sum (NUMBERS)
+    "Number List -> Number
+    Sum the elements of NUMBERS."
+    (apply #'+ NUMBERS))
+
 ;;; Strings:
 
   (defun my-pad (W S)
     "Integer -> String -> String
-Pad string s to width w; a negative width means add the padding on the right."
+Pad string s to width w. A negative width means add the padding on the right."
     (format (concat "%" (number-to-string W) "s") S))
 
 ;;; Colors
@@ -575,8 +573,8 @@ Evenly blend C1 and C2, two emacs color triplets."
     "(R G B) -> (R G B) -> (R G B)
 Shift COLOR away from REFERENCE."
     (my-blend-colors COLOR
-                     (color-values (if (> (apply '+ COLOR)
-                                          (apply '+ REFERENCE))
+                     (color-values (if (> (my-sum COLOR)
+                                          (my-sum REFERENCE))
                                        "white"
                                      "black"))))
 
@@ -589,7 +587,7 @@ Shift COLOR away from REFERENCE."
           (t (my-select-font (cdr FONTS)))))
 
   (defun my-define-faces (GROUP &rest FACES)
-    "Creates FACES (name docstring properties) in GROUP. No fancy business here; the display is always t."
+    "Create FACES (name docstring properties) in GROUP. No fancy business here; the display is always t."
     (dolist (face FACES)
       (-let [(name docstring . properties) face]
         (custom-declare-face name (list (cons t properties)) docstring :group GROUP))))
