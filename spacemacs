@@ -495,12 +495,17 @@ If it's not a file, \"\""
   (defun my-set-file-VC-status (&rest _)
     "Set the buffer-local variable `my-file-VC-status' to the version-control status of the file visited by the current buffer."
     (set 'my-file-VC-status (my-file-VC-status)))
+
+  (my-make-hook :after 'magit-git)
+
   (my-hook-up
    '(
      after-save-hook
      find-file-hook
      first-change-hook
      magit-refresh-status-hook
+     after-magit-git-hook
+     after-magit-run-git-hook
      )
    '(my-set-file-VC-status))
 
