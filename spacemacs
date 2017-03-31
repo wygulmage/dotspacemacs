@@ -597,8 +597,7 @@ Shift COLOR away from REFERENCE."
   (defun my-set-face-attributes (L &optional BUFFER)
     "From list L of (face :attr-1 a1 :attr-2 a2 ...) lists, give each face its attributes. Create undefined faces."
     (dolist (x L)
-      (let ((face (car x))
-            (attributes (cdr x)))
+      (-let [(face . attributes) x]
         (unless (facep face) (make-face face))
         (apply 'set-face-attribute face BUFFER attributes))))
 
