@@ -536,11 +536,6 @@ If it's not a file, \"\""
 The number of decimal digits of N, including any period as a digit."
     (length (number-to-string N)))
 
-  (defun my-sum (NUMBERS)
-    "Number List -> Number
-    Sum the elements of NUMBERS."
-    (apply #'+ NUMBERS))
-
 ;;; Strings:
 
   (defun my-pad (W S)
@@ -573,8 +568,8 @@ Evenly blend C1 and C2, two emacs color triplets."
     "(R G B) -> (R G B) -> (R G B)
 Shift COLOR away from REFERENCE."
     (my-blend-colors COLOR
-                     (color-values (if (> (my-sum COLOR)
-                                          (my-sum REFERENCE))
+                     (color-values (if (> (-sum COLOR)
+                                          (-sum REFERENCE))
                                        "white"
                                      "black"))))
 
