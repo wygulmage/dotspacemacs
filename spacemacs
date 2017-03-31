@@ -591,9 +591,7 @@ Shift COLOR away from REFERENCE."
   (defun my-define-faces (GROUP &rest FACES)
     "Creates FACES (name docstring properties) in GROUP. No fancy business here; the display is always t."
     (dolist (face FACES)
-      (let ((name (car face))
-            (docstring (cadr face))
-            (properties (cddr face)))
+      (-let [(name docstring . properties) face]
         (custom-declare-face name (list (cons t properties)) docstring :group GROUP))))
 
   (defun my-set-face-attributes (L &optional BUFFER)
