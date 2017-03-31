@@ -452,13 +452,71 @@ This function is called at the very end of Spacemacs initialization, after layer
   (defun my-buffer-line-count ()
     "Number of lines in the current buffer. If the last line of the buffer is empty, it won't be counted."
     (count-lines (buffer-end -1) (buffer-end 1)))
-  (defun my-set-buffer-line-count (&rest _) (set 'my-buffer-line-count (my-buffer-line-count)))
+  (defun my-set-buffer-line-count (&rest _)
+    (set 'my-buffer-line-count (my-buffer-line-count)))
   (my-hook-up
    '(
      buffer-list-update-hook
      after-change-functions
      )
    '(my-set-buffer-line-count))
+
+  ;;; Buffer and File Names
+  ;;; It may seem assinine to separate the file path into directory and file name and then put it back together, but aside from the performance cost it makes the most sense.
+
+  (defun my-buffer-file-path (&optional BUFFER)
+    "The file path if BUFFER is a file, otherwise nil. If BUFFER is nil, use the current buffer."
+    (let ((file (buffer-file-name BUFFER)))
+      (when file (file-truename file))))
+
+  (defun my-file-or-buffer-name (&optional BUFFER)
+    "The file name if there is one; otherwise, the buffer name"
+    (let (file (my-buffer-file-path BUFFER))
+      (if file (file-name-nondirectory file)
+        (buffer-name BUFFER))))
+
+  (defun my-buffer-directory (&optional BUFFER)
+    "The directory of BUFFER or the current buffer.
+If it's not a file, \"\""
+    (let ((file my-buffer-file-path BUFFER))
+      (if file (file-name-directory (abbreviate-file-name file))
+        "")))
+
+  (defun my-primary-file-or-buffer-name ()
+    "The name of the file in the primary pane, or if it isn't a file, the buffer name."
+    (my-buffer-file-path (window-buffer my-primary-pane)))
+
+  (defvar-local my-file-VC-status nil
+    "The version-control status of the current file.")
+  (defun my-file-VC-status (&optional FILE)
+    "The version-control status of FILE or the file visited by the current buffer."
+    (let ((f (or FILE (my-buffer-file-path))))
+      (and f (vc-state f))))
+  (defun my-set-file-VC-status (&rest _)
+    "Set the buffer-local variable `my-file-VC-status' to the version-control status of the file visited by the current buffer."
+    (set 'my-file-VC-status (my-file-VC-status)))
+  (my-hook-up
+   '(
+     after-save-hook
+     find-file-hook
+     first-change-hook
+     magit-refresh-status-hook
+     )
+   '(my-set-file-VC-status))
+
+  (defun my-file-VC-status-string ()
+    "A string that represents the VC status of the file visited by the current buffer."
+    (pcase my-file-VC-status
+      (`up-to-date "")
+      (`ignored "")
+      (`edited "◆")
+      (`needs-update "U")
+      (`needs-merge "M")
+      (`added "+")
+      (`removed "-")
+      (`conflict "!")
+      (`missing "?")
+      (_ nil)))
 
 ;;; Numbers:
 
