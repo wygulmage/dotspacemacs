@@ -486,42 +486,55 @@ If it's not a file, \"\""
     "The name of the file in the primary pane, or if it isn't a file, the buffer name."
     (my-buffer-file-path (window-buffer my-primary-pane)))
 
-  (defvar-local my-file-VC-status nil
-    "The version-control status of the current file.")
-  (defun my-file-VC-status (&optional FILE)
-    "The version-control status of FILE or the file visited by the current buffer."
-    (let ((f (or FILE (my-buffer-file-path))))
-      (and f (vc-state f))))
-  (defun my-set-file-VC-status (&rest _)
-    "Set the buffer-local variable `my-file-VC-status' to the version-control status of the file visited by the current buffer."
-    (set 'my-file-VC-status (my-file-VC-status)))
+  ;; (defvar-local my-file-VC-status nil
+  ;;   "The version-control status of the current file.")
+  ;; (defun my-file-VC-status (&optional FILE)
+  ;;   "The version-control status of FILE or the file visited by the current buffer."
+  ;;   (let ((f (or FILE (my-buffer-file-path))))
+  ;;     (and f (vc-state f))))
+  ;; (defun my-set-file-VC-status (&rest _)
+  ;;   "Set the buffer-local variable `my-file-VC-status' to the version-control status of the file visited by the current buffer."
+  ;;   (set 'my-file-VC-status (my-file-VC-status)))
 
-  (my-make-hook :after 'magit-git)
+  ;; ;; Ways `magit' can run git:
+  ;; ;; `magit-call-git'
+  ;; ;; `magit-call-process'
+  ;; ;; `magit-run-git'
+  ;; ;; `magit-run-git-with-input'
+  ;; ;; `magit-run-git-with-logfile'
+  ;; ;; `magit-run-git-with-editor'
+  ;; ;; `magit-git'
+  ;; ;; `magit-git-wash'
+  ;; ;; `magit-run-git-async'
+  ;; ;; `magit-start-git'
+  ;; ;; `magit-start-process'
 
-  (my-hook-up
-   '(
-     after-save-hook
-     find-file-hook
-     first-change-hook
-     magit-refresh-status-hook
-     after-magit-git-hook
-     after-magit-run-git-hook
-     )
-   '(my-set-file-VC-status))
+  ;; (my-make-hook :after 'magit-git)
 
-  (defun my-file-VC-status-string ()
-    "A string that represents the VC status of the file visited by the current buffer."
-    (pcase my-file-VC-status
-      (`up-to-date "")
-      (`ignored "")
-      (`edited "◆")
-      (`needs-update "U")
-      (`needs-merge "M")
-      (`added "+")
-      (`removed "-")
-      (`conflict "!")
-      (`missing "?")
-      (_ nil)))
+  ;; (my-hook-up
+  ;;  '(
+  ;;    after-save-hook
+  ;;    find-file-hook
+  ;;    first-change-hook
+  ;;    magit-refresh-status-hook
+  ;;    after-magit-git-hook
+  ;;    after-magit-run-git-hook
+  ;;    )
+  ;;  '(my-set-file-VC-status))
+
+  ;; (defun my-file-VC-status-string ()
+  ;;   "A string that represents the VC status of the file visited by the current buffer."
+  ;;   (pcase my-file-VC-status
+  ;;     (`up-to-date "")
+  ;;     (`ignored "")
+  ;;     (`edited "◆")
+  ;;     (`needs-update "U")
+  ;;     (`needs-merge "M")
+  ;;     (`added "+")
+  ;;     (`removed "-")
+  ;;     (`conflict "!")
+  ;;     (`missing "?")
+  ;;     (_ nil)))
 
 ;;; Numbers:
 
