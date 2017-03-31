@@ -497,16 +497,16 @@ If it's not a file, \"\""
   ;;   (set 'my-file-VC-status (my-file-VC-status)))
 
   ;; ;; Ways `magit' can run git:
-  ;; ;; `magit-call-git'
+  ;; ;; `magit-call-git' uses `magit-call-process'.
   ;; ;; `magit-call-process'
-  ;; ;; `magit-run-git'
-  ;; ;; `magit-run-git-with-input'
-  ;; ;; `magit-run-git-with-logfile'
-  ;; ;; `magit-run-git-with-editor'
-  ;; ;; `magit-git'
+  ;; ;; `magit-run-git' uses `magit-call-git'
+  ;; ;; `magit-run-git-with-input' uses `magit-start-git' and `call-process-region'.
+  ;; ;; `magit-run-git-with-logfile' uses `magit-process-file'.
+  ;; ;; `magit-run-git-with-editor' uses `magit-run-git-async'.
+  ;; ;; `magit-git' uses `magit-call-git'.
   ;; ;; `magit-git-wash'
-  ;; ;; `magit-run-git-async'
-  ;; ;; `magit-start-git'
+  ;; ;; `magit-run-git-async' uses `magit-start-git'.
+  ;; ;; `magit-start-git' uses `magit-start-process'.
   ;; ;; `magit-start-process'
 
   ;; (my-make-hook :after 'magit-git)
