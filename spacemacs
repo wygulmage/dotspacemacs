@@ -572,6 +572,7 @@ Shift COLOR away from REFERENCE."
 
   (defun my-define-faces (GROUP &rest FACES)
     "Create FACES (name docstring properties) in GROUP. No fancy business here; the display is always t."
+    (declare (indent defun))
     (dolist (face FACES)
       (-let [(name docstring . properties) face]
         (custom-declare-face name (list (cons t properties)) docstring :group GROUP))))
@@ -599,13 +600,12 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
   ;;; ----------------------------------------------
   ;;; Mode Line, Header Line, and Frame Title Format
 
-  (my-define-faces
-   'statusbar
-   '(my-statusbar-active-face "an alias for mode-line face" :inherit mode-line)
-   '(my-statusbar-inactive-face "an alias for mode-line-inactive face" :inherit mode-line-inactive)
-   '(my-statusbar-active-shadow-face :inherit "a dimmed face for the active mode-line" my-statusbar-active-face)
-   '(my-statusbar-inactive-shadow-face :inherit "a dimmed face for the inactive mode-line" my-statusbar-inactive-face)
-   )
+  (my-define-faces 'statusbar
+    '(my-statusbar-active-face "an alias for mode-line face" :inherit mode-line)
+    '(my-statusbar-inactive-face "an alias for mode-line-inactive face" :inherit mode-line-inactive)
+    '(my-statusbar-active-shadow-face :inherit "a dimmed face for the active mode-line" my-statusbar-active-face)
+    '(my-statusbar-inactive-shadow-face :inherit "a dimmed face for the inactive mode-line" my-statusbar-inactive-face)
+    )
 
   (defun my-get-statusbar-face ()
     "an ersatz face that switches between statusbar-active- and statusbar-inactive-face"
