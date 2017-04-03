@@ -521,7 +521,7 @@ This function is called at the very end of Spacemacs initialization, after layer
 ;;; Numbers:
 
   (defun my-digits (N)
-    "Number -> String
+    "Number -> Integer
 The number of decimal digits of N, including any period as a digit."
     (length (number-to-string N)))
 
@@ -538,7 +538,7 @@ Pad string s to width w. A negative width means add the padding on the right."
     "The current maximum value for emacs color triplets."
     (car (color-values "white")))
 
-  (defun my-color-values-to-string (C)
+  (defun my-color-values->string (C)
     "(R G B) -> String
 Create a color string from and Emacs numerical color triplet."
     (-let* ((color-ratio (/ (max-color-val) 255))
@@ -593,7 +593,7 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
       (set-face-attribute
        FACE
        nil
-       :foreground (my-color-values-to-string
+       :foreground (my-color-values->string
                     (my-blend-colors (color-of :foreground)
                                      (color-of :background))))))
 
@@ -996,7 +996,7 @@ Prefix matches to NAME are put ahead of the list, with the shortest matches firs
   ;;; Lastly, some hackish theming:
   ;;; The main point is to, as much as possible without being distracting, distinguish stuff that does stuff from stuff that does not do stuff and things that look similar and act differently.
 
-  (defun my-box-to-lines (FACE)
+  (defun my-box->lines (FACE)
     (let ((color
            (pcase (face-attribute FACE :box)
              (`nil nil)
@@ -1073,8 +1073,8 @@ Prefix matches to NAME are put ahead of the list, with the shortest matches firs
        ))
     (my-fade-face-foreground 'shadow 'default)
     (my-fade-face-foreground 'font-lock-comment-delimiter-face 'font-lock-comment-face)
-    (my-box-to-lines 'mode-line)
-    (my-box-to-lines 'mode-line-inactive)
+    (my-box->lines 'mode-line)
+    (my-box->lines 'mode-line-inactive)
     (my-material-minor-theme))
   (my-theme-tweaks)
   (add-hook 'after-load-theme-hook #'my-theme-tweaks)
