@@ -379,6 +379,19 @@ This function is called immediately after `dotspacemacs/init', before layer conf
   "Configuration function for user code.
 This function is called at the very end of Spacemacs initialization, after layers configuration. Put your configuration code--except for variables that should be set before a package is loaded--here."
 
+;;;; Indent forms properly
+  ;; (defun use-cl-indent (PROCEDURE INDENT-PROPERTY)
+  ;;   (function-put PROCEDURE
+  ;;                 'lisp-indent-function
+  ;;                 #'common-lisp-indent-function)
+  ;;   (function-put PROCEDURE
+  ;;                 'common-lisp-indent-function-for-elisp
+  ;;                 INDENT-PROPERTY))
+
+  ;; (use-cl-indent 'cl-flet '((&whole 4 &rest (&whole 1 &lambda &body)) &body))
+  ;; This doesn't seem to work, so just set lisp-indent-function.
+  (setq lisp-indent-function #'common-lisp-indent-function)
+
 ;;;; Helpful Procedures
 
   (defun my-eval-args (PROCEDURE &rest ARGS)
@@ -589,7 +602,7 @@ Shift COLOR away from REFERENCE."
 REFERENCE is used to avoid fading FACE into oblivion with repreated applications."
     (cl-flet
         ((color-of (KEY)
-                   (color-values (face-attribute REFERENCE KEY nil 'default))))
+           (color-values (face-attribute REFERENCE KEY nil 'default))))
       (set-face-attribute
        FACE
        nil
@@ -601,7 +614,7 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
   ;;; Mode Line, Header Line, and Frame Title Format
 
   (my-define-faces 'statusbar
-    '(my-statusbar-active-face "an alias for mode-line face" :inherit mode-line)
+      '(my-statusbar-active-face "an alias for mode-line face" :inherit mode-line)
     '(my-statusbar-inactive-face "an alias for mode-line-inactive face" :inherit mode-line-inactive)
     '(my-statusbar-active-shadow-face :inherit "a dimmed face for the active mode-line" my-statusbar-active-face)
     '(my-statusbar-inactive-shadow-face :inherit "a dimmed face for the inactive mode-line" my-statusbar-inactive-face)
@@ -640,7 +653,7 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
                     'help-echo (abbreviate-file-name buffer-file-truename)
                     'local-map (make-mode-line-mouse-map
                                 'mouse-1 (lambda () (interactive)
-                                           (dired (file-name-directory buffer-file-truename)))))
+                                                 (dired (file-name-directory buffer-file-truename)))))
       (buffer-name)))
 
   (defun my-major-mode-name ()
@@ -843,8 +856,8 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
      )
    `(
      ,(if (fboundp 'vc-refresh-state) 'vc-refresh-state 'vc-find-file-hook)
-     ,(lambda () (force-mode-line-update t)) ; refresh all mode lines.
-     ))
+      ,(lambda () (force-mode-line-update t)) ; refresh all mode lines.
+      ))
 
   (my-hook-up
    '(prog-mode-hook)
@@ -878,19 +891,19 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
 
   (unless (string= system-type "gnu/linux")
     (define-key help-mode-map
-      (kbd "<mouse-4>") 'help-go-back) ; mouse forwards
+        (kbd "<mouse-4>") 'help-go-back) ; mouse forwards
     (define-key help-mode-map
-      (kbd "<mouse-5>") 'help-go-forward)) ; mouse back
+        (kbd "<mouse-5>") 'help-go-forward)) ; mouse back
 
   ;; Navigate wrapped lines.
   (define-key evil-normal-state-map
-    (kbd "j") 'evil-next-visual-line)
+      (kbd "j") 'evil-next-visual-line)
   (define-key evil-normal-state-map
-    (kbd "k") 'evil-previous-visual-line)
+      (kbd "k") 'evil-previous-visual-line)
 
   ;; Paste with Ctrl p.
   (define-key evil-insert-state-map
-    (kbd "C-p") 'evil-paste-after)
+      (kbd "C-p") 'evil-paste-after)
 
   ;; Insert unicode character with Ctrl Shift u.
   (defun my-ivy-prefix-sort (name candidates)
@@ -1029,14 +1042,14 @@ Prefix matches to NAME are put ahead of the list, with the shortest matches firs
     (interactive)
     (cl-flet
         ((unbox (FACE)
-                (unless (equal
-                         (face-attribute 'default :background)
-                         (face-attribute FACE :background nil 'default))
-                  (set-face-attribute
-                   FACE nil
-                   :box nil
-                   :underline nil
-                   :overline nil))))
+           (unless (equal
+                    (face-attribute 'default :background)
+                    (face-attribute FACE :background nil 'default))
+             (set-face-attribute
+              FACE nil
+              :box nil
+              :underline nil
+              :overline nil))))
       (unbox 'mode-line)
       (unbox 'mode-line-inactive)))
 
