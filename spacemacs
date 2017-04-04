@@ -334,7 +334,7 @@ This function is called at the very startup of Spacemacs initialization before l
    ;;; Smartparens
    ;; Will `smartparens-strict-mode' be enabled in `prog-mode'?
    dotspacemacs-smartparens-strict-mode nil ; default nil
-   ;; Will `)' in insert mode pass over any automatically added closing parenthesis, bracket, quote, etc.? This can be temporary disabled by pressing `C-q' before `)'.
+   ;; Will `)' in insert mode pass over any automatically added closing parenthesis, bracket, quote, etc.? This can be temporarily disabled by pressing `C-q' before `)'.
    dotspacemacs-smart-closing-parenthesis nil ; default nil
 
    ;; Whitespace cleanup on save:
@@ -562,8 +562,7 @@ Create a color string from and Emacs numerical color triplet."
   (defun my-blend-colors (C1 C2)
     "(R G B) -> (R G B) -> (R G B)
 Evenly blend C1 and C2, two emacs color triplets."
-    (-zip-with (lambda (X Y)
-                 (truncate (+ X Y) 2))
+    (-zip-with (lambda (X Y) (truncate (+ X Y) 2))
                C1 C2))
 
   (defun my-intensify-color (COLOR REFERENCE)
@@ -1022,9 +1021,8 @@ Prefix matches to NAME are put ahead of the list, with the shortest matches firs
   (defun my-laser-minor-theme (&optional COLOR)
     "Add borders to the mode-line and disable its background color."
     (interactive)
-    (let ((c
-           (if COLOR COLOR
-             (face-attribute 'my-statusbar-active-face :foreground nil 'default))))
+    (let ((c (if COLOR COLOR
+               (face-attribute 'my-statusbar-active-face :foreground nil 'default))))
       (my-set-face-attributes
        `(
          (mode-line
