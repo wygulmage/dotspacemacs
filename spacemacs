@@ -542,7 +542,7 @@ The number of decimal digits of N, including any period as a digit."
 
   (defun my-pad (W S)
     "Integer -> String -> String
-Pad string s to width w. A negative width means add the padding on the right."
+Pad string S with spaces to width W. A negative width means add the padding on the right."
     (format (concat "%" (number-to-string W) "s") S))
 
 ;;; Colors
@@ -554,8 +554,9 @@ Pad string s to width w. A negative width means add the padding on the right."
   (defun my-color-values->string (C)
     "(R G B) -> String
 Create a color string from and Emacs numerical color triplet."
-    (-let* ((color-ratio (/ (max-color-val) 255))
-            ((r g b) (mapcar (lambda (x) (truncate x color-ratio))
+    ;; Normalize to (0, 255).
+    (-let* ((ratio (/ (max-color-val) 255))
+            ((r g b) (mapcar (lambda (x) (truncate x ratio))
                              C)))
       (format "#%02X%02X%02X" r g b)))
 
