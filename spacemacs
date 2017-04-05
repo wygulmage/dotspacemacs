@@ -32,25 +32,25 @@ This function should only set values."
    dotspacemacs-configuration-layers
    '(
      (colors :packages
-             rainbow-mode ; for color strings only
-             :variables
-             rainbow-x-colors nil
-             rainbow-html-colors nil
-             )
+      rainbow-mode ; for color strings only
+      :variables
+      rainbow-x-colors nil
+      rainbow-html-colors nil
+      )
      ;; (org :variables org-enable-github-support t)
      (ranger :variables
-             ranger-override-dired t
-             ranger-show-preview t
-             ranger-show-literal nil
-             )
+      ranger-override-dired t
+      ranger-show-preview t
+      ranger-show-literal nil
+      )
      (shell :variables
-            shell-default-height 30
-            shell-default-position 'bottom)
+      shell-default-height 30
+      shell-default-position 'bottom)
      spacemacs-completion
      spacemacs-editing
      (spacemacs-evil :packages
-                     (not vi-tilde-fringe)
-                     )
+      (not vi-tilde-fringe)
+      )
      spacemacs-ui ; includes restart-emacs
      ;;; Bindings:
      better-defaults
@@ -59,12 +59,12 @@ This function should only set values."
      auto-completion
      ivy
      (spell-checking :variables
-                     spell-checking-enable-by-default nil
-                     flyspell-sort-corrections nil
-                     )
+      spell-checking-enable-by-default nil
+      flyspell-sort-corrections nil
+      )
      (syntax-checking :variables
-                      syntax-checking-enable-by-default nil
-                      )
+      syntax-checking-enable-by-default nil
+      )
      ;;; Languages:
      ;; (semantic :packages
      ;;           semantic
@@ -73,9 +73,9 @@ This function should only set values."
      emacs-lisp
      haskell
      (html :variables ; for CSS ; this is called web-mode, not html-mode
-           web-mode-css-indent-offset 2
-           web-mode-enable-css-colorization nil ; already done with colors
-           )
+      web-mode-css-indent-offset 2
+      web-mode-enable-css-colorization nil ; already done with colors
+      )
      javascript
      markdown
      python
@@ -90,12 +90,14 @@ This function should only set values."
    ;; If you need configuration for these packages, consider creating a layer. You can also put the configuration in dotspacemacs/user-config.
    dotspacemacs-additional-packages
    '(
+     ;; Basic Libraries
+     dash ; list functions
+     dash-functional
+     ;; Other Stuff
      ;; (acme-mouse :location (recipe :fetcher github :repo "akrito/acme-mouse")) ; does not work in Spacemacs.
      adaptive-wrap
      aggressive-indent
      company
-     dash ; list functions
-     dash-functional
      paren-face
      ;; (shen-elisp ; I have not been using shen-elisp.
      ;;  :location (recipe :repo "deech/shen-elisp"
@@ -1004,6 +1006,8 @@ Prefix matches to NAME are put ahead of the list, with the shortest matches firs
   ;;   (elm-oracle-setup-completion))
   ;; (add-hook 'elm-mode-hook 'my-elm-mode-hook)
 
+  ;;; Sh
+  (add-to-list 'auto-mode-alist '("\\.zsh$" . sh-mode))
 
   ;;; ---------------------------------------
   ;;; Lastly, some hackish theming:
