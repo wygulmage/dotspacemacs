@@ -436,6 +436,13 @@ This function is called at the very end of Spacemacs initialization, after layer
 
 ;;; Buffers and panes:
 
+  (defmacro my-with-buffer (BUFFER &rest BODY)
+    "If BUFFER is not nil, execute BODY in BUFFER. Otherwise, execute BODY (in the current buffer)."
+    (declare (indent 1))
+    `(save-current-buffer
+       (and ,BUFFER (set-buffer ,BUFFER))
+       ,@BODY))
+
   ;;; Track primary pane.
   (defvar my-primary-pane (frame-selected-window)
     "The pane that has an active mode-line.")
@@ -463,17 +470,27 @@ This function is called at the very end of Spacemacs initialization, after layer
    '(my-set-primary-pane))
 
   (defvar-local my-buffer-line-count nil)
-  (defun my-buffer-line-count ()
+
+  (defun my-buffer-line-count (&optional BUFFER)
     "Number of lines in the current buffer. If the last line of the buffer is empty, it won't be counted."
-    (count-lines (buffer-end -1) (buffer-end 1)))
+    (my-with-buffer BUFFER
+      (count-lines (buffer-end -1) (buffer-end 1))))
+
   (defun my-set-buffer-line-count (&rest _)
     (set 'my-buffer-line-count (my-buffer-line-count)))
+
   (my-hook-up
    '(
      buffer-list-update-hook
      after-change-functions
      )
    '(my-set-buffer-line-count))
+
+  (defun my-buffer-file-like-p (&optional BUFFER)
+    "Is the buffer visiting something that should be a file?"
+    (my-with-buffer BUFFER
+      (or buffer-file-name
+          (derived-mode-p 'prog-mode 'text-mode))))
 
   ;;; Buffer and File Names
 
@@ -666,8 +683,7 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
 
   (defun my-buffer-write-status ()
     "Show whether a file-like buffer has been modified since its last save; click to save. Should 'do what I mean'."
-    (if (not (or buffer-file-name
-                 (derived-mode-p 'text-mode 'prog-mode)))
+    (if (not (my-buffer-file-like-p))
         "" ; Ignore buffers that aren't files.
       (propertize
        (my-pad 1 (concat (if (buffer-modified-p) "◆" "")
