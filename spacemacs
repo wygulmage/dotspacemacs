@@ -687,15 +687,15 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
     "Show whether a file-like buffer has been modified since its last save; click to save. Should 'do what I mean'."
     (if (not (my-buffer-file-like-p))
         "" ; Ignore buffers that aren't files.
-      (propertize
-       (my-pad 1 (concat (if (buffer-modified-p) "◆" "")
-                         (if buffer-read-only "🔒" "")))
-       'help-echo
-       (concat (if (buffer-modified-p) "modified " "")
-               (if buffer-read-only "read-only " "")
-               (if buffer-file-name "file " "buffer ")
-               "‑ click to save")
-       'local-map (make-mode-line-mouse-map 'mouse-1 #'save-buffer))))
+      (my-pad 1 (propertize
+                 (concat (when (buffer-modified-p) "◆")
+                         (when buffer-read-only "🔒"))
+                 'help-echo
+                 (concat (when (buffer-modified-p) "modified ")
+                         (when buffer-read-only "read-only ")
+                         (if buffer-file-name "file " "buffer ")
+                         "‑ click to save")
+                 'local-map (make-mode-line-mouse-map 'mouse-1 #'save-buffer)))))
 
   (defun my-vc-branch ()
     (if (not vc-mode)
@@ -719,6 +719,8 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
         lines)
        'help-echo (if (bound-and-true-p linum-mode) "Hide line numbers." "Show line numbers.")
        'local-map (make-mode-line-mouse-map 'mouse-1 #'linum-mode))))
+
+;;; TODO: Create shortened mode-line faces for a collapsed but visible mode line.
 
   (defvar my-base-mode-line-format
     '(:eval
