@@ -31,7 +31,8 @@ This function should only set values."
    ;; Configuration layers to install & load:
    dotspacemacs-configuration-layers
    '(
-     (colors :packages
+     (colors
+      :packages
       rainbow-mode ; for color strings only
       :variables
       rainbow-x-colors nil
@@ -409,6 +410,7 @@ This function is called at the very end of Spacemacs initialization, after layer
 ;;; Hooks:
 
   (defun my-make-hook (WHEN PROCEDURE &optional CONTINGENT)
+    "Create hook WHEN-PROCEDURE-hook to run WHEN PROCEDURE is called, unless it is already defined. The CONTINGENT functions are added to the hook regardless."
     (let* ((when-str (substring (symbol-name WHEN) 1))
            (proc-name (symbol-name PROCEDURE))
            (hook-name (concat when-str "-" proc-name "-hook"))
@@ -434,7 +436,7 @@ This function is called at the very end of Spacemacs initialization, after layer
       (dolist (function (reverse FUNCTIONS))
         (add-hook hook function))))
 
-;;; Buffers and panes:
+;;; Buffers and Panes
 
   (defmacro my-with-buffer (BUFFER &rest BODY)
     "If BUFFER is not nil, execute BODY in BUFFER. Otherwise, execute BODY (in the current buffer)."
