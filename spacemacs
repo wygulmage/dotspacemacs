@@ -418,7 +418,6 @@ This function is called at the very end of Spacemacs initialization, after layer
            (hook-symbol (or existing-hook (intern hook-name))))
       (unless existing-hook
         (set hook-symbol nil)
-        (set-default hook-symbol nil) ; Should not need this, because if the hook doesn't exist it can't be buffer-local.
         (put hook-symbol 'variable-documentation
              (concat "procedures to run " when-str " `" proc-name "'"))
         (advice-add
@@ -596,6 +595,17 @@ Shift COLOR away from REFERENCE."
                                        "white"
                                      "black"))))
 
+  (defun my-intensify-color2 (COLOR REFERENCE)
+    "(R G B) -> (R G B) -> (R G B)
+Shift COLOR away from REFERENCE."
+    (let ((white (max-color-val)))
+      (-zip-with (lambda (C R)
+                   (truncate (if (> C R)
+                                 (+ C white)
+                               C)
+                             2))
+                 COLOR REFERENCE)))
+
 ;;; Fonts & Faces
 
   (defun my-select-font (FONTS)
@@ -631,16 +641,47 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
                     (my-blend-colors (color-of :foreground)
                                      (color-of :background))))))
 
+  (defun my--shift-face-foreground (FUNCTION FACE REFERENCE)
+    "Set FACE's foreground to the result of applying FUNCTION to REFERENCE's foreground and background."
+    (cl-flet ((color-of (KEY)
+                (color-values (face-attribute REFERENCE KEY nil 'default))))
+      (set-face-attribute
+       FACE
+       nil
+       :foreground (my-color-values->string
+                    (funcall FUNCTION
+                             (color-of :foreground)
+                             (color-of :background))))))
+
+  (defun my-intensify-face-foreground (FACE REFERENCE)
+    (my--shift-face-foreground #'my-intensify-color2 FACE REFERENCE))
+
   ;;; ----------------------------------------------
   ;;; Mode Line, Header Line, and Frame Title Format
 
   (my-def-faces 'statusbar
-    '(my-statusbar-active-face "an alias for mode-line face" :inherit mode-line)
-    '(my-statusbar-inactive-face "an alias for mode-line-inactive face" :inherit mode-line-inactive)
-    '(my-statusbar-active-highlight-face "an emphasized face for the active mode-line" :inherit my-statusbar-active-face)
-    '(my-statusbar-inactive-highlight-face "an emphasized face for the inactive mode-line" :inherit my-statusbar-inactive-face)
-    '(my-statusbar-active-shadow-face "a dimmed face for the active mode-line" :inherit my-statusbar-active-face)
-    '(my-statusbar-inactive-shadow-face "a dimmed face for the inactive mode-line" :inherit my-statusbar-inactive-face)
+    '(my-statusbar-active-face
+      "an alias for mode-line face"
+      :inherit mode-line)
+    '(my-statusbar-inactive-face
+      "an alias for mode-line-inactive face"
+      :inherit mode-line-inactive)
+    '(my-statusbar-active-highlight-face
+      "an emphasized face for the active mode-line"
+      :weight bold
+      :underline t
+      :inherit my-statusbar-active-face)
+    '(my-statusbar-inactive-highlight-face
+      "an emphasized face for the inactive mode-line"
+      :weight bold
+      :underline t
+      :inherit my-statusbar-inactive-face)
+    '(my-statusbar-active-shadow-face
+      "a dimmed face for the active mode-line"
+      :inherit my-statusbar-active-face)
+    '(my-statusbar-inactive-shadow-face
+      "a dimmed face for the inactive mode-line"
+      :inherit my-statusbar-inactive-face)
     )
 
   (defun my-get-statusbar-face ()
@@ -648,6 +689,12 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
     (if (my-primary-pane-active?)
         'my-statusbar-active-face
       'my-statusbar-inactive-face))
+
+  (defun my-get-statusbar-highlight-face ()
+    "an ersatz face that switches between statusbar-active- and statusbar-inactive-face"
+    (if (my-primary-pane-active?)
+        'my-statusbar-active-highlight-face
+      'my-statusbar-inactive-highlight-face))
 
   (defun my-get-statusbar-shadow-face ()
     "an ersatz face that switches between statusbar-active- and statusbar-inactive-shadow-face"
@@ -658,6 +705,12 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
   (defun my-reset-statusbar-faces ()
     "Set statusbar shadow faces to be faded versions of their counterparts."
     (interactive)
+    (my-intensify-face-foreground
+     'my-statusbar-active-highlight-face
+     'my-statusbar-active-face)
+    (my-intensify-face-foreground
+     'my-statusbar-inactive-highlight-face
+     'my-statusbar-inactive-face)
     (my-fade-face-foreground
      'my-statusbar-active-shadow-face
      'my-statusbar-active-face)
@@ -666,8 +719,7 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
      'my-statusbar-inactive-face))
   (my-reset-statusbar-faces)
 
-  (my-make-hook :after 'load-theme)
-  (add-hook 'after-load-theme-hook 'my-reset-statusbar-faces)
+  (my-make-hook :after 'load-theme '(my-reset-statusbar-faces))
 
   (defun my-buffer-name ()
     "The name of the buffer. If it's a file, show the directory on hover and open dired with a click."
