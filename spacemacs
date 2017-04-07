@@ -637,8 +637,10 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
   (my-def-faces 'statusbar
     '(my-statusbar-active-face "an alias for mode-line face" :inherit mode-line)
     '(my-statusbar-inactive-face "an alias for mode-line-inactive face" :inherit mode-line-inactive)
-    '(my-statusbar-active-shadow-face :inherit "a dimmed face for the active mode-line" my-statusbar-active-face)
-    '(my-statusbar-inactive-shadow-face :inherit "a dimmed face for the inactive mode-line" my-statusbar-inactive-face)
+    '(my-statusbar-active-highlight-face "an emphasized face for the active mode-line" :inherit my-statusbar-active-face)
+    '(my-statusbar-inactive-highlight-face "an emphasized face for the inactive mode-line" :inherit my-statusbar-inactive-face)
+    '(my-statusbar-active-shadow-face "a dimmed face for the active mode-line" :inherit my-statusbar-active-face)
+    '(my-statusbar-inactive-shadow-face "a dimmed face for the inactive mode-line" :inherit my-statusbar-inactive-face)
     )
 
   (defun my-get-statusbar-face ()
