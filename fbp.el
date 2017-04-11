@@ -1,3 +1,5 @@
+;;; fbp.el -- Cut the cruft.
+
 (require 'dash)
 
 (defun fbp-custom-vars (&rest ASSOCS)
@@ -50,17 +52,19 @@ Example:
                           (when NAME (concat NAME "-"))))
           ((active-face inactive-face)
            (fbp-def-faces
-            GROUP
-            (cons (intern (concat prefix "active-face"))
-                  ACTIVE-DOC.PROPS)
-            (cons (intern (concat prefix "inactive-face"))
-                  INACTIVE-DOC.PROPS)))
+               GROUP
+               (cons (intern (concat prefix "active-face"))
+                     ACTIVE-DOC.PROPS)
+             (cons (intern (concat prefix "inactive-face"))
+                   INACTIVE-DOC.PROPS)))
+          (proc-sym (intern (concat prefix "face")))
           )
-    (fset (intern (concat prefix "face"))
+    (fset proc-sym
           `(lambda ()
              (if (funcall ,TEST)
                  ,active-face
-               ,inactive-face)))))
+               ,inactive-face)))
+    proc-sym))
 
 (defun fbp-make-hook (WHEN PROCEDURE &optional CONTINGENT)
   "Create hook WHEN-PROCEDURE-hook to run WHEN PROCEDURE is called, unless it is already defined. The CONTINGENT functions are added to the hook regardless."
@@ -81,3 +85,5 @@ Example:
     (dolist (contingent-proc (reverse CONTINGENT))
       (add-hook hook-symbol contingent-proc))
     hook-symbol))
+
+(provide 'fbp)
