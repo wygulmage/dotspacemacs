@@ -30,20 +30,6 @@ Example:
             (apply #'fbp-def-face GROUP face))
           FACES))
 
-(defun fbp-def-faces2 (FACES &optional GROUP)
-  "For each face of the form (SYMBOL DOCSTRING . PROPERTIES) in FACES, create a face called SYMBOL with DOCSTRING and PROPERTIES in customization group GROUP.
-Example:
- (fbp-def-faces '(
-    (my-lame-face \"a lame face\" :weight ultra-light :box t)
-    (my-reverse-face \"a reversed face\" :slant reverse-oblique :inverse-video t :inherit my-lame-face)
-    ) 'my-lame-stuff)"
-  (dolist (face FACES)
-    (-let [(symbol docstring . properties) face]
-      (custom-declare-face symbol
-                           (list (cons t properties))
-                           docstring
-                           :group GROUP))))
-
 (defun fbp-make-face-adaptive (GROUP TEST ACTIVE-DOC.PROPS INACTIVE-DOC.PROPS &optional NAME)
   "Create GROUP-NAME-active-face and GROUP-NAME-inactive-face, and a function that returns one of them based on TEST."
   (-let* (
@@ -52,11 +38,11 @@ Example:
                           (when NAME (concat NAME "-"))))
           ((active-face inactive-face)
            (fbp-def-faces
-               GROUP
-               (cons (intern (concat prefix "active-face"))
-                     ACTIVE-DOC.PROPS)
-             (cons (intern (concat prefix "inactive-face"))
-                   INACTIVE-DOC.PROPS)))
+            GROUP
+            (cons (intern (concat prefix "active-face"))
+                  ACTIVE-DOC.PROPS)
+            (cons (intern (concat prefix "inactive-face"))
+                  INACTIVE-DOC.PROPS)))
           (proc-sym (intern (concat prefix "face")))
           )
     (fset proc-sym
