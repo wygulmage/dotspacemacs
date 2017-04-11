@@ -36,15 +36,13 @@ Example:
           (prefix (concat (symbol-name GROUP)
                           "-"
                           (when NAME (concat NAME "-"))))
-          ((active-face inactive-face)
-           (fbp-def-faces
-            GROUP
-            (cons (intern (concat prefix "active-face"))
-                  ACTIVE-DOC.PROPS)
-            (cons (intern (concat prefix "inactive-face"))
-                  INACTIVE-DOC.PROPS)))
+          (active-face (intern (concat prefix "active-face")))
+          (inactive-face (intern (concat prefix "inactive-face")))
           (proc-sym (intern (concat prefix "face")))
           )
+    (fbp-def-faces GROUP
+                   (cons active-face ACTIVE-DOC.PROPS)
+                   (cons inactive-face INACTIVE-DOC.PROPS))
     (fset proc-sym
           `(lambda ()
              (if (funcall ,TEST)
