@@ -1,6 +1,34 @@
 ;;; fbp.el -- Cut the cruft.
 
-(require 'dash)
+(mapcar #'require
+        '(cl-lib dash))
+
+(defun fbp-coerce->name (X)
+  (pcase x
+    ((pred #'stringp) x)
+    ((pred #'keywordp) (substring (symbol-name x) 1))
+    (_ (prin1-to-string x))))
+
+(defun filter-empty (SEQ)
+  "Remove empty elements of SEQ."
+  (-filter (lambda (x)
+             (not (memq x '(nil ""))))
+           SEQ))
+
+(defun fbp-intercalate (ELT LIST &rest OPTIONS)
+  (let ((l (if (memq :filter-empty OPTIONS)
+               (filter-empty LIST)
+             LIST)))
+    (reduce (lambda (X Y)
+              (cons X (cons ELT Y)))
+            l)))
+
+(defun fbp-concat->name (&rest ARGS)
+  (apply #'concat
+         (mapcar #'fbp-coerce->name ARGS)))
+
+(defun fbp-make-symbol (&rest ARGS)
+  (apply #'fbp-concat->name (fbp-intercalate "-" ARGS)))
 
 (defun fbp-custom-vars (&rest ASSOCS)
   "For each (SYMBOL . VALUE) of ASSOCS, customize SYMBOL to VALUE with `customize-set-variable'.
