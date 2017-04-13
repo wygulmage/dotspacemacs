@@ -17,12 +17,9 @@
   (let ((l (if (memq :remove-empty FLAGS)
                (-filter #'nonempty LIST)
              LIST)))
-    (-reduce-r-from (lambda (X Y)
-                      (cons X
-                            (when Y
-                              (cons ELT Y))))
-                    nil
-                    l)))
+    (--reduce-r-from (cons it (when acc (cons ELT acc)))
+                     nil
+                     LIST)))
 
 (defun fbp-concat-name (&rest ARGS)
   (apply #'concat
@@ -55,9 +52,8 @@ Example:
     '(my-reverse-face \"a reversed face\" :slant reverse-oblique :inverse-video t :inherit my-lame-face)
  )"
   (declare (indent 2))
-  (mapcar (lambda (face)
-            (apply #'fbp-def-face GROUP face))
-          FACES))
+  (--map (apply #'fbp-def-face GROUP it)
+         FACES))
 
 (defun fbp-make-face-adaptive (GROUP TEST ACTIVE-DOC.PROPS INACTIVE-DOC.PROPS &optional NAME)
   "Create GROUP-NAME-active-face and GROUP-NAME-inactive-face, and a function that returns one of them based on TEST."
