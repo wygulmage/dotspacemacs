@@ -10,7 +10,7 @@
     (_ (prin1-to-string x))))
 
 (defun nonempty (X)
-  "Return nil if X is an empty container, otherwise return X."
+  "Return nil if X is a common empty container, otherwise return X."
   (unless (memq X '("" [])) X))
 
 (defun fbp-intercalate (ELT LIST &rest FLAGS)
