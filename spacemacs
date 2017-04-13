@@ -946,6 +946,7 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
   (my-hook-up
    '(text-mode-hook)
    '(
+     flycheck-mode
      variable-pitch-mode
      my-format-text-mode-line
      ))

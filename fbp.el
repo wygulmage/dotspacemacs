@@ -9,15 +9,13 @@
     ((pred #'keywordp) (substring (symbol-name x) 1))
     (_ (prin1-to-string x))))
 
-(defun filter-empty (SEQ)
-  "Remove empty elements of SEQ."
-  (-filter (lambda (x)
-             (not (memq x '(nil ""))))
-           SEQ))
+(defun nonempty (X)
+  "Return nil if X is an empty container, otherwise return X."
+  (unless (memq X '("" [])) X))
 
-(defun fbp-intercalate (ELT LIST &rest OPTIONS)
-  (let ((l (if (memq :filter-empty OPTIONS)
-               (filter-empty LIST)
+(defun fbp-intercalate (ELT LIST &rest FLAGS)
+  (let ((l (if (memq :remove-empty FLAGS)
+               (-filter #'nonempty LIST)
              LIST)))
     (reduce (lambda (X Y)
               (cons X (cons ELT Y)))
