@@ -3,7 +3,7 @@
 (mapcar #'require
         '(cl-lib dash))
 
-(defun fbp-coerce->name (X)
+(defun fbp-coerce-name (X)
   (pcase x
     ((pred #'stringp) x)
     ((pred #'keywordp) (substring (symbol-name x) 1))
@@ -17,16 +17,19 @@
   (let ((l (if (memq :remove-empty FLAGS)
                (-filter #'nonempty LIST)
              LIST)))
-    (reduce (lambda (X Y)
-              (cons X (cons ELT Y)))
-            l)))
+    (-reduce-r-from (lambda (X Y)
+                      (cons X
+                            (when Y
+                              (cons ELT Y))))
+                    nil
+                    l)))
 
-(defun fbp-concat->name (&rest ARGS)
+(defun fbp-concat-name (&rest ARGS)
   (apply #'concat
-         (mapcar #'fbp-coerce->name ARGS)))
+         (mapcar #'fbp-coerce-name ARGS)))
 
 (defun fbp-make-symbol (&rest ARGS)
-  (apply #'fbp-concat->name (fbp-intercalate "-" ARGS)))
+  (apply #'fbp-concat-name (fbp-intercalate "-" ARGS)))
 
 (defun fbp-custom-vars (&rest ASSOCS)
   "For each (SYMBOL . VALUE) of ASSOCS, customize SYMBOL to VALUE with `customize-set-variable'.
