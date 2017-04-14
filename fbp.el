@@ -14,6 +14,8 @@
   (unless (memq X '("" [])) X))
 
 (defun fbp-intercalate (ELT LIST &rest FLAGS)
+  "Insert ELT between each element of LIST.
+First removes all empty elements from LIST, unless passed the :keep-empty flag."
   (let ((l (if (memq :keep-empty FLAGS)
                LIST
              (-filter #'nonempty LIST))))
