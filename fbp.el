@@ -14,12 +14,12 @@
   (unless (memq X '("" [])) X))
 
 (defun fbp-intercalate (ELT LIST &rest FLAGS)
-  (let ((l (if (memq :remove-empty FLAGS)
-               (-filter #'nonempty LIST)
-             LIST)))
+  (let ((l (if (memq :keep-empty FLAGS)
+               LIST
+             (-filter #'nonempty LIST))))
     (--reduce-r-from (cons it (when acc (cons ELT acc)))
                      nil
-                     LIST)))
+                     l)))
 
 (defun fbp-concat-name (&rest ARGS)
   (apply #'concat
