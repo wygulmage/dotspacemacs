@@ -61,24 +61,22 @@ Example:
  (fbp-def-faces 'my-lame-stuff
     '(my-lame-face \"a lame face\" :weight ultra-light :box t)
     '(my-reverse-face \"a reversed face\" :slant reverse-oblique :inverse-video t :inherit my-lame-face)
- )"
-  (declare (indent 2))
+    )"
+  (declare (indent 1))
   (--map (apply #'fbp-def-face GROUP it)
          FACES))
 
 (defun fbp-make-face-adaptive (GROUP TEST ACTIVE-DOC.PROPS INACTIVE-DOC.PROPS &optional NAME)
   "Create GROUP-NAME-active-face and GROUP-NAME-inactive-face, and a function that returns one of them based on TEST."
-  (-let* (
-          (prefix (concat (symbol-name GROUP)
-                          "-"
-                          (when NAME (concat NAME "-"))))
-          (active-face (intern (concat prefix "active-face")))
-          (inactive-face (intern (concat prefix "inactive-face")))
-          (proc-sym (intern (concat prefix "face")))
-          )
+  (let* (
+         (prefix (fbp-concat-symbol-name GROUP NAME))
+         (active-face (intern (concat prefix "-active-face")))
+         (inactive-face (intern (concat prefix "-inactive-face")))
+         (proc-sym (intern (concat prefix "-face")))
+         )
     (fbp-def-faces GROUP
-                   (cons active-face ACTIVE-DOC.PROPS)
-                   (cons inactive-face INACTIVE-DOC.PROPS))
+      (cons active-face ACTIVE-DOC.PROPS)
+      (cons inactive-face INACTIVE-DOC.PROPS))
     (fset proc-sym
           `(lambda ()
              (if (funcall ,TEST)
