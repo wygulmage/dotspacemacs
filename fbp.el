@@ -24,11 +24,20 @@ First removes all empty elements from LIST, unless passed the :keep-empty flag."
                      l)))
 
 (defun fbp-concat-name (&rest ARGS)
+  "Concatenate ARGS into a string."
   (apply #'concat
          (mapcar #'fbp-coerce-name ARGS)))
 
-(defun fbp-make-symbol (&rest ARGS)
-  (make-symbol (apply #'fbp-concat-name (fbp-intercalate "-" ARGS))))
+(defun fbp-concat-symbol-name (&rest ARGS)
+  (apply #'fbp-concat-name (fbp-intercalate "-" ARGS)))
+
+(defun fbp-concat-symbol (&rest ARGS)
+  "Concatenate ARGS into an uninterned symbol."
+  (make-symbol (apply #'fbp-concat-symbol-name ARGS)))
+
+(defun fbp-concat-intern (&rest ARGS)
+  "Concatenate ARGS into an interned symbol."
+  (intern (apply #'fbp-concat-symbol-name ARGS)))
 
 (defun fbp-custom-vars (&rest ASSOCS)
   "For each (SYMBOL . VALUE) of ASSOCS, customize SYMBOL to VALUE with `customize-set-variable'.
