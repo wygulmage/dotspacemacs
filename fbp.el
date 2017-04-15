@@ -4,10 +4,10 @@
         '(cl-lib dash))
 
 (defun fbp-coerce-name (X)
-  (pcase x
-    ((pred #'stringp) x)
-    ((pred #'keywordp) (substring (symbol-name x) 1))
-    (_ (prin1-to-string x))))
+  (pcase X
+    ((pred stringp) X)
+    ((pred keywordp) (substring (symbol-name X) 1))
+    (_ (prin1-to-string X t))))
 
 (defun nonempty (X)
   "Return nil if X is a common empty container, otherwise return X."
@@ -28,7 +28,7 @@ First removes all empty elements from LIST, unless passed the :keep-empty flag."
          (mapcar #'fbp-coerce-name ARGS)))
 
 (defun fbp-make-symbol (&rest ARGS)
-  (apply #'fbp-concat-name (fbp-intercalate "-" ARGS)))
+  (make-symbol (apply #'fbp-concat-name (fbp-intercalate "-" ARGS))))
 
 (defun fbp-custom-vars (&rest ASSOCS)
   "For each (SYMBOL . VALUE) of ASSOCS, customize SYMBOL to VALUE with `customize-set-variable'.
