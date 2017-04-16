@@ -4,6 +4,7 @@
         '(cl-lib dash))
 
 (defun fbp-coerce-name (X)
+  "Turn whatever into a string that looks OK."
   (pcase X
     ((pred stringp) X)
     ((pred keywordp) (substring (symbol-name X) 1))
@@ -29,6 +30,7 @@ First removes all empty elements from LIST, unless passed the :keep-empty flag."
          (mapcar #'fbp-coerce-name ARGS)))
 
 (defun fbp-concat-symbol-name (&rest ARGS)
+  "Concatenate stuff into something suitable to pass to `make-symbol' or `intern'."
   (apply #'fbp-concat-name (fbp-intercalate "-" ARGS)))
 
 (defun fbp-concat-symbol (&rest ARGS)
