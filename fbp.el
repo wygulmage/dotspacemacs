@@ -18,7 +18,7 @@
 First removes all empty elements from LIST, unless passed the :keep-empty flag."
   (let ((l (if (memq :keep-empty FLAGS)
                LIST
-             (-filter #'nonempty LIST))))
+               (-filter #'nonempty LIST))))
     (--reduce-r-from (cons it (when acc (cons ELT acc)))
                      nil
                      l)))
@@ -50,6 +50,9 @@ Example:
     (customize-set-variable (car pair) (cdr pair))))
 
 (defun fbp-def-face (GROUP SYMBOL DOCSTRING &rest PROPERTIES)
+  "Create a face called SYMBOL with documentation DOCSTRING and properties PROPERTIES in customization group GROUP.
+Example:
+  (fbp-def-face 'my-lame-stuff 'my-lame-face \"a lame face\" :weight 'ultra-light :box t)"
   (custom-declare-face SYMBOL
                        (list (cons t PROPERTIES))
                        DOCSTRING
@@ -81,7 +84,7 @@ Example:
           `(lambda ()
              (if (funcall ,TEST)
                  ,active-face
-               ,inactive-face)))
+                 ,inactive-face)))
     proc-sym))
 
 (defun fbp-make-hook (WHEN PROCEDURE &optional CONTINGENT)
