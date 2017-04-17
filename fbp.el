@@ -3,6 +3,22 @@
 (mapcar #'require
         '(cl-lib dash))
 
+(defmacro fbp-let (BINDINGS &rest BODY)
+  "Locally bind variables and functions.
+Variable bindings take the form (SYMBOL VALUE).
+Function bindings take the form (SYMBOL ARGS BODY)."
+  (declare (indent 1))
+  (let ((funcs nil)
+        (vars nil))
+    (dolist (binding BINDINGS)
+      (cl-case (length binding)
+        (3 (push binding funcs))
+        (2 (push binding vars))
+        (otherwise (error "Invalid binding %s" binding))))
+    `(cl-flet ,funcs
+       (let ,vars
+         ,@BODY))))
+
 (defun fbp-coerce-name (X)
   "Turn whatever into a string that looks OK."
   (pcase X
