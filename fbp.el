@@ -3,13 +3,38 @@
 (mapcar #'require
         '(cl-lib dash))
 
+(defun fbp--pairs (LIST &optional REMAINDER-FUNC)
+  "Pairs up the elements of LIST in a new list. If there are an odd numbers of elements and REMAINDER-FUNC is included, it is applied to the last element and the result is the last element of the new list. Otherwise the extra element is ignored."
+  (when LIST
+    (if (cdr LIST)
+        (cons (list (car LIST) (cadr LIST))
+              (fbp--pairs (cddr LIST) REMAINDER-FUNC))
+      (when REMAINDER-FUNC
+        (cons (funcall REMAINDER-FUNC (car LIST)) nil)))))
+
+(defmacro fbp-if (&rest CONDITIONS)
+  "Use:
+  (fbp-if
+    CONDITION_1 RESULT_1
+    CONDITION_2 RESULT_2
+    ...
+    RESULT_N)
+Return the first RESULT for which CONDITION is true.
+If CONDITIONS has an even number of elements, RESULT_N is nil."
+  `(cond ,@(fbp--pairs CONDITIONS (lambda (r) (list t r)))))
+
 (defmacro fbp-let (BINDINGS &rest BODY)
+  (declare (indent 1))
+  `(let ,(fbp--pairs BINDINGS) ,@BODY))
+
+(defmacro fbp-let-both (BINDINGS &rest BODY)
   "Locally bind variables and functions.
 Variable bindings take the form (SYMBOL VALUE).
 Function bindings take the form (SYMBOL ARGS BODY)."
   (declare (indent 1))
-  (let ((funcs nil)
-        (vars nil))
+  (fbp-let
+    (funcs nil
+           vars nil)
     (dolist (binding BINDINGS)
       (cl-case (length binding)
         (3 (push binding funcs))
@@ -35,7 +60,7 @@ Function bindings take the form (SYMBOL ARGS BODY)."
 First removes all empty elements from LIST, unless passed the :keep-empty flag."
   (let ((l (if (memq :keep-empty FLAGS)
                LIST
-               (-filter #'nonempty LIST))))
+             (-filter #'nonempty LIST))))
     (--reduce-r-from (cons it (when acc (cons ELT acc)))
                      nil
                      l)))
@@ -96,13 +121,13 @@ Example:
          (proc-sym (intern (concat prefix "-face")))
          )
     (fbp-def-faces GROUP
-      (cons active-face ACTIVE-DOC.PROPS)
+        (cons active-face ACTIVE-DOC.PROPS)
       (cons inactive-face INACTIVE-DOC.PROPS))
     (fset proc-sym
           `(lambda ()
              (if (funcall ,TEST)
                  ,active-face
-                 ,inactive-face)))
+               ,inactive-face)))
     proc-sym))
 
 (defun fbp-make-hook (WHEN PROCEDURE &optional CONTINGENT)
