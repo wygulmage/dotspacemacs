@@ -52,7 +52,7 @@ This function should only set values."
      (spacemacs-evil :packages
       (not vi-tilde-fringe)
       )
-     spacemacs-ui ; includes restart-emacs
+     spacemacs-navigation ; includes restart-emacs
      ;;; Bindings:
      better-defaults
      vinegar ; dired
@@ -1059,6 +1059,11 @@ Prefix matches to NAME are put ahead of the list, with the shortest matches firs
   ;;; Git
   ;; Use spacemacs for editing git commit messages.
   (global-git-commit-mode t)
+
+  ;;;Ranger
+  ;; Don't annoy me with constant messages obscuring important minibuffer information.
+  (my-make-hook :after 'ranger-kill-buffers-without-window
+                '((lambda () (message nil))))
 
   ;;; Elisp:
   (my-hook-up
