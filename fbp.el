@@ -41,7 +41,8 @@ Use:
     VAR_2 VAL_2
     ...
     VAR_N VAL_N
-    EXPR)"
+    EXPR)
+Evaluate EXPR with VARs bound to VALs."
   (declare (indent 0))
   (let ((bindings (fbp--pairs BINDINGS.EXPR))
         (expr (last BINDINGS.EXPR)))
@@ -55,8 +56,8 @@ Use:
     VAR_2 VAL_2
     ...
     VAR_N VAL_N
-    EXPR)"
-
+    EXPR)
+Bind each VAR to its VAL in sequence, then evalueate EXPR."
   (declare (indent 0))
   (let ((bindings (fbp--pairs BINDINGS.EXPR))
         (expr (last BINDINGS.EXPR)))
@@ -66,19 +67,19 @@ Use:
   "Locally bind variables and functions.
 Variable bindings take the form (SYMBOL VALUE).
 Function bindings take the form (SYMBOL ARGS BODY)."
-  (declare (indent 1))
+  (declare (indent 0))
   (fbp-let
-    funcs nil
-    vars nil
-    (progn
-      (dolist (binding BINDINGS)
-        (cl-case (length binding)
-          (3 (push binding funcs))
-          (2 (push binding vars))
-          (otherwise (error "Invalid binding %s" binding))))
-      `(cl-flet ,funcs
-         (let ,vars
-           ,@BODY)))))
+   funcs nil
+   vars nil
+   (progn
+     (dolist (binding BINDINGS)
+       (cl-case (length binding)
+         (3 (push binding funcs))
+         (2 (push binding vars))
+         (otherwise (error "Invalid binding %s" binding))))
+     `(cl-flet ,funcs
+        (let ,vars
+          ,@BODY)))))
 
 (defun fbp-coerce-name (X)
   "Turn whatever into a string that looks OK."
@@ -94,12 +95,13 @@ Function bindings take the form (SYMBOL ARGS BODY)."
 (defun fbp-intercalate (ELT LIST &rest FLAGS)
   "Insert ELT between each element of LIST.
 First removes all empty elements from LIST, unless passed the :keep-empty flag."
-  (fbp-let l (if (memq :keep-empty FLAGS)
-                 LIST
-               (-filter #'nonempty LIST))
-           (--reduce-r-from (cons it (when acc (cons ELT acc)))
-                            nil
-                            l)))
+  (fbp-let
+   l (if (memq :keep-empty FLAGS)
+         LIST
+         (-filter #'nonempty LIST))
+   (--reduce-r-from (cons it (when acc (cons ELT acc)))
+                    nil
+                    l)))
 
 (defun fbp-concat-name (&rest ARGS)
   "Concatenate ARGS into a string."
@@ -170,23 +172,24 @@ Example:
 
 (defun fbp-make-hook (WHEN PROCEDURE &optional CONTINGENT)
   "Create hook WHEN-PROCEDURE-hook to run WHEN PROCEDURE is called, unless it is already defined. The CONTINGENT functions are added to the hook regardless."
-  (fbp-let* when-str (substring (symbol-name WHEN) 1)
-            proc-name (symbol-name PROCEDURE)
-            hook-name (concat when-str "-" proc-name "-hook")
-            existing-hook (intern-soft hook-name)
-            hook-symbol (or existing-hook (intern hook-name))
-            (progn
-              (unless existing-hook
-                (set hook-symbol nil)
-                (put hook-symbol 'variable-documentation
-                     (concat "procedures to run " when-str " `" proc-name "'"))
-                (advice-add
-                 PROCEDURE
-                 WHEN
-                 (lambda (&rest _)
-                   (run-hooks `,hook-symbol))))
-              (dolist (contingent-proc (reverse CONTINGENT))
-                (add-hook hook-symbol contingent-proc))
-              hook-symbol)))
+  (fbp-let*
+   when-str (substring (symbol-name WHEN) 1)
+   proc-name (symbol-name PROCEDURE)
+   hook-name (concat when-str "-" proc-name "-hook")
+   existing-hook (intern-soft hook-name)
+   hook-symbol (or existing-hook (intern hook-name))
+   (progn
+     (unless existing-hook
+       (set hook-symbol nil)
+       (put hook-symbol 'variable-documentation
+            (concat "procedures to run " when-str " `" proc-name "'"))
+       (advice-add
+        PROCEDURE
+        WHEN
+        (lambda (&rest _)
+          (run-hooks `,hook-symbol))))
+     (dolist (contingent-proc (reverse CONTINGENT))
+       (add-hook hook-symbol contingent-proc))
+     hook-symbol)))
 
 (provide 'fbp)
