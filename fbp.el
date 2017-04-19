@@ -1,7 +1,13 @@
 ;;; fbp.el -- Cut the cruft.
 
+(eval-when-compile
+  (require 'cl-lib))
+
 (mapcar #'require
-        '(cl-lib dash))
+        '(dash dash-functional))
+
+(or (fboundp '-fn)
+    (defalias '-fn '-lambda))
 
 ;; (defun fbp--indent-plist (PATH STATE INDENT-POINT SEXP-COLUMN NORMAL-INDENT)
 ;;   "Properly indent pairs of things in lists.
@@ -11,6 +17,7 @@
 ;; SEXP-COLUMN is the column of the opening parenthesis of the innermost containing list.
 ;; NORMAL-INDENT is 'the column the indentation point was originally in'."
 ;;   )
+
 
 (defun fbp--pairs (LIST &optional REMAINDER-FUNC)
   "Pairs up the elements of LIST in a new list. If there are an odd numbers of elements and REMAINDER-FUNC is included, it is applied to the last element and the result is the last element of the new list. Otherwise the extra element is ignored."
@@ -30,11 +37,11 @@
     RESULT_N)
 Return the first RESULT for which CONDITION is true.
 If CONDITIONS has an even number of elements, RESULT_N is nil."
-  (declare (indent (4 2)))
-  `(cond ,@(fbp--pairs CONDITIONS (lambda (r) (list t r)))))
+  (declare (indent 0))
+  `(cond ,@(fbp--pairs CONDITIONS (-fn (r) (list t r)))))
 
 (defmacro fbp-let (&rest BINDINGS.EXPR)
-  "`let' with fewer parentheses.
+  "`-let' with fewer parentheses.
 Use:
   (fbp-let
     VAR_1 VAL_1
@@ -46,10 +53,11 @@ Evaluate EXPR with VARs bound to VALs."
   (declare (indent 0))
   (let ((bindings (fbp--pairs BINDINGS.EXPR))
         (expr (last BINDINGS.EXPR)))
-    `(let ,bindings ,@expr)))
+    `(-let ,bindings ,@expr)))
+
 
 (defmacro fbp-let* (&rest BINDINGS.EXPR)
-  "`let*' with fewer parentheses.
+  "`-let*' with fewer parentheses.
 Use:
   (fbp-let
     VAR_1 VAL_1
@@ -59,9 +67,9 @@ Use:
     EXPR)
 Bind each VAR to its VAL in sequence, then evalueate EXPR."
   (declare (indent 0))
-  (let ((bindings (fbp--pairs BINDINGS.EXPR))
-        (expr (last BINDINGS.EXPR)))
-    `(let* ,bindings ,@expr)))
+  (fbp-let bindings (fbp--pairs BINDINGS.EXPR)
+           expr (last BINDINGS.EXPR)
+           `(-let* ,bindings ,@expr)))
 
 (defmacro fbp-let-both (BINDINGS &rest BODY)
   "Locally bind variables and functions.
@@ -69,24 +77,37 @@ Variable bindings take the form (SYMBOL VALUE).
 Function bindings take the form (SYMBOL ARGS BODY)."
   (declare (indent 0))
   (fbp-let
-   funcs nil
-   vars nil
-   (progn
-     (dolist (binding BINDINGS)
-       (cl-case (length binding)
-         (3 (push binding funcs))
-         (2 (push binding vars))
-         (otherwise (error "Invalid binding %s" binding))))
-     `(cl-flet ,funcs
-        (let ,vars
-          ,@BODY)))))
+    funcs nil
+    vars nil
+    (progn
+      (dolist (binding BINDINGS)
+        (cl-case (length binding)
+          (3 (push binding funcs))
+          (2 (push binding vars))
+          (otherwise (error "Invalid binding %s" binding))))
+      `(cl-flet ,funcs
+         (-let ,vars
+           ,@BODY)))))
+
+(defmacro fbp-do-with (EXPR &rest BINDINGS)
+  (declare (indent (&whole 4 &rest -2)))
+  (fbp-let
+    (vars funcs) (--separate (= 2 (length it)) BINDINGS)
+    `(cl-flet ,funcs
+       (-let ,vars
+         ,EXPR))))
+
+(defmacro fbp-case (VAL &rest CONDITIONS)
+  (declare (indent 1))
+  `(pcase ,VAL
+     ,@(fbp--pairs CONDITIONS (-fn (X) `(_ ,X)))))
 
 (defun fbp-coerce-name (X)
   "Turn whatever into a string that looks OK."
-  (pcase X
-    ((pred stringp) X)
-    ((pred keywordp) (substring (symbol-name X) 1))
-    (_ (prin1-to-string X t))))
+  (fbp-case X
+    (pred stringp) X
+    (pred keywordp) (substring (symbol-name X) 1)
+    (prin1-to-string X t)))
 
 (defun nonempty (X)
   "Return nil if X is a common empty container, otherwise return X."
@@ -98,7 +119,7 @@ First removes all empty elements from LIST, unless passed the :keep-empty flag."
   (fbp-let
    l (if (memq :keep-empty FLAGS)
          LIST
-         (-filter #'nonempty LIST))
+       (-filter #'nonempty LIST))
    (--reduce-r-from (cons it (when acc (cons ELT acc)))
                     nil
                     l)))
@@ -128,9 +149,9 @@ Example:
   'bar '(A B C)
  )"
   (fbp-let
-    pairs (fbp--pairs BINDINGS)
-    (dolist (pair pairs)
-      (customize-set-variable (car pair) (cdr pair)))))
+   pairs (fbp--pairs BINDINGS)
+   (dolist (pair pairs)
+     (customize-set-variable (car pair) (cdr pair)))))
 
 (defun fbp-def-face (GROUP SYMBOL DOCSTRING &rest PROPERTIES)
   "Create a face called SYMBOL with documentation DOCSTRING and properties PROPERTIES in customization group GROUP.
@@ -164,32 +185,32 @@ Example:
         (cons active-face ACTIVE-DOC.PROPS)
         (cons inactive-face INACTIVE-DOC.PROPS))
       (fset proc-sym
-            `(lambda ()
-               (if (funcall ,TEST)
-                   ,active-face
-                 ,inactive-face)))
+            `(-fn ()
+                  (if (funcall ,TEST)
+                      ,active-face
+                    ,inactive-face)))
       proc-sym)))
 
 (defun fbp-make-hook (WHEN PROCEDURE &optional CONTINGENT)
   "Create hook WHEN-PROCEDURE-hook to run WHEN PROCEDURE is called, unless it is already defined. The CONTINGENT functions are added to the hook regardless."
   (fbp-let*
-   when-str (substring (symbol-name WHEN) 1)
-   proc-name (symbol-name PROCEDURE)
-   hook-name (concat when-str "-" proc-name "-hook")
-   existing-hook (intern-soft hook-name)
-   hook-symbol (or existing-hook (intern hook-name))
-   (progn
-     (unless existing-hook
-       (set hook-symbol nil)
-       (put hook-symbol 'variable-documentation
-            (concat "procedures to run " when-str " `" proc-name "'"))
-       (advice-add
-        PROCEDURE
-        WHEN
-        (lambda (&rest _)
-          (run-hooks `,hook-symbol))))
-     (dolist (contingent-proc (reverse CONTINGENT))
-       (add-hook hook-symbol contingent-proc))
-     hook-symbol)))
+    when-str (substring (symbol-name WHEN) 1)
+    proc-name (symbol-name PROCEDURE)
+    hook-name (concat when-str "-" proc-name "-hook")
+    existing-hook (intern-soft hook-name)
+    hook-symbol (or existing-hook (intern hook-name))
+    (progn
+      (unless existing-hook
+        (set hook-symbol nil)
+        (put hook-symbol 'variable-documentation
+             (concat "procedures to run " when-str " `" proc-name "'"))
+        (advice-add
+         PROCEDURE
+         WHEN
+         (-fn (&rest _)
+              (run-hooks `,hook-symbol))))
+      (dolist (contingent-proc (reverse CONTINGENT))
+        (add-hook hook-symbol contingent-proc))
+      hook-symbol)))
 
 (provide 'fbp)
