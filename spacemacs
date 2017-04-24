@@ -90,7 +90,7 @@ This function should only set values."
    ;; Packages installed & loaded without being wrapped in a layer:
    ;; If you need configuration for these packages, consider creating a layer. You can also put the configuration in dotspacemacs/user-config.
    dotspacemacs-additional-packages
-   '(
+   `(
      ;; Basic Libraries
      dash ; list functions
      dash-functional
@@ -381,6 +381,17 @@ This function is called immediately after `dotspacemacs/init', before layer conf
 (defun dotspacemacs/user-config ()
   "Configuration function for user code.
 This function is called at the very end of Spacemacs initialization, after layers configuration. Put your configuration code--except for variables that should be set before a package is loaded--here."
+  (unless (fboundp '-fn)
+    (defalias '-fn #'-lambda
+      "`-lambda' is a pattern-matching `lambda' from `dash.el'. This alias exists only to make anonymous definitons use less space."))
+
+  (unless (fboundp '-deffn)
+    (defmacro -deffn (NAME ARGLIST &optional DOCSTRING DECLARATIONS &rest BODY)
+      `(fset ,NAME
+             (-fn ,ARGLIST
+                  ,@(and DOCSTRING (list DOCSTRING))
+                  ,@(and DECLARATIONS (list DECLARATIONS))
+                  ,@BODY))))
 
 ;;;; Indent forms properly
   ;; (defun use-cl-indent (PROCEDURE INDENT-PROPERTY)
@@ -1178,3 +1189,23 @@ Prefix matches to NAME are put ahead of the list, with the shortest matches firs
   )
 
 ;; Do not write anything past this comment. This is where Emacs will auto-generate custom variable definitions (I wish it wouldn't).
+(defun dotspacemacs/emacs-custom-settings ()
+  "Emacs custom settings.
+This is an auto-generated function, do not modify its content directly, use
+Emacs customize menu instead.
+This function is called at the very end of Spacemacs initialization."
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   (quote
+    (string-inflection yapfify xterm-color ws-butler winum which-key wgrep web-mode web-beautify vimrc-mode uuidgen use-package unfill tagedit smex smeargle slim-mode shen-elisp shell-pop scss-mode sass-mode restart-emacs ranger rainbow-mode pyvenv pytest pyenv-mode py-isort pug-mode pip-requirements pcre2el paren-face paradox open-junk-file neotree mwim multi-term move-text mmm-mode markdown-toc magithub magit-gitflow magit-gh-pulls macrostep lorem-ipsum livid-mode live-py-mode linum-relative link-hint less-css-mode json-mode js2-refactor js-doc ivy-hydra intero info+ hy-mode hungry-delete hlint-refactor hindent help-fns+ helm-make haskell-snippets golden-ratio gitignore-mode github-search github-clone github-browse-file gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gist gh-md fuzzy flyspell-correct-ivy flycheck-pos-tip flycheck-haskell flycheck-elm flx-ido expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help emmet-mode elm-mode elisp-slime-nav diff-hl dactyl-mode cython-mode counsel-projectile company-web company-tern company-statistics company-ghci company-ghc company-cabal company-anaconda coffee-mode cmm-mode clean-aindent-mode browse-at-remote auto-yasnippet auto-highlight-symbol auto-dictionary auto-compile aggressive-indent adaptive-wrap ace-window ace-link ac-ispell))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
+)
