@@ -468,6 +468,7 @@ This function is called at the very end of Spacemacs initialization, after layer
 ;;; Hooks:
 
   (defun my-bind-hook (HOOK WHEN PROCEDURE)
+    "Run HOOK WHEN PROCEDURE."
     (advice-add PROCEDURE WHEN
                 (lambda (&rest _)
                    (run-hooks `,HOOK))))
