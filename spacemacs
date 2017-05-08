@@ -33,13 +33,13 @@ This function should only set values."
    ;; Configuration layers to install & load:
    dotspacemacs-configuration-layers
    '(
-     ;; (colors
-     ;;  :packages
-     ;;  rainbow-mode ; for color strings only
-     ;;  :variables
-     ;;  rainbow-x-colors nil
-     ;;  rainbow-html-colors nil
-     ;;  )
+     (colors
+      :packages
+      rainbow-mode ; for color strings only
+      :variables
+      rainbow-x-colors nil
+      rainbow-html-colors nil
+      )
      ;; ;; (org :variables org-enable-github-support t)
      ;; ;; (ranger :variables
      ;; ;;  ranger-override-dired t
@@ -49,41 +49,41 @@ This function should only set values."
      ;; (shell :variables
      ;;  shell-default-height 30
      ;;  shell-default-position 'bottom)
-     ;; spacemacs-completion
+     spacemacs-completion
      spacemacs-editing
      (spacemacs-evil :packages
-       (not vi-tilde-fringe)
-       )
+      (not vi-tilde-fringe)
+      )
      spacemacs-navigation ; includes restart-emacs
      ;; ;;; Bindings:
      ;; better-defaults
      ;; vinegar ; dired
-     ;; ;;; Checking & Completion:
+     ;;; Checking & Completion:
      auto-completion
      ivy
-     ;; ;; (spell-checking :variables
-     ;; ;;  spell-checking-enable-by-default nil
-     ;; ;;  flyspell-sort-corrections nil
-     ;; ;;  )
-     ;; ;; (syntax-checking :variables
-     ;; ;;  syntax-checking-enable-by-default nil
-     ;; ;;  )
-     ;; ;;; Languages:
+     (spell-checking :variables
+      spell-checking-enable-by-default nil
+      flyspell-sort-corrections nil
+      )
+     (syntax-checking :variables
+      syntax-checking-enable-by-default nil
+      )
+     ;;; Languages:
      ;; ;; (semantic :packages
      ;; ;;           semantic
      ;; ;;           srefactor)
      ;; elm
      ;; emacs-lisp
      ;; haskell
-     ;; ;; (html :variables ; for CSS ; this is called web-mode, not html-mode
-     ;; ;;  web-mode-css-indent-offset 2
-     ;; ;;  web-mode-enable-css-colorization nil ; already done with colors
-     ;; ;;  )
+     (html :variables ; for CSS ; this is called web-mode, not html-mode
+      web-mode-css-indent-offset 2
+      web-mode-enable-css-colorization nil ; already done with colors
+      )
      ;; javascript
      ;; markdown
      ;; python
      ;; vimscript
-     ;; ;;; VC:
+     ;;; VC:
      git
      github
      version-control
@@ -248,7 +248,6 @@ This function is called at the very startup of Spacemacs initialization before l
    ;; Will the meaning of g be inverted in :substitute Evil ex-commands?
    dotspacemacs-ex-substitute-global nil
 
-
    ;;; Layouts
    ;; Name of the default layout:
    dotspacemacs-default-layout-name "Default"
@@ -406,7 +405,7 @@ This function is called at the very startup of Spacemacs initialization before l
   "Initialization function for user code.
 This function is called immediately after `dotspacemacs/init', before layer configuration. It is mostly useful for variables that must be set before packages are loaded. If you are unsure, try setting them in `dotspacemacs/user-config' first."
 
-;;  (defconst the-default-mode-line mode-line-format) ; Save in case you want to know.
+  (defconst the-default-mode-line mode-line-format) ; Save in case you want to know.
 
   ;; (if (display-graphic-p)
   ;;     (progn
@@ -460,22 +459,22 @@ This function is called at the very end of Spacemacs initialization, after layer
   ;;   (dolist (key.val ASSOCS)
   ;;     (customize-set-variable (car key.val) (cdr key.val))))
 
-  ;; (defun my-princ (OBJECT &optional PRINTCHARFUNCTION)
-  ;;   "`princ' but does not print the colon of a keyword"
-  ;;   (princ (if (keywordp OBJECT)
-  ;;              (substring (symbol-name OBJECT) 1)
-  ;;            OBJECT)
-  ;;          PRINTCHARFUNCTION))
+  (defun my-princ (OBJECT &optional PRINTCHARFUNCTION)
+    "`princ' but does not print the colon of a keyword"
+    (princ (if (keywordp OBJECT)
+               (substring (symbol-name OBJECT) 1)
+             OBJECT)
+           PRINTCHARFUNCTION))
 
-  ;; (defun my-mkstr (&rest ARGS)
-  ;;   (with-output-to-string
-  ;;     (mapc #'my-princ ARGS)))
+  (defun my-mkstr (&rest ARGS)
+    (with-output-to-string
+      (mapc #'my-princ ARGS)))
 
-  ;; (defun my-isymb (&rest ARGS)
-  ;;   (intern (funcall #'my-mkstr ARGS)))
+  (defun my-isymb (&rest ARGS)
+    (intern (funcall #'my-mkstr ARGS)))
 
-  ;; (defun my-nsymb (&rest ARGS)
-  ;;   (make-symbol (funcall #'my-mkstr ARGS)))
+  (defun my-nsymb (&rest ARGS)
+    (make-symbol (funcall #'my-mkstr ARGS)))
 
 ;;; Hooks:
 
@@ -484,15 +483,17 @@ This function is called at the very end of Spacemacs initialization, after layer
   ;;          (existing-hook (intern-soft hook-name))
   ;;          (hook-symbol (or existing-hook (intern hook-name))))
   ;;     `(progn
-  ;;        (if ,existing-hook
+  ;;        (if ,(and existing-hook (boundp existing-hook))
+  ;;            (dolist (p (reverse ,CONTINGENT))
+  ;;              (add-hook `,hook-symbol p))
   ;;            (progn
-  ;;              (defvar ,hook-symbol ,CONTINGENT
-  ;;            (my-mkstr "procedures to run " WHEN " `" PROCEDURE "'"))
+  ;;              (defvar
+  ;;                ,hook-symbol
+  ;;                ,CONTINGENT
+  ;;                (my-mkstr "procedures to run " WHEN " `" PROCEDURE "'"))
   ;;              (advice-add ,PROCEDURE ,WHEN
   ;;                          (lambda (&rest _)
-  ;;                            (run-hooks (quote ,hook-symbol)))))
-  ;;          (dolist (p (reverse ,CONTINGENT))
-  ;;            (add-hook ,hook-symbol p)))
+  ;;                            (run-hooks (quote ,hook-symbol))))))
   ;;        ,hook-symbol)))
 
   ;; (defun my-make-hook (WHEN PROCEDURE &optional CONTINGENT)
@@ -542,17 +543,25 @@ This function is called at the very end of Spacemacs initialization, after layer
     (eq my-primary-pane (selected-window)))
 
   ;; (my-make-hook-mac :after select-frame)
+  (defvar after-select-frame-hook nil)
+  (advice-add 'select-frame :after
+              (lambda (&rest _)
+                (run-hooks 'after-select-frame-hook)))
   ;; (my-make-hook-mac :after handle-select-window)
+  (defvar after-handle-select-window-hook nil)
+  (advice-add 'after-handle-select-window :after
+              (lambda (&rest _)
+                (run-hooks 'after-handle-select-window-hooks)))
 
-  ;; (my-hook-up
-  ;;  '(
-  ;;    after-select-frame-hook
-  ;;    after-handle-select-window-hook
-  ;;    buffer-list-update-hook
-  ;;    focus-in-hook
-  ;;    window-configuration-change-hook
-  ;;    )
-  ;;  '(my-set-primary-pane))
+  (my-hook-up
+   '(
+     after-select-frame-hook
+     after-handle-select-window-hook
+     buffer-list-update-hook
+     focus-in-hook
+     window-configuration-change-hook
+     )
+   '(my-set-primary-pane))
 
   (defvar-local my-buffer-line-count nil)
 
@@ -743,223 +752,226 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
   ;;; ----------------------------------------------
 ;;   ;;; Mode Line, Header Line, and Frame Title Format
 
-;;   (my-def-faces 'statusbar
-;;     '(my-statusbar-active-face
-;;       "an alias for mode-line face"
-;;       :inherit mode-line)
-;;     '(my-statusbar-inactive-face
-;;       "an alias for mode-line-inactive face"
-;;       :inherit mode-line-inactive)
-;;     '(my-statusbar-active-highlight-face
-;;       "an emphasized face for the active mode-line"
-;;       :weight bold
-;;       :underline t
-;;       :inherit my-statusbar-active-face)
-;;     '(my-statusbar-inactive-highlight-face
-;;       "an emphasized face for the inactive mode-line"
-;;       :weight bold
-;;       :underline t
-;;       :inherit my-statusbar-inactive-face)
-;;     '(my-statusbar-active-shadow-face
-;;       "a dimmed face for the active mode-line"
-;;       :inherit my-statusbar-active-face)
-;;     '(my-statusbar-inactive-shadow-face
-;;       "a dimmed face for the inactive mode-line"
-;;       :inherit my-statusbar-inactive-face)
-;;     )
+  (my-def-faces 'statusbar
+    '(my-statusbar-active-face
+      "an alias for mode-line face"
+      :inherit mode-line)
+    '(my-statusbar-inactive-face
+      "an alias for mode-line-inactive face"
+      :inherit mode-line-inactive)
+    '(my-statusbar-active-highlight-face
+      "an emphasized face for the active mode-line"
+      :weight bold
+      :underline t
+      :inherit my-statusbar-active-face)
+    '(my-statusbar-inactive-highlight-face
+      "an emphasized face for the inactive mode-line"
+      :weight bold
+      :underline t
+      :inherit my-statusbar-inactive-face)
+    '(my-statusbar-active-shadow-face
+      "a dimmed face for the active mode-line"
+      :inherit my-statusbar-active-face)
+    '(my-statusbar-inactive-shadow-face
+      "a dimmed face for the inactive mode-line"
+      :inherit my-statusbar-inactive-face)
+    )
 
-;;   (defun my-get-statusbar-face ()
-;;     "an ersatz face that switches between statusbar-active- and statusbar-inactive-face"
-;;     (if (my-primary-pane-active?)
-;;         'my-statusbar-active-face
-;;       'my-statusbar-inactive-face))
+  (defun my-get-statusbar-face ()
+    "an ersatz face that switches between statusbar-active- and statusbar-inactive-face"
+    (if (my-primary-pane-active?)
+        'my-statusbar-active-face
+      'my-statusbar-inactive-face))
 
-;;   (defun my-get-statusbar-highlight-face ()
-;;     "an ersatz face that switches between statusbar-active- and statusbar-inactive-face"
-;;     (if (my-primary-pane-active?)
-;;         'my-statusbar-active-highlight-face
-;;       'my-statusbar-inactive-highlight-face))
+  (defun my-get-statusbar-highlight-face ()
+    "an ersatz face that switches between statusbar-active- and statusbar-inactive-face"
+    (if (my-primary-pane-active?)
+        'my-statusbar-active-highlight-face
+      'my-statusbar-inactive-highlight-face))
 
-;;   (defun my-get-statusbar-shadow-face ()
-;;     "an ersatz face that switches between statusbar-active- and statusbar-inactive-shadow-face"
-;;     (if (my-primary-pane-active?)
-;;         'my-statusbar-active-shadow-face
-;;       'my-statusbar-inactive-shadow-face))
+  (defun my-get-statusbar-shadow-face ()
+    "an ersatz face that switches between statusbar-active- and statusbar-inactive-shadow-face"
+    (if (my-primary-pane-active?)
+        'my-statusbar-active-shadow-face
+      'my-statusbar-inactive-shadow-face))
 
-;;   (defun my-reset-statusbar-faces ()
-;;     "Set statusbar shadow faces to be faded versions of their counterparts."
-;;     (interactive)
-;;     (my-intensify-face-foreground
-;;      'my-statusbar-active-highlight-face
-;;      'my-statusbar-active-face)
-;;     (my-intensify-face-foreground
-;;      'my-statusbar-inactive-highlight-face
-;;      'my-statusbar-inactive-face)
-;;     (my-fade-face-foreground
-;;      'my-statusbar-active-shadow-face
-;;      'my-statusbar-active-face)
-;;     (my-fade-face-foreground
-;;      'my-statusbar-inactive-shadow-face
-;;      'my-statusbar-inactive-face))
-;;   (my-reset-statusbar-faces)
+  (defun my-reset-statusbar-faces ()
+    "Set statusbar shadow faces to be faded versions of their counterparts."
+    (interactive)
+    (my-intensify-face-foreground
+     'my-statusbar-active-highlight-face
+     'my-statusbar-active-face)
+    (my-intensify-face-foreground
+     'my-statusbar-inactive-highlight-face
+     'my-statusbar-inactive-face)
+    (my-fade-face-foreground
+     'my-statusbar-active-shadow-face
+     'my-statusbar-active-face)
+    (my-fade-face-foreground
+     'my-statusbar-inactive-shadow-face
+     'my-statusbar-inactive-face))
+  (my-reset-statusbar-faces)
 
-;;   ;; (my-make-hook-mac :after load-theme (my-reset-statusbar-faces))
+  ;; (my-make-hook-mac :after load-theme (my-reset-statusbar-faces))
+  (defvar after-load-theme-hook ())
+  (advice-add 'load-theme :after
+              (lambda (&rest _)
+                (run-hooks 'after-load-theme-hook)))
 
-;;   (defun my-buffer-name ()
-;;     "The name of the buffer. If it's a file, show the directory on hover and open dired with a click."
-;;     (if buffer-file-truename
-;;         (propertize (buffer-name)
-;;                     'help-echo (abbreviate-file-name buffer-file-truename)
-;;                     'local-map (make-mode-line-mouse-map
-;;                                 'mouse-1 (lambda () (interactive)
-;;                                                  (dired (file-name-directory buffer-file-truename)))))
-;;       (buffer-name)))
+  (defun my-buffer-name ()
+    "The name of the buffer. If it's a file, show the directory on hover and open dired with a click."
+    (if buffer-file-truename
+        (propertize (buffer-name)
+                    'help-echo (abbreviate-file-name buffer-file-truename)
+                    'local-map (make-mode-line-mouse-map
+                                'mouse-1 (lambda () (interactive)
+                                                 (dired (file-name-directory buffer-file-truename)))))
+      (buffer-name)))
 
-;;   (defun my-major-mode-name ()
-;;     "The buffer's major-mode"
-;;     (propertize mode-name
-;;                 'help-echo "Click mouse 1 for mode menu, mouse 2 for mode info, or mouse 3 to toggle minor modes."
-;;                 'local-map mode-line-major-mode-keymap))
+  (defun my-major-mode-name ()
+    "The buffer's major-mode"
+    (propertize mode-name
+                'help-echo "Click mouse 1 for mode menu, mouse 2 for mode info, or mouse 3 to toggle minor modes."
+                'local-map mode-line-major-mode-keymap))
 
-;;   (defun my-buffer-write-status ()
-;;     "Show whether a file-like buffer has been modified since its last save; click to save. Should 'do what I mean'."
-;;     (if (not (my-buffer-file-like-p))
-;;         "" ; Ignore buffers that aren't files.
-;;       (my-pad 1 (propertize
-;;                  (concat (when (buffer-modified-p) "◆")
-;;                          (when buffer-read-only "🔒"))
-;;                  'help-echo
-;;                  (concat (when (buffer-modified-p) "modified ")
-;;                          (when buffer-read-only "read-only ")
-;;                          (if buffer-file-name "file " "buffer ")
-;;                          "‑ click to save")
-;;                  'local-map (make-mode-line-mouse-map 'mouse-1 #'save-buffer)))))
+  (defun my-buffer-write-status ()
+    "Show whether a file-like buffer has been modified since its last save; click to save. Should 'do what I mean'."
+    (if (not (my-buffer-file-like-p))
+        "" ; Ignore buffers that aren't files.
+      (my-pad 1 (propertize
+                 (concat (when (buffer-modified-p) "◆")
+                         (when buffer-read-only "🔒"))
+                 'help-echo
+                 (concat (when (buffer-modified-p) "modified ")
+                         (when buffer-read-only "read-only ")
+                         (if buffer-file-name "file " "buffer ")
+                         "‑ click to save")
+                 'local-map (make-mode-line-mouse-map 'mouse-1 #'save-buffer)))))
 
-;;   (defun my-vc-branch ()
-;;     (if (not vc-mode)
-;;         ""
-;;       (concat
-;;        (propertize "(" 'face (my-get-statusbar-shadow-face))
-;;        (propertize
-;;         (replace-regexp-in-string " Git[:\-]" "" vc-mode)
-;;         'mouse-face (my-get-statusbar-face)
-;;         'local-map (make-mode-line-mouse-map 'mouse-1 #'magit-status))
-;;        (propertize ")" 'face (my-get-statusbar-shadow-face))
-;;        )))
+  (defun my-vc-branch ()
+    (if (not vc-mode)
+        ""
+      (concat
+       (propertize "(" 'face (my-get-statusbar-shadow-face))
+       (propertize
+        (replace-regexp-in-string " Git[:\-]" "" vc-mode)
+        'mouse-face (my-get-statusbar-face)
+        'local-map (make-mode-line-mouse-map 'mouse-1 #'magit-status))
+       (propertize ")" 'face (my-get-statusbar-shadow-face))
+       )))
 
-;;   (defun my-line-position ()
-;;     "Current line / total lines. Click to toggle line numbers."
-;;     (let ((lines (number-to-string my-buffer-line-count)))
-;;       (propertize
-;;        (concat
-;;         (my-pad (length lines) (format-mode-line "%l"))
-;;         (propertize "/" 'face (my-get-statusbar-shadow-face))
-;;         lines)
-;;        'help-echo (if (bound-and-true-p linum-mode) "Hide line numbers." "Show line numbers.")
-;;        'local-map (make-mode-line-mouse-map 'mouse-1 #'linum-mode))))
+  (defun my-line-position ()
+    "Current line / total lines. Click to toggle line numbers."
+    (let ((lines (number-to-string my-buffer-line-count)))
+      (propertize
+       (concat
+        (my-pad (length lines) (format-mode-line "%l"))
+        (propertize "/" 'face (my-get-statusbar-shadow-face))
+        lines)
+       'help-echo (if (bound-and-true-p linum-mode) "Hide line numbers." "Show line numbers.")
+       'local-map (make-mode-line-mouse-map 'mouse-1 #'linum-mode))))
 
 ;; ;;; TODO: Create shortened mode-line faces for a collapsed but visible mode line.
 
-;;   (defvar my-base-mode-line-format
-;;     '(:eval
-;;       (concat
-;;        (my-buffer-write-status)
-;;        " "
-;;        (my-buffer-name)
-;;        " "
-;;        (my-vc-branch)
-;;        "  "
-;;        (my-line-position)
-;;        ))
-;;     "a simple status bar")
+  (defvar my-base-mode-line-format
+    '(:eval
+      (concat
+       (my-buffer-write-status)
+       " "
+       (my-buffer-name)
+       " "
+       (my-vc-branch)
+       "  "
+       (my-line-position)
+       ))
+    "a simple status bar")
 
-;;   (setq-default
-;;    mode-line-format my-base-mode-line-format)
+  (setq-default
+   mode-line-format my-base-mode-line-format)
 
-;;   (defun my-format-text-mode-line ()
-;;     (setq mode-line-format my-base-mode-line-format))
+  (defun my-format-text-mode-line ()
+    (setq mode-line-format my-base-mode-line-format))
 
-;;   (defvar my-prog-mode-line-format
-;;     (list
-;;      my-base-mode-line-format
-;;      '(:eval
-;;        (concat
-;;         "  "
-;;         (my-major-mode-name)
-;;         "  "
-;;         (when (bound-and-true-p anzu-mode) (anzu--update-mode-line))
-;;         )))
-;;     "simple status bar that indicates the current mode")
+  (defvar my-prog-mode-line-format
+    (list
+     my-base-mode-line-format
+     '(:eval
+       (concat
+        "  "
+        (my-major-mode-name)
+        "  "
+        (when (bound-and-true-p anzu-mode) (anzu--update-mode-line))
+        )))
+    "simple status bar that indicates the current mode")
 
-;;   (defun my-format-prog-mode-line ()
-;;     (setq mode-line-format my-prog-mode-line-format))
+  (defun my-format-prog-mode-line ()
+    (setq mode-line-format my-prog-mode-line-format))
 
-  ;; (defun my-format-frame-title ()
-  ;;   (when (display-graphic-p)
-  ;;     (setq frame-title-format
-  ;;           '(:eval (concat
-  ;;                    (my-buffer-write-status)
-  ;;                    " "
-  ;;                    (my-primary-file-or-buffer-name)
-  ;;                    )))))
-  ;; (my-format-frame-title)
+  (defun my-format-frame-title ()
+    (when (display-graphic-p)
+      (setq frame-title-format
+            '(:eval (concat
+                     (my-buffer-write-status)
+                     " "
+                     (my-primary-file-or-buffer-name)
+                     )))))
+  (my-format-frame-title)
 
   ;;; --------------------------------
   ;;; Fonts
 
-  ;; (set-face-attribute
-  ;;  'fixed-pitch nil
-  ;;  :family (my-select-font
-  ;;           '(
-  ;;             "Source Code Pro"
-  ;;             "IBM 3720"
-  ;;             "DejaVu Sans Mono"
-  ;;             "Monaco"
-  ;;             "Lucida Console"
-  ;;             )))
+  (set-face-attribute
+   'fixed-pitch nil
+   :family (my-select-font
+            '(
+              "Source Code Pro"
+              "IBM 3720"
+              "DejaVu Sans Mono"
+              "Monaco"
+              "Lucida Console"
+              )))
 
-  ;; (set-face-attribute
-  ;;  'variable-pitch nil
-  ;;  :family (my-select-font
-  ;;           '(
-  ;;             "ET Book"
-  ;;             "ETBembo"
-  ;;             "Bembo Book MT Std"
-  ;;             "Bembo MT Book Std"
-  ;;             "Garamond Premier Pro"
-  ;;             "Garamond Premr Pro"
-  ;;             "Adobe Garamond Expert"
-  ;;             "Garamond"
-  ;;             )))
+  (set-face-attribute
+   'variable-pitch nil
+   :family (my-select-font
+            '(
+              "ET Book"
+              "ETBembo"
+              "Bembo Book MT Std"
+              "Bembo MT Book Std"
+              "Garamond Premier Pro"
+              "Garamond Premr Pro"
+              "Adobe Garamond Expert"
+              "Garamond"
+              )))
 
-  ;; (defun my-reset-font-height-by-platform ()
-  ;;   "Make the font bigger if running linux, because my laptop runs linux and my desktop runs Windows."
-  ;;   (let ((h (if (string= system-type "gnu/linux") 148 120)))
-  ;;     (dolist (face '(
-  ;;                     default
-  ;;                     fixed-pitch
-  ;;                     variable-pitch
-  ;;                     ))
-  ;;       (set-face-attribute face nil :height h))))
+  (defun my-reset-font-height-by-platform ()
+    "Make the font bigger if running linux, because my laptop runs linux and my desktop runs Windows."
+    (let ((h (if (string= system-type "gnu/linux") 148 120)))
+      (dolist (face '(
+                      default
+                      fixed-pitch
+                      variable-pitch
+                      ))
+        (set-face-attribute face nil :height h))))
 
-  ;; (my-hook-up
-  ;;  '(
-  ;;    after-load-theme-hook
-  ;;    window-setup-hook
-  ;;    )
-  ;;  '(my-reset-font-height-by-platform))
+  (my-hook-up
+   '(
+     after-load-theme-hook
+     window-setup-hook
+     )
+   '(my-reset-font-height-by-platform))
 
   ;;; ---------------------------------
   ;;; Miscelaneous Global Stuff
 
-  ;; (global-hl-line-mode -1) ; Disable current line highlight.
-  ;; (global-visual-line-mode 1) ; Always wrap lines to window.
-  ;; (setq-default major-mode 'text-mode) ; Use text instead of fundamental.
-  ;; (setq vc-follow-symlinks t)
+  (global-hl-line-mode -1) ; Disable current line highlight.
+  (global-visual-line-mode 1) ; Always wrap lines to window.
+  (setq-default major-mode 'text-mode) ; Use text instead of fundamental.
+  (setq vc-follow-symlinks t)
 
   ;;; ----------------------------------
-  ;;; Set Evil to not behave like Vim.
-  ;; commented out in case it's causing errors.
+  ;; ;;; Set Evil to not behave like Vim.
   ;; (customize-set-variable 'evil-move-beyond-eol t) ; Allow the cursor to move beyond the end of the line.
   ;; (customize-set-variable 'evil-move-cursor-back nil) ; Don't move the cursor when exiting insert mode.
 
@@ -1019,54 +1031,54 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
   ;;     ,(lambda () (force-mode-line-update t)) ; refresh all mode lines.
   ;;     ))
 
-  ;; (my-hook-up
-  ;;  '(prog-mode-hook)
-  ;;  '(
-  ;;    adaptive-wrap-prefix-mode ; Indent wrapped lines in source code.
-  ;;    rainbow-mode ; Color color strings like "#4971af" in source code.
-  ;;    my-format-prog-mode-line
-  ;;    ))
+  (my-hook-up
+   '(prog-mode-hook)
+   '(
+     adaptive-wrap-prefix-mode ; Indent wrapped lines in source code.
+     rainbow-mode ; Color color strings like "#4971af" in source code.
+     my-format-prog-mode-line
+     ))
 
-  ;; (my-hook-up
-  ;;  '(text-mode-hook)
-  ;;  '(
-  ;;    flycheck-mode
-  ;;    variable-pitch-mode
-  ;;    my-format-text-mode-line
-  ;;    ))
+  (my-hook-up
+   '(text-mode-hook)
+   '(
+     flycheck-mode
+     variable-pitch-mode
+     my-format-text-mode-line
+     ))
 
-  ;; (with-current-buffer "*Messages*" (my-format-text-mode-line)) ; Use a simple mode line for the *Messages* buffer.
+  (with-current-buffer "*Messages*" (my-format-text-mode-line)) ; Use a simple mode line for the *Messages* buffer.
 
-  ;; ;; Hide the mode-line when not needed useful.
-  ;; (my-hook-up
-  ;;  '(
-  ;;    help-mode-hook
-  ;;    magit-mode-hook
-  ;;    ranger-mode-hook
-  ;;    spacemacs-buffer-mode-hook
-  ;;    )
-  ;;  '((lambda () (setq mode-line-format nil))))
+  ;; Hide the mode-line when not needed useful.
+  (my-hook-up
+   '(
+     help-mode-hook
+     magit-mode-hook
+     ranger-mode-hook
+     spacemacs-buffer-mode-hook
+     )
+   '((lambda () (setq mode-line-format nil))))
 
   ;;; ------------------------------
   ;;; Key Maps
 
-  ;; (unless (string= system-type "gnu/linux")
-  ;;   (define-key help-mode-map
-  ;;       (kbd "<mouse-4>") 'help-go-back) ; mouse forwards
-  ;;   (define-key help-mode-map
-  ;;       (kbd "<mouse-5>") 'help-go-forward)) ; mouse back
+  (unless (string= system-type "gnu/linux")
+    (define-key help-mode-map
+        (kbd "<mouse-4>") 'help-go-back) ; mouse forwards
+    (define-key help-mode-map
+        (kbd "<mouse-5>") 'help-go-forward)) ; mouse back
 
-  ;; ;; Navigate wrapped lines.
-  ;; (define-key evil-normal-state-map
-  ;;     (kbd "j") 'evil-next-visual-line)
-  ;; (define-key evil-normal-state-map
-  ;;     (kbd "k") 'evil-previous-visual-line)
+  ;; Navigate wrapped lines.
+  (define-key evil-normal-state-map
+      (kbd "j") 'evil-next-visual-line)
+  (define-key evil-normal-state-map
+      (kbd "k") 'evil-previous-visual-line)
 
   ;; ;; Paste with Ctrl p.
   ;; (define-key evil-insert-state-map
   ;;     (kbd "C-p") 'evil-paste-after)
 
-;;   ;; Insert unicode character with Ctrl Shift u.
+;;; Insert unicode character with Ctrl Shift u.
 ;;   (defun my-ivy-prefix-sort (name candidates)
 ;;     "Re-sort CANDIDATES.
 ;; Prefix matches to NAME are put ahead of the list, with the shortest matches first."
@@ -1094,8 +1106,8 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
   ;; (add-to-list 'ivy-sort-functions-alist
   ;;              '(counsel-unicode-char . my-ivy-compare-strings-by-length))
 
-  ;; (global-set-key
-  ;;  (kbd "C-S-u") 'counsel-unicode-char) ; `counsel-unicode-char' is slow...
+  (global-set-key
+   (kbd "C-S-u") 'counsel-unicode-char) ; `counsel-unicode-char' is slow...
 
   ;; (evil-define-command my-greedy-delete-backward () ;; commented out because it was bugging things.
   ;;   (evil-delete (save-excursion
@@ -1110,31 +1122,31 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
   ;;   (kbd "<backspace>") 'my-greedy-delete-backward) ; Make backspace delete the whole word.
 
 
-  ;; ;; Zoom with Ctrl + mouse wheel.
-  ;; (defun my-zoom-in ()
-  ;;   (interactive)
-  ;;   (text-scale-increase 1.01))
-  ;; (defun my-zoom-out ()
-  ;;   (interactive)
-  ;;   (text-scale-decrease 1.01))
-  ;; (dolist (x '(
-  ;;              (my-zoom-in "C-<mouse-4>" "C-<wheel-up>")
-  ;;              (my-zoom-out "C-<mouse-5>" "C-<wheel-down>")
-  ;;              ))
-  ;;   (global-set-key
-  ;;    (kbd (nth (if (string= system-type "gnu/linux") 1 2)
-  ;;              x))
-  ;;    (nth 0 x)))
+  ;; Zoom with Ctrl + mouse wheel.
+  (defun my-zoom-in ()
+    (interactive)
+    (text-scale-increase 1.01))
+  (defun my-zoom-out ()
+    (interactive)
+    (text-scale-decrease 1.01))
+  (dolist (x '(
+               (my-zoom-in "C-<mouse-4>" "C-<wheel-up>")
+               (my-zoom-out "C-<mouse-5>" "C-<wheel-down>")
+               ))
+    (global-set-key
+     (kbd (nth (if (string= system-type "gnu/linux") 1 2)
+               x))
+     (nth 0 x)))
 
-  ;; ;;; Use hex for unicode character input.
-  ;; (setq-default read-quoted-char-radix 16)
+  ;;; Use hex for unicode character input.
+  (setq-default read-quoted-char-radix 16)
 
   ;; ;;; Mouse & copy / paste / delete
-  ;; (setq
+  (setq
   ;;  ;; mouse-drag-copy-region t ; Copy on select -- disable for acme-mouse.
   ;;  delete-selection-mode t ; Allow typing over the selection.
-  ;;  kill-do-not-save-duplicates t ; Don't copy identical text twice.
-  ;;  )
+   kill-do-not-save-duplicates t ; Don't copy identical text twice.
+   )
 
   ;;; -------------------------
   ;;; Major Mode Configurations
@@ -1149,19 +1161,19 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
   ;;                   ((lambda () (message nil))))
 
   ;; ;;; Elisp:
-  ;; (my-hook-up
-  ;;  '(emacs-lisp-mode-hook)
-  ;;  '(
-  ;;    aggressive-indent-mode
-  ;;    paren-face-mode ; Fade parentheses.
-  ;;    ))
+  (my-hook-up
+   '(emacs-lisp-mode-hook)
+   '(
+     ;; aggressive-indent-mode
+     paren-face-mode ; Fade parentheses.
+     ))
 
   ;;; Markdown:
-  ;; (add-hook 'markdown-mode-hook
-  ;;           (lambda ()
-  ;;             (set-face-attribute 'markdown-pre-face
-  ;;                                 nil
-  ;;                                 :family (face-attribute 'fixed-pitch :family))))
+  (add-hook 'markdown-mode-hook
+            (lambda ()
+              (set-face-attribute 'markdown-pre-face
+                                  nil
+                                  :family (face-attribute 'fixed-pitch :family))))
 
   ;;; Elm:
   ;; (defun my-elm-mode-hook ()
@@ -1171,93 +1183,93 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
   ;; (add-hook 'elm-mode-hook 'my-elm-mode-hook)
 
   ;;; Sh
-  ;; (add-to-list 'auto-mode-alist '("\\.zsh$" . sh-mode))
+  (add-to-list 'auto-mode-alist '("\\.zsh$" . sh-mode))
 
   ;;; ---------------------------------------
   ;;; Lastly, some hackish theming:
   ;;; The main point is to, as much as possible without being distracting, distinguish stuff that does stuff from stuff that does not do stuff and things that look similar and act differently.
 
-  ;; (defun my-box->lines (FACE)
-  ;;   (let ((color
-  ;;          (pcase (face-attribute FACE :box)
-  ;;            (`nil nil)
-  ;;            (`t (face-attribute 'default :color))
-  ;;            ((and (pred stringp) c) c)
-  ;;            (plist (plist-get plist :color)))))
-  ;;     (when color (set-face-attribute
-  ;;                  FACE nil :box nil :underline color :overline color))))
+  (defun my-box->lines (FACE)
+    (let ((color
+           (pcase (face-attribute FACE :box)
+             (`nil nil)
+             (`t (face-attribute 'default :color))
+             ((and (pred stringp) c) c)
+             (plist (plist-get plist :color)))))
+      (when color (set-face-attribute
+                   FACE nil :box nil :underline color :overline color))))
 
-  ;; (defun my-laser-minor-theme (&optional COLOR)
-  ;;   "Add borders to the mode-line and disable its background color."
-  ;;   (interactive)
-  ;;   (let ((c (if COLOR COLOR
-  ;;              (face-attribute 'my-statusbar-active-face :foreground nil 'default))))
-  ;;     (my-set-face-attributes
-  ;;      `(
-  ;;        (mode-line
-  ;;         :box nil
-  ;;         :foreground unspecified
-  ;;         :background unspecified
-  ;;         :underline ,c
-  ;;         :overline ,c
-  ;;         :inherit font-lock-comment-face)
-  ;;        (window-divider :foreground ,c)
-  ;;        ))))
+  (defun my-laser-minor-theme (&optional COLOR)
+    "Add borders to the mode-line and disable its background color."
+    (interactive)
+    (let ((c (if COLOR COLOR
+               (face-attribute 'my-statusbar-active-face :foreground nil 'default))))
+      (my-set-face-attributes
+       `(
+         (mode-line
+          :box nil
+          :foreground unspecified
+          :background unspecified
+          :underline ,c
+          :overline ,c
+          :inherit font-lock-comment-face)
+         (window-divider :foreground ,c)
+         ))))
 
-  ;; (defun my-material-minor-theme ()
-  ;;   "Remove borders from the mode-line when its background is different from the buffer's."
-  ;;   (interactive)
-  ;;   (cl-flet
-  ;;       ((unbox (FACE)
-  ;;          (unless (equal
-  ;;                   (face-attribute 'default :background)
-  ;;                   (face-attribute FACE :background nil 'default))
-  ;;            (set-face-attribute
-  ;;             FACE nil
-  ;;             :box nil
-  ;;             :underline nil
-  ;;             :overline nil))))
-  ;;     (unbox 'mode-line)
-  ;;     (unbox 'mode-line-inactive)))
+  (defun my-material-minor-theme ()
+    "Remove borders from the mode-line when its background is different from the buffer's."
+    (interactive)
+    (cl-flet
+        ((unbox (FACE)
+           (unless (equal
+                    (face-attribute 'default :background)
+                    (face-attribute FACE :background nil 'default))
+             (set-face-attribute
+              FACE nil
+              :box nil
+              :underline nil
+              :overline nil))))
+      (unbox 'mode-line)
+      (unbox 'mode-line-inactive)))
 
-  ;; (defun my-theme-tweaks ()
-  ;;   "Tweak faces to simplify themes."
-  ;;   (my-set-face-attributes
-  ;;    `(
-  ;;      ;;; Things that don't do stuff:
-  ;;      (font-lock-comment-face
-  ;;       :background unspecified
-  ;;       :slant normal)
-  ;;      (font-lock-doc-face
-  ;;       :inherit font-lock-comment-face)
-  ;;      (fringe
-  ;;       :background unspecified
-  ;;       :foreground unspecified
-  ;;       :inherit font-lock-comment-face)
-  ;;      (linum
-  ;;       :background unspecified
-  ;;       :foreground unspecified
-  ;;       :inherit font-lock-comment-face)
-  ;;      ;;; Things that do stuff:
-  ;;      (font-lock-keyword-face
-  ;;       :foreground unspecified
-  ;;       :inherit default)
-  ;;      (font-lock-function-name-face
-  ;;       :foreground unspecified
-  ;;       :inherit default)
-  ;;      (font-lock-variable-name-face
-  ;;       :foreground unspecified
-  ;;       :inherit default)
-  ;;      ;;; Things that look like other things:
-  ;;      (font-lock-string-face :slant italic)
-  ;;      ))
-  ;;   (my-fade-face-foreground 'shadow 'default)
-  ;;   (my-fade-face-foreground 'font-lock-comment-delimiter-face 'font-lock-comment-face)
-  ;;   (my-box->lines 'mode-line)
-  ;;   (my-box->lines 'mode-line-inactive)
-  ;;   (my-material-minor-theme))
-  ;; (my-theme-tweaks)
-  ;; (add-hook 'after-load-theme-hook #'my-theme-tweaks)
+  (defun my-theme-tweaks ()
+    "Tweak faces to simplify themes."
+    (my-set-face-attributes
+     `(
+       ;;; Things that don't do stuff:
+       (font-lock-comment-face
+        :background unspecified
+        :slant normal)
+       (font-lock-doc-face
+        :inherit font-lock-comment-face)
+       (fringe
+        :background unspecified
+        :foreground unspecified
+        :inherit font-lock-comment-face)
+       (linum
+        :background unspecified
+        :foreground unspecified
+        :inherit font-lock-comment-face)
+       ;;; Things that do stuff:
+       (font-lock-keyword-face
+        :foreground unspecified
+        :inherit default)
+       (font-lock-function-name-face
+        :foreground unspecified
+        :inherit default)
+       (font-lock-variable-name-face
+        :foreground unspecified
+        :inherit default)
+       ;;; Things that look like other things:
+       (font-lock-string-face :slant italic)
+       ))
+    (my-fade-face-foreground 'shadow 'default)
+    (my-fade-face-foreground 'font-lock-comment-delimiter-face 'font-lock-comment-face)
+    (my-box->lines 'mode-line)
+    (my-box->lines 'mode-line-inactive)
+    (my-material-minor-theme))
+  (my-theme-tweaks)
+  (add-hook 'after-load-theme-hook #'my-theme-tweaks)
 
   )
 
