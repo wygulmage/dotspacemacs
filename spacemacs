@@ -426,17 +426,6 @@ This function is called immediately after `dotspacemacs/init', before layer conf
 (defun dotspacemacs/user-config ()
   "Configuration function for user code.
 This function is called at the very end of Spacemacs initialization, after layers configuration. Put your configuration code--except for variables that should be set before a package is loaded--here."
-  ;; (unless (fboundp '-fn)
-  ;;   (defalias '-fn #'-lambda
-  ;;     "`-lambda' is a pattern-matching `lambda' from `dash.el'. This alias exists only to make anonymous definitons use less space."))
-
-  ;; (unless (fboundp '-deffn)
-  ;;   (defmacro -deffn (NAME ARGLIST &optional DOCSTRING DECLARATIONS &rest BODY)
-  ;;     `(fset ,NAME
-  ;;            (-fn ,ARGLIST
-  ;;                 DOCSTRING
-  ;;                 DECLARATIONS
-  ;;                 ,@BODY))))
 
 ;;;; Indent forms properly
   ;; (defun use-cl-indent (PROCEDURE INDENT-PROPERTY)
@@ -478,23 +467,10 @@ This function is called at the very end of Spacemacs initialization, after layer
 
 ;;; Hooks:
 
-  ;; (defmacro my-make-hook-mac (WHEN PROCEDURE &optional CONTINGENT)
-  ;;   (let* ((hook-name (my-mkstr WHEN "-" PROCEDURE "-hook"))
-  ;;          (existing-hook (intern-soft hook-name))
-  ;;          (hook-symbol (or existing-hook (intern hook-name))))
-  ;;     `(progn
-  ;;        (if ,(and existing-hook (boundp existing-hook))
-  ;;            (dolist (p (reverse ,CONTINGENT))
-  ;;              (add-hook `,hook-symbol p))
-  ;;            (progn
-  ;;              (defvar
-  ;;                ,hook-symbol
-  ;;                ,CONTINGENT
-  ;;                (my-mkstr "procedures to run " WHEN " `" PROCEDURE "'"))
-  ;;              (advice-add ,PROCEDURE ,WHEN
-  ;;                          (lambda (&rest _)
-  ;;                            (run-hooks (quote ,hook-symbol))))))
-  ;;        ,hook-symbol)))
+  (defun my-bind-hook (HOOK WHEN PROCEDURE)
+    (advice-add PROCEDURE WHEN
+                (lambda (&rest _)
+                   (run-hooks `,HOOK))))
 
   ;; (defun my-make-hook (WHEN PROCEDURE &optional CONTINGENT)
   ;;   "Create hook WHEN-PROCEDURE-hook to run WHEN PROCEDURE is called, unless it is already defined. The CONTINGENT functions are added to the hook regardless."
@@ -533,7 +509,7 @@ This function is called at the very end of Spacemacs initialization, after layer
   (defvar my-primary-pane (frame-selected-window)
     "The pane that has an active mode-line.")
 
-  (defun my-set-primary-pane ()
+  (defun my-set-primary-pane (&rest _)
     "Set the primary pane."
     (let ((p (frame-selected-window)))
       (unless (minibuffer-window-active-p p)
@@ -542,16 +518,13 @@ This function is called at the very end of Spacemacs initialization, after layer
   (defun my-primary-pane-active? ()
     (eq my-primary-pane (selected-window)))
 
-  ;; (my-make-hook-mac :after select-frame)
+  ;; (my-make-hook :after 'select-frame)
   (defvar after-select-frame-hook nil)
-  (advice-add 'select-frame :after
-              (lambda (&rest _)
-                (run-hooks 'after-select-frame-hook)))
-  ;; (my-make-hook-mac :after handle-select-window)
+  (my-bind-hook 'after-select-frame-hook :after 'select-frame)
+
+  ;; (my-make-hook :after 'handle-select-window)
   (defvar after-handle-select-window-hook nil)
-  (advice-add 'after-handle-select-window :after
-              (lambda (&rest _)
-                (run-hooks 'after-handle-select-window-hooks)))
+  (my-bind-hook 'after-handle-select-window-hook :after 'handle-select-window)
 
   (my-hook-up
    '(
@@ -812,11 +785,9 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
      'my-statusbar-inactive-face))
   (my-reset-statusbar-faces)
 
-  ;; (my-make-hook-mac :after load-theme (my-reset-statusbar-faces))
+  ;; (my-make-hook :after 'load-theme (my-reset-statusbar-faces))
   (defvar after-load-theme-hook ())
-  (advice-add 'load-theme :after
-              (lambda (&rest _)
-                (run-hooks 'after-load-theme-hook)))
+  (my-bind-hook 'after-load-theme-hook :after 'load-theme)
 
   (defun my-buffer-name ()
     "The name of the buffer. If it's a file, show the directory on hover and open dired with a click."
@@ -1017,9 +988,9 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
 
   ;; Refresh VC state to update mode line info. Fall back to expensive vc-find-file-hook if `vc-refresh-state' is not available.
 
-  ;; (my-make-hook-mac :after magit-run-git)
+  ;; (my-make-hook :after 'magit-run-git)
 
-  ;; (my-make-hook-mac :after magit-start-process)
+  ;; (my-make-hook :after 'magit-start-process)
 
   ;; (my-hook-up
   ;;  '(
@@ -1157,7 +1128,7 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
 
   ;;;Ranger
   ;; Don't annoy me with constant messages obscuring important minibuffer information.
-  ;; (my-make-hook-mac :after ranger-kill-buffers-without-window
+  ;; (my-make-hook :after 'ranger-kill-buffers-without-window
   ;;                   ((lambda () (message nil))))
 
   ;; ;;; Elisp:
