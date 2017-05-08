@@ -1,5 +1,7 @@
 ;; -*- mode: emacs-lisp; lexical-binding: t -*-
 ;; This file is loaded by Spacemacs at startup. It must be stored in your home directory.
+;; FIXME: `gui-get-primary-selection' tries to activate on entering this buffer and fails with a message.
+;; FIXME: `emacs-lisp' layer pops up an args out of bounds error on save.
 (defun dotspacemacs/layers ()
   "Configuration layers:
 This function should only set values."
@@ -57,7 +59,7 @@ This function should only set values."
      ;; better-defaults
      ;; vinegar ; dired
      ;; ;;; Checking & Completion:
-     ;; auto-completion
+     auto-completion
      ivy
      ;; ;; (spell-checking :variables
      ;; ;;  spell-checking-enable-by-default nil
@@ -92,14 +94,14 @@ This function should only set values."
    dotspacemacs-additional-packages
    `(
      ;; ;; Basic Libraries
-     ;; dash ; list functions
+     dash ; list functions
      ;; dash-functional
      ;; ;; Other Stuff
      ;; ;; (acme-mouse :location (recipe :fetcher github :repo "akrito/acme-mouse")) ; does not work in Spacemacs.
-     ;; adaptive-wrap
+     adaptive-wrap
      ;; aggressive-indent
      ;; company
-     ;; paren-face
+     paren-face
      ;; ;; (shen-elisp ; I have not been using shen-elisp.
      ;; ;;  :location (recipe :repo "deech/shen-elisp"
      ;; ;;                    :fetcher github
@@ -114,13 +116,13 @@ This function should only set values."
    ;; Packages and extensions that will not be installed or loaded:
    dotspacemacs-excluded-packages
    '(
-     ;; fancy-battery ; The GUI shell shows this.
-     ;; helm ; Use ivy instead.
-     ;; highlight-indentation ; Indentation shows this.
-     ;; highlight-parentheses ; Use paren-face-mode instead.
+     fancy-battery ; The GUI shell shows this.
+     helm ; Use ivy instead.
+     highlight-indentation ; Indentation shows this.
+     highlight-parentheses ; Use paren-face-mode instead.
      orgit ; Doesn't fetch Org properly.
-     ;; powerline ; Use customized modeline instead.
-     ;; spray ; Not currently using spacemacs for speed reading.
+     powerline ; Use customized modeline instead.
+     spray ; Not currently using spacemacs for speed reading.
      )
    ))
 
@@ -511,33 +513,33 @@ This function is called at the very end of Spacemacs initialization, after layer
   ;;       (add-hook hook-symbol contingent-proc))
   ;;     hook-symbol))
 
-;;   (defun my-hook-up (HOOKS FUNCTIONS)
-;;     "Hang all FUNCTIONS, in order, on all HOOKS."
-;;     (dolist (hook HOOKS)
-;;       (dolist (function (reverse FUNCTIONS))
-;;         (add-hook hook function))))
+  (defun my-hook-up (HOOKS FUNCTIONS)
+    "Hang all FUNCTIONS, in order, on all HOOKS."
+    (dolist (hook HOOKS)
+      (dolist (function (reverse FUNCTIONS))
+        (add-hook hook function))))
 
-;; ;;; Buffers and Panes
+;;; Buffers and Panes
 
-;;   (defmacro my-with-buffer (BUFFER &rest BODY)
-;;     "If BUFFER is not nil, execute BODY in BUFFER. Otherwise, execute BODY (in the current buffer)."
-;;     (declare (indent 1))
-;;     `(save-current-buffer
-;;        (and ,BUFFER (set-buffer ,BUFFER))
-;;        ,@BODY))
+  (defmacro my-with-buffer (BUFFER &rest BODY)
+    "If BUFFER is not nil, execute BODY in BUFFER. Otherwise, execute BODY (in the current buffer)."
+    (declare (indent 1))
+    `(save-current-buffer
+       (and ,BUFFER (set-buffer ,BUFFER))
+       ,@BODY))
 
-;;   ;;; Track primary pane.
-;;   (defvar my-primary-pane (frame-selected-window)
-;;     "The pane that has an active mode-line.")
+;;; Track primary pane.
+  (defvar my-primary-pane (frame-selected-window)
+    "The pane that has an active mode-line.")
 
-;;   (defun my-set-primary-pane ()
-;;     "Set the primary pane."
-;;     (let ((p (frame-selected-window)))
-;;       (unless (minibuffer-window-active-p p)
-;;         (setq my-primary-pane p))))
+  (defun my-set-primary-pane ()
+    "Set the primary pane."
+    (let ((p (frame-selected-window)))
+      (unless (minibuffer-window-active-p p)
+        (setq my-primary-pane p))))
 
-;;   (defun my-primary-pane-active? ()
-;;     (eq my-primary-pane (selected-window)))
+  (defun my-primary-pane-active? ()
+    (eq my-primary-pane (selected-window)))
 
   ;; (my-make-hook-mac :after select-frame)
   ;; (my-make-hook-mac :after handle-select-window)
@@ -552,51 +554,51 @@ This function is called at the very end of Spacemacs initialization, after layer
   ;;    )
   ;;  '(my-set-primary-pane))
 
-  ;; (defvar-local my-buffer-line-count nil)
+  (defvar-local my-buffer-line-count nil)
 
-  ;; (defun my-buffer-line-count (&optional BUFFER)
-  ;;   "Number of lines in the current buffer. If the last line of the buffer is empty, it won't be counted."
-  ;;   (my-with-buffer BUFFER
-  ;;     (count-lines (buffer-end -1) (buffer-end 1))))
+  (defun my-buffer-line-count (&optional BUFFER)
+    "Number of lines in the current buffer. If the last line of the buffer is empty, it won't be counted."
+    (my-with-buffer BUFFER
+      (count-lines (buffer-end -1) (buffer-end 1))))
 
-  ;; (defun my-set-buffer-line-count (&rest _)
-  ;;   (set 'my-buffer-line-count (my-buffer-line-count)))
+  (defun my-set-buffer-line-count (&rest _)
+    (set 'my-buffer-line-count (my-buffer-line-count)))
 
-  ;; (my-hook-up
-  ;;  '(
-  ;;    buffer-list-update-hook
-  ;;    after-change-functions
-  ;;    )
-  ;;  '(my-set-buffer-line-count))
+  (my-hook-up
+   '(
+     buffer-list-update-hook
+     after-change-functions
+     )
+   '(my-set-buffer-line-count))
 
-  ;; (defun my-buffer-file-like-p (&optional BUFFER)
-  ;;   "Is the buffer visiting something that should be a file?"
-  ;;   (my-with-buffer BUFFER
-  ;;     (or buffer-file-name
-  ;;         (derived-mode-p 'prog-mode 'text-mode))))
+  (defun my-buffer-file-like-p (&optional BUFFER)
+    "Is the buffer visiting something that should be a file?"
+    (my-with-buffer BUFFER
+      (or buffer-file-name
+          (derived-mode-p 'prog-mode 'text-mode))))
 
-  ;; ;;; Buffer and File Names
+;;; Buffer and File Names
 
-  ;; (defun my-buffer-file-path (&optional BUFFER)
-  ;;   "The file path if BUFFER is a file, otherwise nil. If BUFFER is nil, use the current buffer."
-  ;;   (let ((file (buffer-file-name BUFFER)))
-  ;;     (when file (abbreviate-file-name (file-truename file)))))
+  (defun my-buffer-file-path (&optional BUFFER)
+    "The file path if BUFFER is a file, otherwise nil. If BUFFER is nil, use the current buffer."
+    (let ((file (buffer-file-name BUFFER)))
+      (when file (abbreviate-file-name (file-truename file)))))
 
-  ;; (defun my-primary-file-or-buffer-name ()
-  ;;   "The name of the file or buffer in the primary pane."
-  ;;   (let ((b (window-buffer my-primary-pane)))
-  ;;     (or (my-buffer-file-path b)
-  ;;         (buffer-name b))))
+  (defun my-primary-file-or-buffer-name ()
+    "The name of the file or buffer in the primary pane."
+    (let ((b (window-buffer my-primary-pane)))
+      (or (my-buffer-file-path b)
+          (buffer-name b))))
 
-  ;; (defvar-local my-file-VC-status nil
-  ;;   "The version-control status of the current file.")
-  ;; (defun my-file-VC-status (&optional FILE)
-  ;;   "The version-control status of FILE or the file visited by the current buffer."
-  ;;   (let ((f (or FILE (my-buffer-file-path))))
-  ;;     (and f (vc-state f))))
-  ;; (defun my-set-file-VC-status (&rest _)
-  ;;   "Set the buffer-local variable `my-file-VC-status' to the version-control status of the file visited by the current buffer."
-  ;;   (set 'my-file-VC-status (my-file-VC-status)))
+  (defvar-local my-file-VC-status nil
+    "The version-control status of the current file.")
+  (defun my-file-VC-status (&optional FILE)
+    "The version-control status of FILE or the file visited by the current buffer."
+    (let ((f (or FILE (my-buffer-file-path))))
+      (and f (vc-state f))))
+  (defun my-set-file-VC-status (&rest _)
+    "Set the buffer-local variable `my-file-VC-status' to the version-control status of the file visited by the current buffer."
+    (set 'my-file-VC-status (my-file-VC-status)))
 
   ;; ;; Ways `magit' can run git:
   ;; ;; `magit-start-process'
@@ -611,132 +613,132 @@ This function is called at the very end of Spacemacs initialization, after layer
   ;; ;; `magit-run-git-with-logfile' uses `magit-process-file'.
   ;; ;; `magit-git-wash'
 
-  ;; (my-hook-up
-  ;;  '(
-  ;;    after-save-hook
-  ;;    find-file-hook
-  ;;    first-change-hook
-  ;;    )
-  ;;  '(my-set-file-VC-status))
+  (my-hook-up
+   '(
+     after-save-hook
+     find-file-hook
+     first-change-hook
+     )
+   '(my-set-file-VC-status))
 
-  ;; (defun my-file-VC-status-string ()
-  ;;   "A string that represents the VC status of the file visited by the current buffer."
-  ;;   (pcase my-file-VC-status
-  ;;     (`up-to-date "")
-  ;;     (`ignored "")
-  ;;     (`edited "◆")
-  ;;     (`needs-update "U")
-  ;;     (`needs-merge "M")
-  ;;     (`added "+")
-  ;;     (`removed "-")
-  ;;     (`conflict "!")
-  ;;     (`missing "?")
-  ;;     (_ nil)))
+  (defun my-file-VC-status-string ()
+    "A string that represents the VC status of the file visited by the current buffer."
+    (pcase my-file-VC-status
+      (`up-to-date "")
+      (`ignored "")
+      (`edited "◆")
+      (`needs-update "U")
+      (`needs-merge "M")
+      (`added "+")
+      (`removed "-")
+      (`conflict "!")
+      (`missing "?")
+      (_ nil)))
 
-;; ;;; Numbers:
+;;; Numbers:
 
-;;   (defun my-digits (N)
-;;     "Number -> Integer
-;; The number of decimal digits of N, including any period as a digit."
-;;     (length (number-to-string N)))
+  (defun my-digits (N)
+    "Number -> Integer
+The number of decimal digits of N, including any period as a digit."
+    (length (number-to-string N)))
 
-;; ;;; Strings:
+;;; Strings:
 
-;;   (defun my-pad (W S)
-;;     "Integer -> String -> String
-;; Pad string S with spaces to width W. A negative width means add the padding on the right."
-;;     (format (concat "%" (number-to-string W) "s") S))
+  (defun my-pad (W S)
+    "Integer -> String -> String
+Pad string S with spaces to width W. A negative width means add the padding on the right."
+    (format (concat "%" (number-to-string W) "s") S))
 
-;; ;;; Colors
+;;; Colors
 
-;;   (defun max-color-val ()
-;;     "The current maximum value for emacs color triplets."
-;;     (car (color-values "white")))
+  (defun max-color-val ()
+    "The current maximum value for emacs color triplets."
+    (car (color-values "white")))
 
-;;   (defun my-color-values->string (C)
-;;     "(R G B) -> String
-;; Create a color string from and Emacs numerical color triplet."
-;;     ;; Normalize to (0, 255).
-;;     (-let* ((ratio (/ (max-color-val) 255))
-;;             ((r g b) (mapcar (lambda (x) (truncate x ratio))
-;;                              C)))
-;;       (format "#%02X%02X%02X" r g b)))
+  (defun my-color-values->string (C)
+    "(R G B) -> String
+Create a color string from and Emacs numerical color triplet."
+    ;; Normalize to (0, 255).
+    (-let* ((ratio (/ (max-color-val) 255))
+            ((r g b) (mapcar (lambda (x) (truncate x ratio))
+                             C)))
+      (format "#%02X%02X%02X" r g b)))
 
-;;   (defun my-blend-colors (C1 C2)
-;;     "(R G B) -> (R G B) -> (R G B)
-;; Evenly blend C1 and C2, two emacs color triplets."
-;;     (-zip-with (lambda (X Y) (truncate (+ X Y) 2))
-;;                C1 C2))
+  (defun my-blend-colors (C1 C2)
+    "(R G B) -> (R G B) -> (R G B)
+Evenly blend C1 and C2, two emacs color triplets."
+    (-zip-with (lambda (X Y) (truncate (+ X Y) 2))
+               C1 C2))
 
-;;   (defun my-intensify-color (COLOR REFERENCE)
-;;     "(R G B) -> (R G B) -> (R G B)
-;; Shift COLOR away from REFERENCE."
-;;     (my-blend-colors COLOR
-;;                      (color-values (if (> (-sum COLOR)
-;;                                           (-sum REFERENCE))
-;;                                        "white"
-;;                                      "black"))))
+  (defun my-intensify-color (COLOR REFERENCE)
+    "(R G B) -> (R G B) -> (R G B)
+Shift COLOR away from REFERENCE."
+    (my-blend-colors COLOR
+                     (color-values (if (> (-sum COLOR)
+                                          (-sum REFERENCE))
+                                       "white"
+                                     "black"))))
 
-;;   (defun my-intensify-color2 (COLOR REFERENCE)
-;;     "(R G B) -> (R G B) -> (R G B)
-;; Shift COLOR away from REFERENCE."
-;;     (let ((white (max-color-val)))
-;;       (-zip-with (lambda (C R)
-;;                    (truncate (if (> C R)
-;;                                  (+ C white)
-;;                                C)
-;;                              2))
-;;                  COLOR REFERENCE)))
+  (defun my-intensify-color2 (COLOR REFERENCE)
+    "(R G B) -> (R G B) -> (R G B)
+Shift COLOR away from REFERENCE."
+    (let ((white (max-color-val)))
+      (-zip-with (lambda (C R)
+                   (truncate (if (> C R)
+                                 (+ C white)
+                               C)
+                             2))
+                 COLOR REFERENCE)))
 
-;; ;;; Fonts & Faces
+;;; Fonts & Faces
 
-;;   (defun my-select-font (FONTS)
-;;     "Return the first available font in FONTS, or the default font if none are available."
-;;     (cond ((null FONTS) (face-attribute 'default :family))
-;;           ((member (car FONTS) (font-family-list)) (car FONTS))
-;;           (t (my-select-font (cdr FONTS)))))
+  (defun my-select-font (FONTS)
+    "Return the first available font in FONTS, or the default font if none are available."
+    (cond ((null FONTS) (face-attribute 'default :family))
+          ((member (car FONTS) (font-family-list)) (car FONTS))
+          (t (my-select-font (cdr FONTS)))))
 
-;;   (defun my-def-faces (GROUP &rest FACES)
-;;     "Create FACES (name docstring properties) in GROUP. No fancy business here; the display is always t."
-;;     (declare (indent 1))
-;;     (dolist (face FACES)
-;;       (-let [(name docstring . properties) face]
-;;         (custom-declare-face name (list (cons t properties)) docstring :group GROUP))))
+  (defun my-def-faces (GROUP &rest FACES)
+    "Create FACES (name docstring properties) in GROUP. No fancy business here; the display is always t."
+    (declare (indent 1))
+    (dolist (face FACES)
+      (-let [(name docstring . properties) face]
+        (custom-declare-face name (list (cons t properties)) docstring :group GROUP))))
 
-;;   (defun my-set-face-attributes (L &optional BUFFER)
-;;     "From list L of (face :attr-1 a1 :attr-2 a2 ...) lists, give each face its attributes. Create undefined faces."
-;;     (dolist (x L)
-;;       (-let [(face . attributes) x]
-;;         (unless (facep face) (make-face face))
-;;         (apply 'set-face-attribute face BUFFER attributes))))
+  (defun my-set-face-attributes (L &optional BUFFER)
+    "From list L of (face :attr-1 a1 :attr-2 a2 ...) lists, give each face its attributes. Create undefined faces."
+    (dolist (x L)
+      (-let [(face . attributes) x]
+        (unless (facep face) (make-face face))
+        (apply 'set-face-attribute face BUFFER attributes))))
 
-;;   (defun my-fade-face-foreground (FACE REFERENCE)
-;;     "Make FACE's foreground a less intense version of REFERENCE's.
-;; REFERENCE is used to avoid fading FACE into oblivion with repreated applications."
-;;     (cl-flet
-;;         ((color-of (KEY)
-;;            (color-values (face-attribute REFERENCE KEY nil 'default))))
-;;       (set-face-attribute
-;;        FACE
-;;        nil
-;;        :foreground (my-color-values->string
-;;                     (my-blend-colors (color-of :foreground)
-;;                                      (color-of :background))))))
+  (defun my-fade-face-foreground (FACE REFERENCE)
+    "Make FACE's foreground a less intense version of REFERENCE's.
+REFERENCE is used to avoid fading FACE into oblivion with repreated applications."
+    (cl-flet
+        ((color-of (KEY)
+           (color-values (face-attribute REFERENCE KEY nil 'default))))
+      (set-face-attribute
+       FACE
+       nil
+       :foreground (my-color-values->string
+                    (my-blend-colors (color-of :foreground)
+                                     (color-of :background))))))
 
-;;   (defun my--shift-face-foreground (FUNCTION FACE REFERENCE)
-;;     "Set FACE's foreground to the result of applying FUNCTION to REFERENCE's foreground and background."
-;;     (cl-flet ((color-of (KEY)
-;;                 (color-values (face-attribute REFERENCE KEY nil 'default))))
-;;       (set-face-attribute
-;;        FACE
-;;        nil
-;;        :foreground (my-color-values->string
-;;                     (funcall FUNCTION
-;;                              (color-of :foreground)
-;;                              (color-of :background))))))
+  (defun my--shift-face-foreground (FUNCTION FACE REFERENCE)
+    "Set FACE's foreground to the result of applying FUNCTION to REFERENCE's foreground and background."
+    (cl-flet ((color-of (KEY)
+                (color-values (face-attribute REFERENCE KEY nil 'default))))
+      (set-face-attribute
+       FACE
+       nil
+       :foreground (my-color-values->string
+                    (funcall FUNCTION
+                             (color-of :foreground)
+                             (color-of :background))))))
 
-;;   (defun my-intensify-face-foreground (FACE REFERENCE)
-;;     (my--shift-face-foreground #'my-intensify-color2 FACE REFERENCE))
+  (defun my-intensify-face-foreground (FACE REFERENCE)
+    (my--shift-face-foreground #'my-intensify-color2 FACE REFERENCE))
 
   ;;; ----------------------------------------------
 ;;   ;;; Mode Line, Header Line, and Frame Title Format
