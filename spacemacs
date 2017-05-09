@@ -40,12 +40,12 @@ This function should only set values."
       rainbow-x-colors nil
       rainbow-html-colors nil
       )
-     ;; ;; (org :variables org-enable-github-support t)
-     ;; ;; (ranger :variables
-     ;; ;;  ranger-override-dired t
-     ;; ;;  ranger-show-preview t
-     ;; ;;  ranger-show-literal nil
-     ;; ;;  )
+     ;; (org :variables org-enable-github-support t)
+     ;; (ranger :variables
+     ;;  ranger-override-dired t
+     ;;  ranger-show-preview t
+     ;;  ranger-show-literal nil
+     ;;  )
      ;; (shell :variables
      ;;  shell-default-height 30
      ;;  shell-default-position 'bottom)
@@ -73,7 +73,7 @@ This function should only set values."
      ;; ;;           semantic
      ;; ;;           srefactor)
      ;; elm
-     ;; emacs-lisp
+     emacs-lisp
      ;; haskell
      (html :variables ; for CSS ; this is called web-mode, not html-mode
       web-mode-css-indent-offset 2
@@ -181,8 +181,8 @@ This function is called at the very startup of Spacemacs initialization before l
    ;; Will the startup buffer resize?
    dotspacemacs-startup-buffer-responsive t
 
-   ;; Major mode of the scratch buffer:
-   dotspacemacs-scratch-mode 'text-mode ; default 'text-mode
+   ;; Major mode of the *scratch* buffer:
+   dotspacemacs-scratch-mode 'emacs-lisp-mode ; default 'text-mode
 
    ;; Themes:
    ;; The first of the list is loaded when spacemacs starts. Press <SPC> T n to cycle to the next theme in the list (works great with 2 themes variants, one dark and one light).
@@ -460,36 +460,23 @@ This function is called at the very end of Spacemacs initialization, after layer
       (mapc #'my-princ ARGS)))
 
   (defun my-isymb (&rest ARGS)
-    (intern (funcall #'my-mkstr ARGS)))
+    (intern (apply #'my-mkstr ARGS)))
 
   (defun my-nsymb (&rest ARGS)
-    (make-symbol (funcall #'my-mkstr ARGS)))
+    (make-symbol (apply #'my-mkstr ARGS)))
 
 ;;; Hooks:
 
-  (defun my-bind-hook (HOOK WHEN PROCEDURE)
-    "Run HOOK WHEN PROCEDURE."
-    (advice-add PROCEDURE WHEN
-                (lambda (&rest _)
-                   (run-hooks `,HOOK))))
-
-  ;; (defun my-make-hook (WHEN PROCEDURE &optional CONTINGENT)
-  ;;   "Create hook WHEN-PROCEDURE-hook to run WHEN PROCEDURE is called, unless it is already defined. The CONTINGENT functions are added to the hook regardless."
-  ;;   (let* ((hook-name (my-mkstr WHEN "-" PROCEDURE "-hook"))
-  ;;          (existing-hook (intern-soft hook-name))
-  ;;          (hook-symbol (or existing-hook (intern hook-name))))
-  ;;     (unless existing-hook
-  ;;       (set hook-symbol nil)
-  ;;       (put hook-symbol 'variable-documentation
-  ;;            (my-mkstr "procedures to run " WHEN " `" PROCEDURE "'"))
-  ;;       (advice-add
-  ;;        PROCEDURE
-  ;;        WHEN
-  ;;        (lambda (&rest _)
-  ;;          (run-hooks `,hook-symbol))))
-  ;;     (dolist (contingent-proc (reverse CONTINGENT))
-  ;;       (add-hook hook-symbol contingent-proc))
-  ;;     hook-symbol))
+  (defmacro my-make-hook (WHEN PROCEDURE &optional CONTINGENT)
+    (let* ((hook (my-isymb WHEN "-" PROCEDURE "-hook"))
+          (run-hook (my-isymb "run-" hook)))
+      `(progn
+         (defvar ,hook ',CONTINGENT
+           ,(my-mkstr "procedures to run " WHEN " `" PROCEDURE "'"))
+         (defun ,run-hook (&rest _)
+           ,(my-mkstr "Use `run-hooks' to run `" hook "'.")
+           (run-hooks ',hook))
+         (advice-add ',PROCEDURE ,WHEN #',run-hook '((name . ,run-hook))))))
 
   (defun my-hook-up (HOOKS FUNCTIONS)
     "Hang all FUNCTIONS, in order, on all HOOKS."
@@ -519,13 +506,13 @@ This function is called at the very end of Spacemacs initialization, after layer
   (defun my-primary-pane-active? ()
     (eq my-primary-pane (selected-window)))
 
-  ;; (my-make-hook :after 'select-frame)
-  (defvar after-select-frame-hook nil)
-  (my-bind-hook 'after-select-frame-hook :after 'select-frame)
+  (my-make-hook :after select-frame)
+  ;; (defvar after-select-frame-hook nil)
+  ;; (my-bind-hook 'after-select-frame-hook :after 'select-frame)
 
-  ;; (my-make-hook :after 'handle-select-window)
-  (defvar after-handle-select-window-hook nil)
-  (my-bind-hook 'after-handle-select-window-hook :after 'handle-select-window)
+  (my-make-hook :after handle-select-window)
+  ;; (defvar after-handle-select-window-hook nil)
+  ;; (my-bind-hook 'after-handle-select-window-hook :after 'handle-select-window)
 
   (my-hook-up
    '(
@@ -538,14 +525,13 @@ This function is called at the very end of Spacemacs initialization, after layer
    '(my-set-primary-pane))
 
   (defvar-local my-buffer-line-count nil)
-
   (defun my-buffer-line-count (&optional BUFFER)
     "Number of lines in the current buffer. If the last line of the buffer is empty, it won't be counted."
     (my-with-buffer BUFFER
       (count-lines (buffer-end -1) (buffer-end 1))))
 
   (defun my-set-buffer-line-count (&rest _)
-    (set 'my-buffer-line-count (my-buffer-line-count)))
+    (setf my-buffer-line-count (my-buffer-line-count)))
 
   (my-hook-up
    '(
@@ -573,15 +559,16 @@ This function is called at the very end of Spacemacs initialization, after layer
       (or (my-buffer-file-path b)
           (buffer-name b))))
 
-  (defvar-local my-file-VC-status nil
-    "The version-control status of the current file.")
-  (defun my-file-VC-status (&optional FILE)
-    "The version-control status of FILE or the file visited by the current buffer."
-    (let ((f (or FILE (my-buffer-file-path))))
-      (and f (vc-state f))))
-  (defun my-set-file-VC-status (&rest _)
-    "Set the buffer-local variable `my-file-VC-status' to the version-control status of the file visited by the current buffer."
-    (set 'my-file-VC-status (my-file-VC-status)))
+  ;;; The hook for this may be failing and messing things up.
+  ;; (defvar-local my-file-vc-status nil
+  ;;   "The version-control status of the current file.")
+  ;; (defun my-file-vc-status (&optional FILE)
+  ;;   "The version-control status of FILE or the file visited by the current buffer."
+  ;;   (let ((f (or FILE (my-buffer-file-path))))
+  ;;     (and f (vc-state f))))
+  ;; (defun my-set-file-vc-status (&rest _)
+  ;;   "Set the buffer-local variable `my-file-vc-status' to the version-control status of the file visited by the current buffer."
+  ;;   (setf my-file-vc-status (my-file-vc-status)))
 
   ;; ;; Ways `magit' can run git:
   ;; ;; `magit-start-process'
@@ -596,27 +583,27 @@ This function is called at the very end of Spacemacs initialization, after layer
   ;; ;; `magit-run-git-with-logfile' uses `magit-process-file'.
   ;; ;; `magit-git-wash'
 
-  (my-hook-up
-   '(
-     after-save-hook
-     find-file-hook
-     first-change-hook
-     )
-   '(my-set-file-VC-status))
+  ;; (my-hook-up
+  ;;  '(
+  ;;    after-save-hook
+  ;;    find-file-hook
+  ;;    first-change-hook
+  ;;    )
+  ;;  '(my-set-file-vc-status))
 
-  (defun my-file-VC-status-string ()
-    "A string that represents the VC status of the file visited by the current buffer."
-    (pcase my-file-VC-status
-      (`up-to-date "")
-      (`ignored "")
-      (`edited "◆")
-      (`needs-update "U")
-      (`needs-merge "M")
-      (`added "+")
-      (`removed "-")
-      (`conflict "!")
-      (`missing "?")
-      (_ nil)))
+  ;; (defun my-file-vc-status-string ()
+  ;;   "A string that represents the VC status of the file visited by the current buffer."
+  ;;   (pcase my-file-vc-status
+  ;;     (`up-to-date "")
+  ;;     (`ignored "")
+  ;;     (`edited "◆")
+  ;;     (`needs-update "U")
+  ;;     (`needs-merge "M")
+  ;;     (`added "+")
+  ;;     (`removed "-")
+  ;;     (`conflict "!")
+  ;;     (`missing "?")
+  ;;     (_ nil)))
 
 ;;; Numbers:
 
@@ -786,9 +773,9 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
      'my-statusbar-inactive-face))
   (my-reset-statusbar-faces)
 
-  ;; (my-make-hook :after 'load-theme (my-reset-statusbar-faces))
-  (defvar after-load-theme-hook ())
-  (my-bind-hook 'after-load-theme-hook :after 'load-theme)
+  (my-make-hook :after load-theme (my-reset-statusbar-faces))
+  ;; (defvar after-load-theme-hook nil)
+  ;; (my-bind-hook 'after-load-theme-hook :after 'load-theme)
 
   (defun my-buffer-name ()
     "The name of the buffer. If it's a file, show the directory on hover and open dired with a click."
