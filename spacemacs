@@ -1,4 +1,4 @@
-;; -*- mode: emacs-lisp; lexical-binding: t -*-
+;; -*- mode: emacs-lisp; lexical-binding: t; -*-
 ;; This file is loaded by Spacemacs at startup. It must be stored in your home directory.
 ;; FIXME: `gui-get-primary-selection' tries to activate on entering this buffer and fails with a message.
 ;; FIXME: `emacs-lisp' layer pops up an args out of bounds error on save.
@@ -159,7 +159,7 @@ This function is called at the very startup of Spacemacs initialization before l
    ;; The value can also be a list with :variables keyword. Check the editing styles section of the documentation for details on available variables.
 
    ;; Will Spacemacs output loading progress to the *Messages* buffer?
-   dotspacemacs-verbose-loading nil
+   dotspacemacs-verbose-loading t
 
    ;; Will Spacemacs display a progress bar when loading? This may increase the boot time.
    dotspacemacs-loading-progress-bar nil
@@ -468,7 +468,10 @@ This function is called at the very end of Spacemacs initialization, after layer
 ;;; Hooks:
 
   (defmacro my-make-hook (WHEN PROCEDURE &optional CONTINGENT)
-    (let* ((hook (my-isymb WHEN "-" PROCEDURE "-hook"))
+    "Set up a hook to run WHEN PROCEDURE—
+• Create variable WHEN-PROCEDURE-hook and assign it the value CONTINGENT.
+• Create function run-WHEN-PROCEDURE-hook to run WHEN-PROCEDURE-hook using `run-hooks'.
+• Use `advice-add' to add run-WHEN-PROCEDURE-hook as advice to PROCEDURE." (let* ((hook (my-isymb WHEN "-" PROCEDURE "-hook"))
           (run-hook (my-isymb "run-" hook)))
       `(progn
          (defvar ,hook ',CONTINGENT
