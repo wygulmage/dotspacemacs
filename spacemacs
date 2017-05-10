@@ -187,16 +187,15 @@ This function is called at the very startup of Spacemacs initialization before l
    ;; Themes:
    ;; The first of the list is loaded when spacemacs starts. Press <SPC> T n to cycle to the next theme in the list (works great with 2 themes variants, one dark and one light).
    dotspacemacs-themes
-   ;; (if (string= system-type "gnu/linux")
-   ;;     '(
-   ;;     spacemacs-dark ; dark theme
-   ;;     leuven ; light theme
-   ;;     )
+   (if (string= system-type "gnu/linux")
+       '(
+       spacemacs-dark ; dark theme
+       leuven ; light theme
+       )
     '(
        leuven ; light theme
        spacemacs-dark ; dark theme
-       )
-     ;; )
+       ))
 
    ;; Will the cursor color match the state color in GUI Spacemacs?
    dotspacemacs-colorize-cursor-according-to-state t
