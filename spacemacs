@@ -491,9 +491,8 @@ This function is called at the very end of Spacemacs initialization, after layer
   (defmacro my-with-buffer (BUFFER &rest BODY)
     "If BUFFER is not nil, execute BODY in BUFFER. Otherwise, execute BODY (in the current buffer)."
     (declare (indent 1))
-    `(if ,BUFFER
-         (with-current-buffer ,BUFFER
-           ,@BODY)
+    `(save-current-buffer
+       (and ,BUFFER (set-buffer ,BUFFER))
        ,@BODY))
 
 ;;; Track primary pane.
