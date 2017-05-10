@@ -467,11 +467,12 @@ This function is called at the very end of Spacemacs initialization, after layer
 ;;; Hooks:
 
   (defmacro my-make-hook (WHEN PROCEDURE &optional CONTINGENT)
-    "Set up a hook to run WHEN PROCEDURE--
-* Create variable WHEN-PROCEDURE-hook and assign it the value CONTINGENT.
-* Create function run-WHEN-PROCEDURE-hook to run WHEN-PROCEDURE-hook using `run-hooks'.
-* Use `advice-add' to add run-WHEN-PROCEDURE-hook as advice to PROCEDURE." (let* ((hook (my-isymb WHEN "-" PROCEDURE "-hook"))
-          (run-hook (my-isymb "run-" hook)))
+    "Set up a hook to run WHEN PROCEDURE.
+Create variable WHEN-PROCEDURE-hook and assign it the value CONTINGENT.
+Create function run-WHEN-PROCEDURE-hook to run WHEN-PROCEDURE-hook using `run-hooks'.
+Use `advice-add' to add run-WHEN-PROCEDURE-hook as advice to PROCEDURE."
+    (let* ((hook (my-isymb WHEN "-" PROCEDURE "-hook"))
+           (run-hook (my-isymb "run-" hook)))
       `(progn
          (defvar ,hook ',CONTINGENT
            ,(my-mkstr "procedures to run " WHEN " `" PROCEDURE "'"))
@@ -689,7 +690,7 @@ Shift COLOR away from REFERENCE."
 REFERENCE is used to avoid fading FACE into oblivion with repreated applications."
     (cl-flet
         ((color-of (KEY)
-           (color-values (face-attribute REFERENCE KEY nil 'default))))
+                   (color-values (face-attribute REFERENCE KEY nil 'default))))
       (set-face-attribute
        FACE
        nil
@@ -700,7 +701,7 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
   (defun my--shift-face-foreground (FUNCTION FACE REFERENCE)
     "Set FACE's foreground to the result of applying FUNCTION to REFERENCE's foreground and background."
     (cl-flet ((color-of (KEY)
-                (color-values (face-attribute REFERENCE KEY nil 'default))))
+                        (color-values (face-attribute REFERENCE KEY nil 'default))))
       (set-face-attribute
        FACE
        nil
@@ -713,7 +714,7 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
     (my--shift-face-foreground #'my-intensify-color2 FACE REFERENCE))
 
   ;;; ----------------------------------------------
-;;   ;;; Mode Line, Header Line, and Frame Title Format
+  ;;   ;;; Mode Line, Header Line, and Frame Title Format
 
   (my-def-faces 'statusbar
     '(my-statusbar-active-face
@@ -786,7 +787,7 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
                     'help-echo (abbreviate-file-name buffer-file-truename)
                     'local-map (make-mode-line-mouse-map
                                 'mouse-1 (lambda () (interactive)
-                                                 (dired (file-name-directory buffer-file-truename)))))
+                                           (dired (file-name-directory buffer-file-truename)))))
       (buffer-name)))
 
   (defun my-major-mode-name ()
@@ -832,7 +833,7 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
        'help-echo (if (bound-and-true-p linum-mode) "Hide line numbers." "Show line numbers.")
        'local-map (make-mode-line-mouse-map 'mouse-1 #'linum-mode))))
 
-;; ;;; TODO: Create shortened mode-line faces for a collapsed but visible mode line.
+  ;; ;;; TODO: Create shortened mode-line faces for a collapsed but visible mode line.
 
   (defvar my-base-mode-line-format
     '(:eval
@@ -1025,39 +1026,39 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
 
   (unless (string= system-type "gnu/linux")
     (define-key help-mode-map
-        (kbd "<mouse-4>") 'help-go-back) ; mouse forwards
+      (kbd "<mouse-4>") 'help-go-back) ; mouse forwards
     (define-key help-mode-map
-        (kbd "<mouse-5>") 'help-go-forward)) ; mouse back
+      (kbd "<mouse-5>") 'help-go-forward)) ; mouse back
 
   ;; Navigate wrapped lines.
   (define-key evil-normal-state-map
-      (kbd "j") 'evil-next-visual-line)
+    (kbd "j") 'evil-next-visual-line)
   (define-key evil-normal-state-map
-      (kbd "k") 'evil-previous-visual-line)
+    (kbd "k") 'evil-previous-visual-line)
 
   ;; ;; Paste with Ctrl p.
   ;; (define-key evil-insert-state-map
   ;;     (kbd "C-p") 'evil-paste-after)
 
 ;;; Insert unicode character with Ctrl Shift u.
-;;   (defun my-ivy-prefix-sort (name candidates)
-;;     "Re-sort CANDIDATES.
-;; Prefix matches to NAME are put ahead of the list, with the shortest matches first."
-;;     ;; What I want it to push exact matches to the top.
-;;     (if (or (string-match "^\\^" name) (string= name ""))
-;;         candidates
-;;       (let ((re-prefix (concat "^" (funcall ivy--regex-function name)))
-;;             res-prefix
-;;             res-noprefix)
-;;         (dolist (s candidates)
-;;           (if (string-match re-prefix s)
-;;               (push s res-prefix)
-;;             (push s res-noprefix)))
-;;         (nconc
-;;          res-prefix
-;;          (nreverse res-noprefix)))))
-;;   (add-to-list 'ivy-sort-matches-functions-alist
-;;                '(counsel-unicode-char . my-ivy-prefix-sort))
+  ;;   (defun my-ivy-prefix-sort (name candidates)
+  ;;     "Re-sort CANDIDATES.
+  ;; Prefix matches to NAME are put ahead of the list, with the shortest matches first."
+  ;;     ;; What I want it to push exact matches to the top.
+  ;;     (if (or (string-match "^\\^" name) (string= name ""))
+  ;;         candidates
+  ;;       (let ((re-prefix (concat "^" (funcall ivy--regex-function name)))
+  ;;             res-prefix
+  ;;             res-noprefix)
+  ;;         (dolist (s candidates)
+  ;;           (if (string-match re-prefix s)
+  ;;               (push s res-prefix)
+  ;;             (push s res-noprefix)))
+  ;;         (nconc
+  ;;          res-prefix
+  ;;          (nreverse res-noprefix)))))
+  ;;   (add-to-list 'ivy-sort-matches-functions-alist
+  ;;                '(counsel-unicode-char . my-ivy-prefix-sort))
 
   ;; (defun my-ivy-compare-strings-by-length (S1 S2)
   ;;   "Compare first by length (shortest first), then alphabetically (case insensitive)"
@@ -1104,8 +1105,8 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
 
   ;; ;;; Mouse & copy / paste / delete
   (setq
-  ;;  ;; mouse-drag-copy-region t ; Copy on select -- disable for acme-mouse.
-  ;;  delete-selection-mode t ; Allow typing over the selection.
+   ;;  ;; mouse-drag-copy-region t ; Copy on select -- disable for acme-mouse.
+   ;;  delete-selection-mode t ; Allow typing over the selection.
    kill-do-not-save-duplicates t ; Don't copy identical text twice.
    )
 
@@ -1182,14 +1183,14 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
     (interactive)
     (cl-flet
         ((unbox (FACE)
-           (unless (equal
-                    (face-attribute 'default :background)
-                    (face-attribute FACE :background nil 'default))
-             (set-face-attribute
-              FACE nil
-              :box nil
-              :underline nil
-              :overline nil))))
+                (unless (equal
+                         (face-attribute 'default :background)
+                         (face-attribute FACE :background nil 'default))
+                  (set-face-attribute
+                   FACE nil
+                   :box nil
+                   :underline nil
+                   :overline nil))))
       (unbox 'mode-line)
       (unbox 'mode-line-inactive)))
 
