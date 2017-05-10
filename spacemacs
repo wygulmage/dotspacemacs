@@ -674,16 +674,16 @@ Shift COLOR away from REFERENCE."
   (defun my-def-faces (GROUP &rest FACES)
     "Create FACES (name docstring properties) in GROUP. No fancy business here; the display is always t."
     (declare (indent 1))
-    (dolist (face FACES)
-      (-let [(name docstring . properties) face]
-        (custom-declare-face name (list (cons t properties)) docstring :group GROUP))))
+    (cl-loop
+     for (name docstring . properties) in FACES
+     do (custom-declare-face name `((t . ,properties)) docstring :group GROUP)))
 
   (defun my-set-face-attributes (L &optional BUFFER)
     "From list L of (face :attr-1 a1 :attr-2 a2 ...) lists, give each face its attributes. Create undefined faces."
-    (dolist (x L)
-      (-let [(face . attributes) x]
-        (unless (facep face) (make-face face))
-        (apply 'set-face-attribute face BUFFER attributes))))
+    (cl-loop for (face . attributes) in L
+             do
+             (unless (facep face) (make-face face))
+             (apply 'set-face-attribute face BUFFER attributes)))
 
   (defun my-fade-face-foreground (FACE REFERENCE)
     "Make FACE's foreground a less intense version of REFERENCE's.
