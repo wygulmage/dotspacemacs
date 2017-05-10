@@ -467,10 +467,10 @@ This function is called at the very end of Spacemacs initialization, after layer
 ;;; Hooks:
 
   (defmacro my-make-hook (WHEN PROCEDURE &optional CONTINGENT)
-    "Set up a hook to run WHEN PROCEDURE—
-• Create variable WHEN-PROCEDURE-hook and assign it the value CONTINGENT.
-• Create function run-WHEN-PROCEDURE-hook to run WHEN-PROCEDURE-hook using `run-hooks'.
-• Use `advice-add' to add run-WHEN-PROCEDURE-hook as advice to PROCEDURE." (let* ((hook (my-isymb WHEN "-" PROCEDURE "-hook"))
+    "Set up a hook to run WHEN PROCEDURE--
+* Create variable WHEN-PROCEDURE-hook and assign it the value CONTINGENT.
+* Create function run-WHEN-PROCEDURE-hook to run WHEN-PROCEDURE-hook using `run-hooks'.
+* Use `advice-add' to add run-WHEN-PROCEDURE-hook as advice to PROCEDURE." (let* ((hook (my-isymb WHEN "-" PROCEDURE "-hook"))
           (run-hook (my-isymb "run-" hook)))
       `(progn
          (defvar ,hook ',CONTINGENT
