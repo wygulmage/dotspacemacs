@@ -93,21 +93,21 @@ This function should only set values."
    ;; If you need configuration for these packages, consider creating a layer. You can also put the configuration in dotspacemacs/user-config.
    dotspacemacs-additional-packages
    `(
-     ;; ;; Basic Libraries
+     ;; Basic Libraries
      dash ; list functions
      ;; dash-functional
-     ;; ;; Other Stuff
-     ;; ;; (acme-mouse :location (recipe :fetcher github :repo "akrito/acme-mouse")) ; does not work in Spacemacs.
+     ;; Other Stuff
+     ;; (acme-mouse :location (recipe :fetcher github :repo "akrito/acme-mouse")) ; does not work in Spacemacs.
      adaptive-wrap
      ;; aggressive-indent
      ;; company
      paren-face
-     ;; ;; (shen-elisp ; I have not been using shen-elisp.
-     ;; ;;  :location (recipe :repo "deech/shen-elisp"
-     ;; ;;                    :fetcher github
-     ;; ;;                    :files ("shen*.el"))
-     ;; ;;  :upgrade 't
-     ;; ;;  )
+     ;; (shen-elisp ; I have not been using shen-elisp.
+     ;;  :location (recipe :repo "deech/shen-elisp"
+     ;;                    :fetcher github
+     ;;                    :files ("shen*.el"))
+     ;;  :upgrade 't
+     ;;  )
      )
 
    ;; Packages that will not be updated:
@@ -491,8 +491,9 @@ This function is called at the very end of Spacemacs initialization, after layer
   (defmacro my-with-buffer (BUFFER &rest BODY)
     "If BUFFER is not nil, execute BODY in BUFFER. Otherwise, execute BODY (in the current buffer)."
     (declare (indent 1))
-    `(save-current-buffer
-       (and ,BUFFER (set-buffer ,BUFFER))
+    `(if ,BUFFER
+         (with-current-buffer ,BUFFER
+           ,@BODY)
        ,@BODY))
 
 ;;; Track primary pane.
