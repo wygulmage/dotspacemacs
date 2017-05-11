@@ -610,6 +610,7 @@ Use `advice-add' to add run-WHEN-PROCEDURE-hook as advice to PROCEDURE."
   (defun my-digits (N)
     "Number -> Integer
 The number of decimal digits of N, including any period as a digit."
+    (declare (pure t) (side-effect-free t))
     (length (number-to-string N)))
 
 ;;; Strings:
@@ -617,6 +618,7 @@ The number of decimal digits of N, including any period as a digit."
   (defun my-pad (W S)
     "Integer -> String -> String
 Pad string S with spaces to width W. A negative width means add the padding on the right."
+    (declare (pure t) (side-effect-free t))
     (format (concat "%" (number-to-string W) "s") S))
 
 ;;; Colors
@@ -629,6 +631,7 @@ Pad string S with spaces to width W. A negative width means add the padding on t
     "(R G B) -> String
 Create a color string from and Emacs numerical color triplet."
     ;; Normalize to (0, 255).
+    (declare (pure t) (side-effect-free t))
     (-let* ((ratio (/ (max-color-val) 255))
             ((r g b) (mapcar (lambda (x) (truncate x ratio))
                              C)))
@@ -637,12 +640,14 @@ Create a color string from and Emacs numerical color triplet."
   (defun my-blend-colors (C1 C2)
     "(R G B) -> (R G B) -> (R G B)
 Evenly blend C1 and C2, two emacs color triplets."
+    (declare (pure t) (side-effect-free t))
     (-zip-with (lambda (X Y) (truncate (+ X Y) 2))
                C1 C2))
 
   (defun my-intensify-color (COLOR REFERENCE)
     "(R G B) -> (R G B) -> (R G B)
 Shift COLOR away from REFERENCE."
+    (declare (pure t) (side-effect-free t))
     (my-blend-colors COLOR
                      (color-values (if (> (-sum COLOR)
                                           (-sum REFERENCE))
@@ -652,6 +657,7 @@ Shift COLOR away from REFERENCE."
   (defun my-intensify-color2 (COLOR REFERENCE)
     "(R G B) -> (R G B) -> (R G B)
 Shift COLOR away from REFERENCE."
+    (declare (pure t) (side-effect-free t))
     (let ((white (max-color-val)))
       (-zip-with (lambda (C R)
                    (truncate (if (> C R)
@@ -794,7 +800,7 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
                 'local-map mode-line-major-mode-keymap))
 
   (defun my-buffer-write-status ()
-    "Show whether a file-like buffer has been modified since its last save; click to save. Should 'do what I mean'."
+    "Show whether a file-like buffer has been modified since its last save; click to save."
     (if (not (my-buffer-file-like-p))
         "" ; Ignore buffers that aren't files.
       (my-pad 1 (propertize
