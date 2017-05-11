@@ -779,9 +779,7 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
      'my-statusbar-inactive-face))
   (my-reset-statusbar-faces)
 
-  (my-make-hook :after load-theme (my-reset-statusbar-faces))
-  ;; (defvar after-load-theme-hook nil)
-  ;; (my-bind-hook 'after-load-theme-hook :after 'load-theme)
+  (my-make-hook :after load-theme my-reset-statusbar-faces)
 
   (defun my-buffer-name ()
     "The name of the buffer. If it's a file, show the directory on hover and open dired with a click."
