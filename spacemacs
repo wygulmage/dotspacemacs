@@ -528,7 +528,7 @@ Use `advice-add' to add run-WHEN-PROCEDURE-hook as advice to PROCEDURE."
   (defun my-buffer-line-count (&optional BUFFER)
     "Number of lines in the current buffer. If the last line of the buffer is empty, it won't be counted."
     (my-with-buffer BUFFER
-      (count-lines (buffer-end -1) (buffer-end 1))))
+      (count-lines (point-min) (point-max))))
 
   (defun my-set-buffer-line-count (&rest _)
     (setf my-buffer-line-count (my-buffer-line-count)))
