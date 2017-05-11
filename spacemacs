@@ -466,11 +466,12 @@ This function is called at the very end of Spacemacs initialization, after layer
 
 ;;; Hooks:
 
-  (defmacro my-make-hook (WHEN PROCEDURE &optional CONTINGENT)
+  (defmacro my-make-hook (WHEN PROCEDURE &rest CONTINGENT)
     "Set up a hook to run WHEN PROCEDURE.
 Create variable WHEN-PROCEDURE-hook and assign it the value CONTINGENT.
 Create function run-WHEN-PROCEDURE-hook to run WHEN-PROCEDURE-hook using `run-hooks'.
 Use `advice-add' to add run-WHEN-PROCEDURE-hook as advice to PROCEDURE."
+    (declare (indent 2))
     (let* ((hook (my-isymb WHEN "-" PROCEDURE "-hook"))
            (run-hook (my-isymb "run-" hook)))
       `(progn
@@ -510,12 +511,8 @@ Use `advice-add' to add run-WHEN-PROCEDURE-hook as advice to PROCEDURE."
     (eq my-primary-pane (selected-window)))
 
   (my-make-hook :after select-frame)
-  ;; (defvar after-select-frame-hook nil)
-  ;; (my-bind-hook 'after-select-frame-hook :after 'select-frame)
 
   (my-make-hook :after handle-select-window)
-  ;; (defvar after-handle-select-window-hook nil)
-  ;; (my-bind-hook 'after-handle-select-window-hook :after 'handle-select-window)
 
   (my-hook-up
    '(
