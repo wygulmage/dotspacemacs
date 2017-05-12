@@ -102,12 +102,12 @@ This function should only set values."
      ;; aggressive-indent
      ;; company
      paren-face
-     ;; (shen-elisp ; I have not been using shen-elisp.
-     ;;  :location (recipe :repo "deech/shen-elisp"
-     ;;                    :fetcher github
-     ;;                    :files ("shen*.el"))
-     ;;  :upgrade 't
-     ;;  )
+     (shen-elisp
+      :location (recipe :repo "deech/shen-elisp"
+                        :fetcher github
+                        :files ("shen*.el"))
+      :upgrade 't
+      )
      )
 
    ;; Packages that will not be updated:
