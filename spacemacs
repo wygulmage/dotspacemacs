@@ -79,6 +79,10 @@ This function should only set values."
       web-mode-css-indent-offset 2
       web-mode-enable-css-colorization nil ; already done with colors
       )
+     (java :variables
+           eclim-eclipse-dirs '("Ix/k/Programs/eclipse/current")
+           eclim-executable "/Ix/k/Programs/eclipse/eclim/current/"
+           eclimd-default-workspace "/Ix/k/Files/Documents/Code/Java/workspaces/default")
      ;; javascript
      ;; markdown
      ;; python
@@ -93,10 +97,13 @@ This function should only set values."
    ;; If you need configuration for these packages, consider creating a layer. You can also put the configuration in dotspacemacs/user-config.
    dotspacemacs-additional-packages
    `(
-     ;; Basic Libraries
+     ;;; Basic Libraries
      dash ; list functions
      ;; dash-functional
-     ;; Other Stuff
+     ;;; Other Stuff
+     (android-mode
+      :variables
+      android-mode-sdk-dir (if (string= system-type "gnu/linux") "/Ix/k/Programs/android-sdk-tools"))
      ;; (acme-mouse :location (recipe :fetcher github :repo "akrito/acme-mouse")) ; does not work in Spacemacs.
      adaptive-wrap
      ;; aggressive-indent
@@ -1237,3 +1244,23 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
   )
 
 ;; Do not write anything past this comment. This is where Emacs will auto-generate custom variable definitions (I wish it wouldn't).
+(defun dotspacemacs/emacs-custom-settings ()
+  "Emacs custom settings.
+This is an auto-generated function, do not modify its content directly, use
+Emacs customize menu instead.
+This function is called at the very end of Spacemacs initialization."
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   (quote
+    (meghanada groovy-mode groovy-imports gradle-mode ensime sbt-mode scala-mode company-emacs-eclim eclim android-mode zonokai-theme zenburn-theme zen-and-art-theme yapfify yaml-mode xterm-color ws-butler winum window-numbering which-key wgrep web-mode web-beautify vimrc-mode uuidgen use-package unfill underwater-theme ujelly-theme twilight-theme twilight-bright-theme twilight-anti-bright-theme tronesque-theme toxi-theme tao-theme tangotango-theme tango-plus-theme tango-2-theme tagedit sunny-day-theme sublime-themes subatomic256-theme subatomic-theme string-inflection srefactor spacemacs-theme spacegray-theme soothe-theme soft-stone-theme soft-morning-theme soft-charcoal-theme smyx-theme smex smeargle slim-mode shen-elisp shell-pop seti-theme scss-mode sass-mode reverse-theme restart-emacs ranger rainbow-mode railscasts-theme quelpa pyvenv pytest pyenv-mode py-isort purple-haze-theme pug-mode professional-theme planet-theme pip-requirements phoenix-dark-pink-theme phoenix-dark-mono-theme pcre2el pastels-on-dark-theme paren-face paradox ox-gfm orgit organic-green-theme org-projectile org-present org-pomodoro org-download open-junk-file omtose-phellack-theme oldlace-theme occidental-theme obsidian-theme noctilux-theme niflheim-theme neotree naquadah-theme mwim mustang-theme multi-term move-text monokai-theme monochrome-theme molokai-theme moe-theme mmm-mode minimal-theme material-theme markdown-toc majapahit-theme magithub magit-gitflow magit-gh-pulls macrostep lush-theme lorem-ipsum livid-mode live-py-mode linum-relative link-hint light-soap-theme less-css-mode json-mode js2-refactor js-doc jbeans-theme jazz-theme ivy-hydra ir-black-theme intero inkpot-theme info+ ido-vertical-mode hy-mode hungry-delete htmlize hlint-refactor hindent heroku-theme hemisu-theme help-fns+ helm-make hc-zenburn-theme haskell-snippets gruvbox-theme gruber-darker-theme grandshell-theme gotham-theme golden-ratio gnuplot gitignore-mode github-search github-clone github-browse-file gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gist gh-md gandalf-theme fuzzy flyspell-correct-ivy flycheck-pos-tip flycheck-haskell flycheck-elm flx-ido flatui-theme flatland-theme firebelly-theme farmhouse-theme expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu espresso-theme eshell-z eshell-prompt-extras esh-help emmet-mode elm-mode elisp-slime-nav dracula-theme django-theme diff-hl darktooth-theme darkokai-theme darkmine-theme darkburn-theme dakrone-theme dactyl-mode cython-mode cyberpunk-theme counsel-projectile company-web company-tern company-statistics company-ghci company-ghc company-cabal company-anaconda color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized coffee-mode cmm-mode clues-theme clean-aindent-mode cherry-blossom-theme busybee-theme bubbleberry-theme browse-at-remote birds-of-paradise-plus-theme badwolf-theme auto-yasnippet auto-highlight-symbol auto-dictionary auto-compile apropospriate-theme anti-zenburn-theme ample-zen-theme ample-theme alect-themes aggressive-indent afternoon-theme adaptive-wrap ace-window ace-link ac-ispell))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
+)
