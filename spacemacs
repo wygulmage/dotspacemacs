@@ -125,7 +125,7 @@ This function should only set values."
    dotspacemacs-excluded-packages
    '(
      fancy-battery ; The GUI shell shows this.
-     helm ; Use ivy instead.
+     helm ; Use ivy instead. ; but this might be messing with initialization...
      highlight-indentation ; Indentation shows this.
      highlight-parentheses ; Use paren-face-mode instead.
      orgit ; Doesn't fetch Org properly.
