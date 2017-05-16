@@ -80,9 +80,10 @@ This function should only set values."
       web-mode-enable-css-colorization nil ; already done with colors
       )
      (java :variables
-           eclim-eclipse-dirs '("Ix/k/Programs/eclipse/current")
-           eclim-executable "/Ix/k/Programs/eclipse/eclim/current/"
-           eclimd-default-workspace "/Ix/k/Files/Documents/Code/Java/workspaces/default")
+           eclim-eclipse-dirs (if (string= system-type "gnu/linux")'("Ix/k/Programs/eclipse/current"))
+           eclim-executable (if (string= system-type "gnu/linux") "/Ix/k/Programs/eclipse/eclim/current/")
+           eclimd-default-workspace (if (string= system-type "gnu/linux") "/Ix/k/Files/Documents/Code/Java/workspaces/default")
+           )
      ;; javascript
      ;; markdown
      ;; python
