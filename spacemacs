@@ -5,7 +5,7 @@
 
 (defun dotspacemacs/layers ()
   "Configuration layers:
-This function should only set values."
+This function should only modify layer settings."
   (setq-default
    ;; Base setup, a layer contained in the directory `+distribution':
    dotspacemacs-distribution
