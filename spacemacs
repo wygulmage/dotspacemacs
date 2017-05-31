@@ -2,6 +2,7 @@
 ;; This file is loaded by Spacemacs at startup. It must be stored in your home directory.
 ;; FIXME: `gui-get-primary-selection' tries to activate on entering this buffer and fails with a message.
 ;; FIXME: `emacs-lisp' layer pops up an args out of bounds error on save.
+
 (defun dotspacemacs/layers ()
   "Configuration layers:
 This function should only set values."
@@ -116,6 +117,8 @@ This function should only set values."
                         :files ("shen*.el"))
       :upgrade 't
       )
+     shen-mode
+     ;; inf-shen
      )
 
    ;; Packages that will not be updated:
@@ -135,8 +138,8 @@ This function should only set values."
    ))
 
 (defun dotspacemacs/init ()
-  "Initialization function:
-This function is called at the very startup of Spacemacs initialization before layers configuration. You should not put any user code in here besides modifying the variable values."
+  "Initialization function for Spacemacs settings:
+This function is called at the beginning of Spacemacs initialization, before layers configuration. It should only modify the values of Spacemacs settings."
   ;;; Spacemacs settings:
   (setq-default
    ;;; ELPA
@@ -409,8 +412,8 @@ This function is called at the very startup of Spacemacs initialization before l
    ))
 
 (defun dotspacemacs/user-init ()
-  "Initialization function for user code.
-This function is called immediately after `dotspacemacs/init', before layer configuration. It is mostly useful for variables that must be set before packages are loaded. If you are unsure, try setting them in `dotspacemacs/user-config' first."
+  "Initialization function for user code:
+This function is called immediately after `dotspacemacs/init', before layer configuration. It is mostly useful for variables that should be set before packages are loaded. If you are unsure, try setting them in `dotspacemacs/user-config' first."
 
   (defconst the-default-mode-line mode-line-format) ; Save in case you want to know.
 
@@ -431,8 +434,8 @@ This function is called immediately after `dotspacemacs/init', before layer conf
   )
 
 (defun dotspacemacs/user-config ()
-  "Configuration function for user code.
-This function is called at the very end of Spacemacs initialization, after layers configuration. Put your configuration code--except for variables that should be set before a package is loaded--here."
+  "Configuration function for user code:
+This function is called at the very end of Spacemacs initialization, after layers configuration. Put your configuration code here, except for variables that should be set before packages are loaded."
 
 ;;;; Indent forms properly
   ;; (defun use-cl-indent (PROCEDURE INDENT-PROPERTY)
@@ -1156,6 +1159,8 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
   ;;; Sh
   (add-to-list 'auto-mode-alist '("\\.zsh$" . sh-mode))
 
+  ;;; Shen
+  (add-to-list 'auto-mode-alist '("\\.shen$" . shen-mode))
   ;;; ---------------------------------------
   ;;; Lastly, some hackish theming:
   ;;; The main point is to, as much as possible without being distracting, distinguish stuff that does stuff from stuff that does not do stuff and things that look similar and act differently.
