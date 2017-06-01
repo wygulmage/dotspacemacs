@@ -437,26 +437,7 @@ This function is called immediately after `dotspacemacs/init', before layer conf
   "Configuration function for user code:
 This function is called at the very end of Spacemacs initialization, after layers configuration. Put your configuration code here, except for variables that should be set before packages are loaded."
 
-;;;; Indent forms properly
-  ;; (defun use-cl-indent (PROCEDURE INDENT-PROPERTY)
-  ;;   (function-put PROCEDURE
-  ;;                 'lisp-indent-function
-  ;;                 #'common-lisp-indent-function)
-  ;;   (function-put PROCEDURE
-  ;;                 'common-lisp-indent-function-for-elisp
-  ;;                 INDENT-PROPERTY))
-
-  ;; (use-cl-indent 'cl-flet '((&whole 4 &rest (&whole 1 &lambda &body)) &body))
-  ;; This doesn't seem to work, so just set lisp-indent-function.
-  ;; (setq lisp-indent-function #'common-lisp-indent-function)
-
 ;;;; Helpful Procedures
-
-  ;; UNUSED
-  ;; (defun my-customize-set-variables (&rest ASSOCS)
-  ;;   "Takes zero or more (SYMBOL . VALUE) arguments and customizes SYMBOL to VALUE."
-  ;;   (dolist (key.val ASSOCS)
-  ;;     (customize-set-variable (car key.val) (cdr key.val))))
 
   (defun my-princ (OBJECT &optional PRINTCHARFUNCTION)
     "`princ' but does not print the colon of a keyword"
@@ -470,9 +451,11 @@ This function is called at the very end of Spacemacs initialization, after layer
       (mapc #'my-princ ARGS)))
 
   (defun my-isymb (&rest ARGS)
+    "Create a new interned symbol."
     (intern (apply #'my-mkstr ARGS)))
 
   (defun my-nsymb (&rest ARGS)
+    "Create a new uninterned symbol."
     (make-symbol (apply #'my-mkstr ARGS)))
 
 ;;; Hooks:
