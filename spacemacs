@@ -42,11 +42,11 @@ This function should only modify layer settings."
       rainbow-html-colors nil
       )
      ;; (org :variables org-enable-github-support t)
-     ;; (ranger :variables
-     ;;  ranger-override-dired t
-     ;;  ranger-show-preview t
-     ;;  ranger-show-literal nil
-     ;;  )
+     (ranger :variables
+       ranger-override-dired t
+       ranger-show-preview t
+       ranger-show-literal nil
+       )
      ;; (shell :variables
      ;;  shell-default-height 30
      ;;  shell-default-position 'bottom)
@@ -475,7 +475,9 @@ Use `advice-add' to add run-WHEN-PROCEDURE-hook as advice to PROCEDURE."
            ,(my-mkstr "Use `run-hooks' to run `" hook "'.")
            (when ,hook
              (run-hooks ',hook)))
-         (advice-add ',PROCEDURE ,WHEN #',run-hook '((name . ,run-hook))))))
+         (advice-add ',PROCEDURE ,WHEN #',run-hook
+                     '((name . ,run-hook)
+                       (depth . -100))))))
 
   (defun my-hook-up (HOOKS FUNCTIONS)
     "Hang all FUNCTIONS, in order, on all HOOKS."
@@ -774,7 +776,8 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
      'my-statusbar-inactive-face))
   (my-reset-statusbar-faces)
 
-  (my-make-hook :after load-theme my-reset-statusbar-faces)
+  (my-make-hook :after load-theme
+    my-reset-statusbar-faces)
 
   (defun my-buffer-name ()
     "The name of the buffer. If it's a file, show the directory on hover and open dired with a click."
@@ -906,12 +909,12 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
   (defun my-reset-font-height-by-platform ()
     "Make the font bigger if running linux, because my laptop runs linux and my desktop runs Windows."
     (let ((h (if (string= system-type "gnu/linux") 148 120)))
-      (dolist (face '(
+      (dolist (f '(
                       default
                       fixed-pitch
                       variable-pitch
                       ))
-        (set-face-attribute face nil :height h))))
+        (set-face-attribute f nil :height h))))
 
   (my-hook-up
    '(
