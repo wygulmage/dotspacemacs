@@ -91,7 +91,7 @@ This function should only modify layer settings."
      ;; vimscript
      ;;; VC:
      git
-     github
+     ;; github ; seems broken
      version-control
      )
 
