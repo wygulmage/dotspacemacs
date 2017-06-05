@@ -439,12 +439,12 @@ This function is called at the very end of Spacemacs initialization, after layer
 
 ;;;; Helpful Procedures
 
-  (defun my-princ (OBJECT &optional PRINTCHARFUNCTION)
+  (defun my-princ (OBJECT &optional PRINT-CHAR-FUNCTION)
     "`princ' but does not print the colon of a keyword"
     (princ (if (keywordp OBJECT)
                (substring (symbol-name OBJECT) 1)
              OBJECT)
-           PRINTCHARFUNCTION))
+           PRINT-CHAR-FUNCTION))
 
   (defun my-mkstr (&rest ARGS)
     (with-output-to-string
@@ -463,7 +463,7 @@ This function is called at the very end of Spacemacs initialization, after layer
   (defmacro my-make-hook (WHEN PROCEDURE &rest CONTINGENT)
     "Set up a hook to run WHEN PROCEDURE.
 Create variable WHEN-PROCEDURE-hook and assign it the value CONTINGENT.
-Create function run-WHEN-PROCEDURE-hook to run WHEN-PROCEDURE-hook using `run-hooks'.
+Create function run-WHEN-PROCEDURE-hook to run WHEN PROCEDURE-hook using `run-hooks'.
 Use `advice-add' to add run-WHEN-PROCEDURE-hook as advice to PROCEDURE."
     (declare (indent 2))
     (let* ((hook (my-isymb WHEN "-" PROCEDURE "-hook"))
@@ -473,14 +473,15 @@ Use `advice-add' to add run-WHEN-PROCEDURE-hook as advice to PROCEDURE."
            ,(my-mkstr "procedures to run " WHEN " `" PROCEDURE "'"))
          (defun ,run-hook (&rest _)
            ,(my-mkstr "Use `run-hooks' to run `" hook "'.")
-           (run-hooks ',hook))
+           (when ,hook
+             (run-hooks ',hook)))
          (advice-add ',PROCEDURE ,WHEN #',run-hook '((name . ,run-hook))))))
 
   (defun my-hook-up (HOOKS FUNCTIONS)
     "Hang all FUNCTIONS, in order, on all HOOKS."
-    (dolist (hook HOOKS)
-      (dolist (function (reverse FUNCTIONS))
-        (add-hook hook function))))
+    (dolist (h HOOKS)
+      (dolist (f (reverse FUNCTIONS))
+        (add-hook h f))))
 
 ;;; Buffers and Panes
 
