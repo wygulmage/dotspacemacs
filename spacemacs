@@ -4,8 +4,8 @@
 ;; FIXME: `emacs-lisp' layer pops up an args out of bounds error on save.
 
 (defun dotspacemacs/layers ()
-  "Configuration layers:
-This function should only modify layer settings."
+  "Layer configuration:
+This function should only modify configuration layer settings."
   (setq-default
    ;; Base setup, a layer contained in the directory `+distribution':
    dotspacemacs-distribution
@@ -138,8 +138,10 @@ This function should only modify layer settings."
    ))
 
 (defun dotspacemacs/init ()
-  "Initialization function for Spacemacs settings:
-This function is called at the beginning of Spacemacs initialization, before layers configuration. It should only modify the values of Spacemacs settings."
+  "Initialization:
+This function is called at the very beginning of Spacemacs startup,
+before layer configuration.
+It should only modify the values of Spacemacs settings."
   ;;; Spacemacs settings:
   (setq-default
    ;;; ELPA
@@ -412,8 +414,11 @@ This function is called at the beginning of Spacemacs initialization, before lay
    ))
 
 (defun dotspacemacs/user-init ()
-  "Initialization function for user code:
-This function is called immediately after `dotspacemacs/init', before layer configuration. It is mostly useful for variables that should be set before packages are loaded. If you are unsure, try setting them in `dotspacemacs/user-config' first."
+  "Initialization for user code:
+This function is called immediately after `dotspacemacs/init', before layer
+configuration.
+It is mostly for variables that should be set before packages are loaded.
+If you are unsure, try setting them in `dotspacemacs/user-config' first."
 
   (defconst the-default-mode-line mode-line-format) ; Save in case you want to know.
 
@@ -434,8 +439,11 @@ This function is called immediately after `dotspacemacs/init', before layer conf
   )
 
 (defun dotspacemacs/user-config ()
-  "Configuration function for user code:
-This function is called at the very end of Spacemacs initialization, after layers configuration. Put your configuration code here, except for variables that should be set before packages are loaded."
+  "Configuration for user code:
+This function is called at the very end of Spacemacs startup, after layer
+configuration.
+Put your configuration code here, except for variables that should be set
+before packages are loaded."
 
 ;;;; Helpful Procedures
 
