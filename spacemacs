@@ -471,20 +471,18 @@ before packages are loaded."
   (defmacro my-make-hook (WHEN PROCEDURE &rest CONTINGENT)
     "Set up a hook to run WHEN PROCEDURE.
 Create variable WHEN-PROCEDURE-hook and assign it the value CONTINGENT.
-Create function run-WHEN-PROCEDURE-hook to run WHEN PROCEDURE-hook using `run-hooks'.
+Create function WHEN-PROCEDURE-hook to run WHEN PROCEDURE-hook using `run-hooks'.
 Use `advice-add' to add run-WHEN-PROCEDURE-hook as advice to PROCEDURE."
     (declare (indent 2))
-    (let* ((hook (my-isymb WHEN "-" PROCEDURE "-hook"))
-           (run-hook (my-isymb "run-" hook)))
+    (let ((hook (my-isymb WHEN "-" PROCEDURE "-hook")))
       `(progn
          (defvar ,hook ',CONTINGENT
            ,(my-mkstr "procedures to run " WHEN " `" PROCEDURE "'"))
-         (defun ,run-hook (&rest _)
+         (defun ,hook (&rest _)
            ,(my-mkstr "Use `run-hooks' to run `" hook "'.")
-           (when ,hook
-             (run-hooks ',hook)))
-         (advice-add ',PROCEDURE ,WHEN #',run-hook
-                     '((name . ,run-hook)
+             (run-hooks ',hook))
+         (advice-add ',PROCEDURE ,WHEN #',hook
+                     '((name . ,hook)
                        (depth . -100))))))
 
   (defun my-hook-up (HOOKS FUNCTIONS)
