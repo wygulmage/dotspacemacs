@@ -626,48 +626,20 @@ Pad string S with spaces to width W. A negative width means add the padding on t
 
 ;;; Colors
 
-  (defun max-color-val ()
-    "The current maximum value for emacs color triplets."
-    (car (color-values "white")))
-
-  (defun my-color-values->string (C)
-    "(R G B) -> String
-Create a color string from and Emacs numerical color triplet."
-    ;; Normalize to (0, 255).
-    (declare (pure t) (side-effect-free t))
-    (-let* ((ratio (/ (max-color-val) 255))
-            ((r g b) (mapcar (lambda (x) (truncate x ratio))
-                             C)))
-      (format "#%02X%02X%02X" r g b)))
-
   (defun my-blend-colors (C1 C2)
     "(R G B) -> (R G B) -> (R G B)
-Evenly blend C1 and C2, two emacs color triplets."
+Evenly blend C1 and C2, two emacs RGB triplets."
     (declare (pure t) (side-effect-free t))
-    (-zip-with (lambda (X Y) (truncate (+ X Y) 2))
+    (-zip-with (lambda (X Y) (* 0.5 (+ X Y)))
                C1 C2))
 
   (defun my-intensify-color (COLOR REFERENCE)
     "(R G B) -> (R G B) -> (R G B)
 Shift COLOR away from REFERENCE."
     (declare (pure t) (side-effect-free t))
-    (my-blend-colors COLOR
-                     (color-values (if (> (-sum COLOR)
-                                          (-sum REFERENCE))
-                                       "white"
-                                     "black"))))
-
-  (defun my-intensify-color2 (COLOR REFERENCE)
-    "(R G B) -> (R G B) -> (R G B)
-Shift COLOR away from REFERENCE."
-    (declare (pure t) (side-effect-free t))
-    (let ((white (max-color-val)))
-      (-zip-with (lambda (C R)
-                   (truncate (if (> C R)
-                                 (+ C white)
-                               C)
-                             2))
-                 COLOR REFERENCE)))
+    (-zip-with (lambda (C R)
+                 (* 0.5 (+ C (if (> C R) 1 0))))
+               COLOR REFERENCE))
 
 ;;; Fonts & Faces
 
@@ -696,28 +668,29 @@ Shift COLOR away from REFERENCE."
 REFERENCE is used to avoid fading FACE into oblivion with repreated applications."
     (cl-flet
         ((color-of (KEY)
-                   (color-values (face-attribute REFERENCE KEY nil 'default))))
+                   (color-name-to-rgb (face-attribute REFERENCE KEY nil 'default))))
       (set-face-attribute
        FACE
        nil
-       :foreground (my-color-values->string
+       :foreground (apply #'color-rgb-to-hex
                     (my-blend-colors (color-of :foreground)
                                      (color-of :background))))))
 
   (defun my--shift-face-foreground (FUNCTION FACE REFERENCE)
     "Set FACE's foreground to the result of applying FUNCTION to REFERENCE's foreground and background."
-    (cl-flet ((color-of (KEY)
-                        (color-values (face-attribute REFERENCE KEY nil 'default))))
+    (cl-flet
+        ((color-of (KEY)
+           (color-name-to-rgb (face-attribute REFERENCE KEY nil 'default))))
       (set-face-attribute
        FACE
        nil
-       :foreground (my-color-values->string
+       :foreground (apply #'color-rgb-to-hex
                     (funcall FUNCTION
                              (color-of :foreground)
                              (color-of :background))))))
 
   (defun my-intensify-face-foreground (FACE REFERENCE)
-    (my--shift-face-foreground #'my-intensify-color2 FACE REFERENCE))
+    (my--shift-face-foreground #'my-intensify-color FACE REFERENCE))
 
   ;;; ----------------------------------------------
   ;;   ;;; Mode Line, Header Line, and Frame Title Format
