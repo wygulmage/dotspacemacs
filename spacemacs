@@ -127,13 +127,11 @@ This function should only modify configuration layer settings."
    ;; Packages and extensions that will not be installed or loaded:
    dotspacemacs-excluded-packages
    '(
-     fancy-battery ; The GUI shell shows this.
      helm ; Use ivy instead. ; but this might be messing with initialization...
      highlight-indentation ; Indentation shows this.
      highlight-parentheses ; Use paren-face-mode instead.
      orgit ; Doesn't fetch Org properly.
      powerline ; Use customized modeline instead.
-     spray ; Not currently using spacemacs for speed reading.
      )
    ))
 
