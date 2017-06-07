@@ -103,8 +103,7 @@ This function should only modify configuration layer settings."
      dash ; list functions
      ;; dash-functional
      ;;; Other Stuff
-     (android-mode
-      :variables
+     (android-mode :variables
       android-mode-sdk-dir (if (string= system-type "gnu/linux") "/Ix/k/Programs/android-sdk-tools"))
      ;; (acme-mouse :location (recipe :fetcher github :repo "akrito/acme-mouse")) ; does not work in Spacemacs.
      adaptive-wrap
@@ -887,10 +886,10 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
     "Make the font bigger if running linux, because my laptop runs linux and my desktop runs Windows."
     (let ((h (if (string= system-type "gnu/linux") 148 120)))
       (dolist (f '(
-                      default
-                      fixed-pitch
-                      variable-pitch
-                      ))
+                   default
+                   fixed-pitch
+                   variable-pitch
+                   ))
         (set-face-attribute f nil :height h))))
 
   (my-hook-up
@@ -1068,13 +1067,12 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
     (interactive)
     (text-scale-decrease 1.01))
   (dolist (x '(
-               (my-zoom-in "C-<mouse-4>" "C-<wheel-up>")
-               (my-zoom-out "C-<mouse-5>" "C-<wheel-down>")
+               [my-zoom-in "C-<mouse-4>" "C-<wheel-up>"]
+               [my-zoom-out "C-<mouse-5>" "C-<wheel-down>"]
                ))
     (global-set-key
-     (kbd (nth (if (string= system-type "gnu/linux") 1 2)
-               x))
-     (nth 0 x)))
+     (kbd (aref x (if (string= system-type "gnu/linux") 1 2)))
+     (aref x 0)))
 
   ;;; Use hex for unicode character input.
   (setq-default read-quoted-char-radix 16)
