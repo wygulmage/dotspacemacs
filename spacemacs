@@ -463,7 +463,7 @@ before packages are loaded."
     "Create a new uninterned symbol."
     (make-symbol (apply #'my-mkstr ARGS)))
 
-;;; Hooks:
+;;; Hooks
 
   (defmacro my-make-hook (WHEN PROCEDURE &rest CONTINGENT)
     "Set up a hook to run WHEN PROCEDURE.
@@ -477,7 +477,7 @@ Use `advice-add' to add run-WHEN-PROCEDURE-hook as advice to PROCEDURE."
            ,(my-mkstr "procedures to run " WHEN " `" PROCEDURE "'"))
          (defun ,hook (&rest _)
            ,(my-mkstr "Use `run-hooks' to run `" hook "'.")
-             (run-hooks ',hook))
+           (run-hooks ',hook))
          (advice-add ',PROCEDURE ,WHEN #',hook
                      '((name . ,hook)
                        (depth . -100))))))
@@ -670,21 +670,21 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
        FACE
        nil
        :foreground (apply #'color-rgb-to-hex
-                    (my-blend-colors (color-of :foreground)
-                                     (color-of :background))))))
+                          (my-blend-colors (color-of :foreground)
+                                           (color-of :background))))))
 
   (defun my--shift-face-foreground (FUNCTION FACE REFERENCE)
     "Set FACE's foreground to the result of applying FUNCTION to REFERENCE's foreground and background."
     (cl-flet
         ((color-of (KEY)
-           (color-name-to-rgb (face-attribute REFERENCE KEY nil 'default))))
+                   (color-name-to-rgb (face-attribute REFERENCE KEY nil 'default))))
       (set-face-attribute
        FACE
        nil
        :foreground (apply #'color-rgb-to-hex
-                    (funcall FUNCTION
-                             (color-of :foreground)
-                             (color-of :background))))))
+                          (funcall FUNCTION
+                                   (color-of :foreground)
+                                   (color-of :background))))))
 
   (defun my-intensify-face-foreground (FACE REFERENCE)
     (my--shift-face-foreground #'my-intensify-color FACE REFERENCE))
@@ -1087,6 +1087,15 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
   ;;; -------------------------
   ;;; Major Mode Configurations
 
+  ;;; Lisps
+  (setq-default
+   lisp-minor-modes
+   '(
+     aggressive-indent-mode
+     paren-face-mode
+     smartparens-mode
+     ))
+
   ;;; Git
   ;; Use spacemacs for editing git commit messages.
   ;; (global-git-commit-mode t)
@@ -1099,10 +1108,7 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
   ;; ;;; Elisp:
   (my-hook-up
    '(emacs-lisp-mode-hook)
-   '(
-     ;; aggressive-indent-mode
-     paren-face-mode ; Fade parentheses.
-     ))
+   lisp-minor-modes)
 
   ;;; Markdown:
   (add-hook 'markdown-mode-hook
@@ -1123,7 +1129,11 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
 
   ;;; Shen
   (add-to-list 'auto-mode-alist '("\\.shen$" . shen-mode))
-  ;;; ---------------------------------------
+  (my-hook-up
+   '(shen-mode-hook)
+   lisp-minor-modes)
+
+ ;;; ---------------------------------------
   ;;; Lastly, some hackish theming:
   ;;; The main point is to, as much as possible without being distracting, distinguish stuff that does stuff from stuff that does not do stuff and things that look similar and act differently.
 
