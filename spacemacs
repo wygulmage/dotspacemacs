@@ -443,7 +443,37 @@ configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
 
+
 ;;;; Helpful Procedures
+
+  (defun my-group (N LIST)
+    (when LIST
+      (cons (seq-take LIST N)
+            (my-group N (nthcdr N LIST)))))
+
+  (defmacro my-let (&rest BINDINGS.EXPRESSION)
+    (let ((bs (my-group 2 (butlast BINDINGS.EXPRESSION)))
+          (e (car (last BINDINGS.EXPRESSION))))
+      `(let ,bs
+         ,e)))
+
+  (defmacro my-let* (&rest BINDINGS.EXPRESSION)
+    (let ((bs (my-group 2 (butlast BINDINGS.EXPRESSION)))
+          (e (car (last BINDINGS.EXPRESSION))))
+      `(let* ,bs
+         ,e)))
+
+  (defmacro my-if (&rest CONDITIONS)
+    (my-let*
+     rev-c (reverse (my-group 2 CONDITIONS))
+     final (car rev-c)
+     cs (reverse
+         (cons (if (> 2 (length final))
+                   (cons t final)
+                 final)
+               (cdr rev-c)))
+
+     `(cond ,@cs)))
 
   (defun my-princ (OBJECT &optional PRINT-CHAR-FUNCTION)
     "`princ' but does not print the colon of a keyword"
@@ -472,16 +502,18 @@ Create variable WHEN-PROCEDURE-hook and assign it the value CONTINGENT.
 Create function WHEN-PROCEDURE-hook to run WHEN PROCEDURE-hook using `run-hooks'.
 Use `advice-add' to add run-WHEN-PROCEDURE-hook as advice to PROCEDURE."
     (declare (indent 2))
-    (let ((hook (my-isymb WHEN "-" PROCEDURE "-hook")))
-      `(progn
-         (defvar ,hook ',CONTINGENT
-           ,(my-mkstr "procedures to run " WHEN " `" PROCEDURE "'"))
-         (defun ,hook (&rest _)
-           ,(my-mkstr "Use `run-hooks' to run `" hook "'.")
-           (run-hooks ',hook))
-         (advice-add ',PROCEDURE ,WHEN #',hook
-                     '((name . ,hook)
-                       (depth . -100))))))
+    (my-let
+     hook (my-isymb WHEN "-" PROCEDURE "-hook")
+
+     `(progn
+        (defvar ,hook ',CONTINGENT
+          ,(my-mkstr "procedures to run " WHEN " `" PROCEDURE "'"))
+        (defun ,hook (&rest _)
+          ,(my-mkstr "Use `run-hooks' to run `" hook "'.")
+          (run-hooks ',hook))
+        (advice-add ',PROCEDURE ,WHEN #',hook
+                    '((name . ,hook)
+                      (depth . -100))))))
 
   (defun my-hook-up (HOOKS FUNCTIONS)
     "Hang all FUNCTIONS, in order, on all HOOKS."
@@ -504,9 +536,11 @@ Use `advice-add' to add run-WHEN-PROCEDURE-hook as advice to PROCEDURE."
 
   (defun my-set-primary-pane (&rest _)
     "Set the primary pane."
-    (let ((p (frame-selected-window)))
-      (unless (minibuffer-window-active-p p)
-        (setq my-primary-pane p))))
+    (my-let
+     p (frame-selected-window)
+
+     (unless (minibuffer-window-active-p p)
+       (setq my-primary-pane p))))
 
   (defun my-primary-pane-active? ()
     (eq my-primary-pane (selected-window)))
@@ -551,14 +585,18 @@ Use `advice-add' to add run-WHEN-PROCEDURE-hook as advice to PROCEDURE."
 
   (defun my-buffer-file-path (&optional BUFFER)
     "The file path if BUFFER is a file, otherwise nil. If BUFFER is nil, use the current buffer."
-    (let ((file (buffer-file-name BUFFER)))
-      (when file (abbreviate-file-name (file-truename file)))))
+    (my-let
+     file (buffer-file-name BUFFER)
+
+     (when file (abbreviate-file-name (file-truename file)))))
 
   (defun my-primary-file-or-buffer-name ()
     "The name of the file or buffer in the primary pane."
-    (let ((b (window-buffer my-primary-pane)))
-      (or (my-buffer-file-path b)
-          (buffer-name b))))
+    (my-let
+     b (window-buffer my-primary-pane)
+
+     (or (my-buffer-file-path b)
+         (buffer-name b))))
 
   ;;; The hook for this may be failing and messing things up.
   ;; (defvar-local my-file-vc-status nil
@@ -643,9 +681,9 @@ Shift COLOR away from REFERENCE."
 
   (defun my-select-font (FONTS)
     "Return the first available font in FONTS, or the default font if none are available."
-    (cond ((null FONTS) (face-attribute 'default :family))
-          ((member (car FONTS) (font-family-list)) (car FONTS))
-          (t (my-select-font (cdr FONTS)))))
+    (my-if (null FONTS) (face-attribute 'default :family)
+           (member (car FONTS) (font-family-list)) (car FONTS)
+           (my-select-font (cdr FONTS))))
 
   (defun my-def-faces (GROUP &rest FACES)
     "Create FACES (name docstring properties) in GROUP. No fancy business here; the display is always t."
@@ -800,14 +838,16 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
 
   (defun my-line-position ()
     "Current line / total lines. Click to toggle line numbers."
-    (let ((lines (number-to-string my-buffer-line-count)))
-      (propertize
-       (concat
-        (my-pad (length lines) (format-mode-line "%l"))
-        (propertize "/" 'face (my-get-statusbar-shadow-face))
-        lines)
-       'help-echo (if (bound-and-true-p linum-mode) "Hide line numbers." "Show line numbers.")
-       'local-map (make-mode-line-mouse-map 'mouse-1 #'linum-mode))))
+    (my-let
+     lines (number-to-string my-buffer-line-count)
+
+     (propertize
+      (concat
+       (my-pad (length lines) (format-mode-line "%l"))
+       (propertize "/" 'face (my-get-statusbar-shadow-face))
+       lines)
+      'help-echo (if (bound-and-true-p linum-mode) "Hide line numbers." "Show line numbers.")
+      'local-map (make-mode-line-mouse-map 'mouse-1 #'linum-mode))))
 
   ;; ;;; TODO: Create shortened mode-line faces for a collapsed but visible mode line.
 
@@ -885,13 +925,15 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
 
   (defun my-reset-font-height-by-platform ()
     "Make the font bigger if running linux, because my laptop runs linux and my desktop runs Windows."
-    (let ((h (if (string= system-type "gnu/linux") 148 120)))
-      (dolist (f '(
-                   default
-                   fixed-pitch
-                   variable-pitch
-                   ))
-        (set-face-attribute f nil :height h))))
+    (my-let
+     h (if (string= system-type "gnu/linux") 148 120)
+
+     (dolist (f '(
+                  default
+                  fixed-pitch
+                  variable-pitch
+                  ))
+       (set-face-attribute f nil :height h))))
 
   (my-hook-up
    '(
@@ -1139,31 +1181,35 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
   ;;; The main point is to, as much as possible without being distracting, distinguish stuff that does stuff from stuff that does not do stuff and things that look similar and act differently.
 
   (defun my-box->lines (FACE)
-    (let ((color
-           (pcase (face-attribute FACE :box)
-             (`nil nil)
-             (`t (face-attribute 'default :color))
-             ((and (pred stringp) c) c)
-             (plist (plist-get plist :color)))))
-      (when color (set-face-attribute
-                   FACE nil :box nil :underline color :overline color))))
+    (my-let
+     color
+     (pcase (face-attribute FACE :box)
+       (`nil nil)
+       (`t (face-attribute 'default :color))
+       ((and (pred stringp) c) c)
+       (plist (plist-get plist :color)))
+
+     (when color (set-face-attribute
+                  FACE nil :box nil :underline color :overline color))))
 
   (defun my-laser-minor-theme (&optional COLOR)
     "Add borders to the mode-line and disable its background color."
     (interactive)
-    (let ((c (if COLOR COLOR
-               (face-attribute 'my-statusbar-active-face :foreground nil 'default))))
-      (my-set-face-attributes
-       `(
-         (mode-line
-          :box nil
-          :foreground unspecified
-          :background unspecified
-          :underline ,c
-          :overline ,c
-          :inherit font-lock-comment-face)
-         (window-divider :foreground ,c)
-         ))))
+    (my-let
+     c (if COLOR COLOR
+         (face-attribute 'my-statusbar-active-face :foreground nil 'default))
+
+     (my-set-face-attributes
+      `(
+        (mode-line
+         :box nil
+         :foreground unspecified
+         :background unspecified
+         :underline ,c
+         :overline ,c
+         :inherit font-lock-comment-face)
+        (window-divider :foreground ,c)
+        ))))
 
   (defun my-material-minor-theme ()
     "Remove borders from the mode-line when its background is different from the buffer's."
