@@ -34,6 +34,7 @@ This function should only modify configuration layer settings."
    ;; Configuration layers to install & load:
    dotspacemacs-configuration-layers
    '(
+     haskell
      (colors
       :packages
       rainbow-mode ; for color strings only
