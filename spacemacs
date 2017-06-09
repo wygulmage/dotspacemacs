@@ -451,26 +451,41 @@ before packages are loaded."
             (my-group N (nthcdr N LIST)))))
 
   (defmacro my-let (&rest BINDINGS.EXPRESSION)
-    (seq-let (e &rest bs) (reverse (my-group 2 BINDINGS.EXPRESSION))
-      `(let ,bs
-         ,@e)))
-
-  (defmacro my-let* (&rest BINDINGS.EXPRESSION)
-    (seq-let (e &rest bs) (reverse (my-group 2 BINDINGS.EXPRESSION))
-      `(let* ,(reverse bs)
-         ,@e)))
+    "Bind BINDINGS and then evaluate EXPRESSION.
+Bindings of the form SYMBOL (ARGS BODY) are bound as procedures.
+Bindings of the form SEQUENCE SEQUENCE are pattern-matched.
+Other bindings are bound as usual."
+    (seq-let (e &rest rev-bs) (reverse BINDINGS.EXPRESSION)
+      (cl-labels
+          ((let-helper
+            (BINDINGS EXPRESSION)
+            (if BINDINGS
+                (seq-let (var val &rest bs) BINDINGS
+                  (cond
+                   ((and (symbolp var)
+                         (consp val)
+                         (listp (car val)))
+                    `(cl-labels ((,var ,(car val) ,@(cdr val)))
+                       ,(let-helper bs EXPRESSION)))
+                   ((sequencep var)
+                    `(seq-let ,var ,val
+                       ,(let-helper bs EXPRESSION)))
+                   (t
+                    `(let ((,var ,val))
+                       ,(let-helper bs EXPRESSION)))))
+              EXPRESSION)))
+        (let-helper (reverse rev-bs) e))))
 
   (defmacro my-if (&rest CONDITIONS)
-    (my-let*
-     rev-c (reverse (my-group 2 CONDITIONS))
-     final (car rev-c)
-     cs (reverse
-         (cons (if (> 2 (length final))
-                   (cons t final)
-                 final)
-               (cdr rev-c)))
-
-     `(cond ,@cs)))
+    (my-let
+        rev-c (reverse (my-group 2 CONDITIONS))
+        final (car rev-c)
+        cs (reverse
+            (cons (if (> 2 (length final))
+                      (cons t final)
+                    final)
+                  (cdr rev-c)))
+        `(cond ,@cs)))
 
   (defun my-princ (OBJECT &optional PRINT-CHAR-FUNCTION)
     "`princ' but does not print the colon of a keyword"
@@ -697,28 +712,28 @@ Shift COLOR away from REFERENCE."
   (defun my-fade-face-foreground (FACE REFERENCE)
     "Make FACE's foreground a less intense version of REFERENCE's.
 REFERENCE is used to avoid fading FACE into oblivion with repreated applications."
-    (cl-flet
-        ((color-of (KEY)
-                   (color-name-to-rgb (face-attribute REFERENCE KEY nil 'default))))
-      (set-face-attribute
-       FACE
-       nil
-       :foreground (apply #'color-rgb-to-hex
-                          (my-blend-colors (color-of :foreground)
-                                           (color-of :background))))))
+    (my-let
+        color-of ((KEY)
+                  (color-name-to-rgb (face-attribute REFERENCE KEY nil 'default)))
+        (set-face-attribute
+         FACE
+         nil
+         :foreground (apply #'color-rgb-to-hex
+                            (my-blend-colors (color-of :foreground)
+                                             (color-of :background))))))
 
   (defun my--shift-face-foreground (FUNCTION FACE REFERENCE)
     "Set FACE's foreground to the result of applying FUNCTION to REFERENCE's foreground and background."
-    (cl-flet
-        ((color-of (KEY)
-                   (color-name-to-rgb (face-attribute REFERENCE KEY nil 'default))))
-      (set-face-attribute
-       FACE
-       nil
-       :foreground (apply #'color-rgb-to-hex
-                          (funcall FUNCTION
-                                   (color-of :foreground)
-                                   (color-of :background))))))
+    (my-let
+        color-of ((KEY)
+                  (color-name-to-rgb (face-attribute REFERENCE KEY nil 'default)))
+        (set-face-attribute
+         FACE
+         nil
+         :foreground (apply #'color-rgb-to-hex
+                            (funcall FUNCTION
+                                     (color-of :foreground)
+                                     (color-of :background))))))
 
   (defun my-intensify-face-foreground (FACE REFERENCE)
     (my--shift-face-foreground #'my-intensify-color FACE REFERENCE))
@@ -1209,18 +1224,19 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
   (defun my-material-minor-theme ()
     "Remove borders from the mode-line when its background is different from the buffer's."
     (interactive)
-    (cl-flet
-        ((unbox (FACE)
-                (unless (equal
-                         (face-attribute 'default :background)
-                         (face-attribute FACE :background nil 'default))
-                  (set-face-attribute
-                   FACE nil
-                   :box nil
-                   :underline nil
-                   :overline nil))))
-      (unbox 'mode-line)
-      (unbox 'mode-line-inactive)))
+    (my-let
+        unbox ((FACE)
+               (unless (equal
+                        (face-attribute 'default :background)
+                        (face-attribute FACE :background nil 'default))
+                 (set-face-attribute
+                  FACE nil
+                  :box nil
+                  :underline nil
+                  :overline nil)))
+        (progn
+          (unbox 'mode-line)
+          (unbox 'mode-line-inactive))))
 
   (defun my-theme-tweaks ()
     "Tweak faces to simplify themes."
