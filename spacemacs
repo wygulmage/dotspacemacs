@@ -29,32 +29,32 @@ This function should only modify configuration layer settings."
 
    ;; Additional paths for configuration layers:
    ;; Paths must have a trailing slash (e.g. "~/.mycontribs/").
+   ;; FIXME: Should be named `-paths'.
    dotspacemacs-configuration-layer-path '()
 
    ;; Configuration layers to install & load:
    dotspacemacs-configuration-layers
    '(
-     (colors
-      :packages
-      rainbow-mode ; for color strings only
-      :variables
-      rainbow-x-colors nil
-      rainbow-html-colors nil
-      )
+     (colors :packages
+             rainbow-mode ; for color strings only
+             :variables
+             rainbow-x-colors nil
+             rainbow-html-colors nil
+             )
      ;; (org :variables org-enable-github-support t)
      (ranger :variables
-       ranger-override-dired t
-       ranger-show-preview t
-       ranger-show-literal nil
-       )
+             ranger-override-dired t
+             ranger-show-preview t
+             ranger-show-literal nil
+             )
      ;; (shell :variables
      ;;  shell-default-height 30
      ;;  shell-default-position 'bottom)
      spacemacs-completion
      spacemacs-editing
      (spacemacs-evil :packages
-      (not vi-tilde-fringe)
-      )
+                     (not vi-tilde-fringe)
+                     )
      spacemacs-navigation ; includes restart-emacs
      ;; ;;; Bindings:
      ;; better-defaults
@@ -63,12 +63,12 @@ This function should only modify configuration layer settings."
      auto-completion
      ivy
      (spell-checking :variables
-      spell-checking-enable-by-default nil
-      flyspell-sort-corrections nil
-      )
+                     spell-checking-enable-by-default nil
+                     flyspell-sort-corrections nil
+                     )
      (syntax-checking :variables
-      syntax-checking-enable-by-default nil
-      )
+                      syntax-checking-enable-by-default nil
+                      )
      ;;; Languages:
      ;; ;; (semantic :packages
      ;; ;;           semantic
@@ -77,9 +77,9 @@ This function should only modify configuration layer settings."
      emacs-lisp
      ;; haskell
      (html :variables ; for CSS ; this is called web-mode, not html-mode
-      web-mode-css-indent-offset 2
-      web-mode-enable-css-colorization nil ; already done with colors
-      )
+           web-mode-css-indent-offset 2
+           web-mode-enable-css-colorization nil ; already done with colors
+           )
      (java :variables
            eclim-eclipse-dirs (if (string= system-type "gnu/linux")'("Ix/k/Programs/eclipse/current"))
            eclim-executable (if (string= system-type "gnu/linux") "/Ix/k/Programs/eclipse/eclim/current/")
@@ -104,18 +104,18 @@ This function should only modify configuration layer settings."
      ;; dash-functional
      ;;; Other Stuff
      (android-mode :variables
-      android-mode-sdk-dir (if (string= system-type "gnu/linux") "/Ix/k/Programs/android-sdk-tools"))
+                   android-mode-sdk-dir (if (string= system-type "gnu/linux") "/Ix/k/Programs/android-sdk-tools"))
      ;; (acme-mouse :location (recipe :fetcher github :repo "akrito/acme-mouse")) ; does not work in Spacemacs.
      adaptive-wrap
      ;; aggressive-indent
      ;; company
      paren-face
-     (shen-elisp
-      :location (recipe :repo "deech/shen-elisp"
-                        :fetcher github
-                        :files ("shen*.el"))
-      :upgrade 't
-      )
+     (shen-elisp :location
+                 (recipe :repo "deech/shen-elisp"
+                         :fetcher github
+                         :files ("shen*.el"))
+                 :upgrade t
+                 )
      shen-mode
      ;; inf-shen
      )
