@@ -451,16 +451,14 @@ before packages are loaded."
             (my-group N (nthcdr N LIST)))))
 
   (defmacro my-let (&rest BINDINGS.EXPRESSION)
-    (let ((bs (my-group 2 (butlast BINDINGS.EXPRESSION)))
-          (e (car (last BINDINGS.EXPRESSION))))
+    (seq-let (e &rest bs) (reverse (my-group 2 BINDINGS.EXPRESSION))
       `(let ,bs
-         ,e)))
+         ,@e)))
 
   (defmacro my-let* (&rest BINDINGS.EXPRESSION)
-    (let ((bs (my-group 2 (butlast BINDINGS.EXPRESSION)))
-          (e (car (last BINDINGS.EXPRESSION))))
-      `(let* ,bs
-         ,e)))
+    (seq-let (e &rest bs) (reverse (my-group 2 BINDINGS.EXPRESSION))
+      `(let* ,(reverse bs)
+         ,@e)))
 
   (defmacro my-if (&rest CONDITIONS)
     (my-let*
@@ -501,18 +499,16 @@ Create variable WHEN-PROCEDURE-hook and assign it the value CONTINGENT.
 Create function WHEN-PROCEDURE-hook to run WHEN PROCEDURE-hook using `run-hooks'.
 Use `advice-add' to add run-WHEN-PROCEDURE-hook as advice to PROCEDURE."
     (declare (indent 2))
-    (my-let
-     hook (my-isymb WHEN "-" PROCEDURE "-hook")
-
-     `(progn
-        (defvar ,hook ',CONTINGENT
-          ,(my-mkstr "procedures to run " WHEN " `" PROCEDURE "'"))
-        (defun ,hook (&rest _)
-          ,(my-mkstr "Use `run-hooks' to run `" hook "'.")
-          (run-hooks ',hook))
-        (advice-add ',PROCEDURE ,WHEN #',hook
-                    '((name . ,hook)
-                      (depth . -100))))))
+    (my-let hook (my-isymb WHEN "-" PROCEDURE "-hook")
+            `(progn
+               (defvar ,hook ',CONTINGENT
+                 ,(my-mkstr "procedures to run " WHEN " `" PROCEDURE "'"))
+               (defun ,hook (&rest _)
+                 ,(my-mkstr "Use `run-hooks' to run `" hook "'.")
+                 (run-hooks ',hook))
+               (advice-add ',PROCEDURE ,WHEN #',hook
+                           '((name . ,hook)
+                             (depth . -100))))))
 
   (defun my-hook-up (HOOKS FUNCTIONS)
     "Hang all FUNCTIONS, in order, on all HOOKS."
@@ -523,7 +519,7 @@ Use `advice-add' to add run-WHEN-PROCEDURE-hook as advice to PROCEDURE."
 ;;; Buffers and Panes
 
   (defmacro my-with-buffer (BUFFER &rest BODY)
-    "If BUFFER is not nil, execute BODY in BUFFER. Otherwise, execute BODY (in the current buffer)."
+    "If BUFFER is not nil, execute BODY in BUFFER. Otherwise, execute BODY in the current buffer."
     (declare (indent 1))
     `(save-current-buffer
        (and ,BUFFER (set-buffer ,BUFFER))
@@ -536,10 +532,10 @@ Use `advice-add' to add run-WHEN-PROCEDURE-hook as advice to PROCEDURE."
   (defun my-set-primary-pane (&rest _)
     "Set the primary pane."
     (my-let
-     p (frame-selected-window)
+        p (frame-selected-window)
 
-     (unless (minibuffer-window-active-p p)
-       (setq my-primary-pane p))))
+        (unless (minibuffer-window-active-p p)
+          (setq my-primary-pane p))))
 
   (defun my-primary-pane-active? ()
     (eq my-primary-pane (selected-window)))
@@ -585,17 +581,17 @@ Use `advice-add' to add run-WHEN-PROCEDURE-hook as advice to PROCEDURE."
   (defun my-buffer-file-path (&optional BUFFER)
     "The file path if BUFFER is a file, otherwise nil. If BUFFER is nil, use the current buffer."
     (my-let
-     file (buffer-file-name BUFFER)
+        file (buffer-file-name BUFFER)
 
-     (when file (abbreviate-file-name (file-truename file)))))
+        (when file (abbreviate-file-name (file-truename file)))))
 
   (defun my-primary-file-or-buffer-name ()
     "The name of the file or buffer in the primary pane."
     (my-let
-     b (window-buffer my-primary-pane)
+        b (window-buffer my-primary-pane)
 
-     (or (my-buffer-file-path b)
-         (buffer-name b))))
+        (or (my-buffer-file-path b)
+            (buffer-name b))))
 
   ;;; The hook for this may be failing and messing things up.
   ;; (defvar-local my-file-vc-status nil
@@ -838,15 +834,15 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
   (defun my-line-position ()
     "Current line / total lines. Click to toggle line numbers."
     (my-let
-     lines (number-to-string my-buffer-line-count)
+        lines (number-to-string my-buffer-line-count)
 
-     (propertize
-      (concat
-       (my-pad (length lines) (format-mode-line "%l"))
-       (propertize "/" 'face (my-get-statusbar-shadow-face))
-       lines)
-      'help-echo (if (bound-and-true-p linum-mode) "Hide line numbers." "Show line numbers.")
-      'local-map (make-mode-line-mouse-map 'mouse-1 #'linum-mode))))
+        (propertize
+         (concat
+          (my-pad (length lines) (format-mode-line "%l"))
+          (propertize "/" 'face (my-get-statusbar-shadow-face))
+          lines)
+         'help-echo (if (bound-and-true-p linum-mode) "Hide line numbers." "Show line numbers.")
+         'local-map (make-mode-line-mouse-map 'mouse-1 #'linum-mode))))
 
   ;; ;;; TODO: Create shortened mode-line faces for a collapsed but visible mode line.
 
@@ -925,14 +921,14 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
   (defun my-reset-font-height-by-platform ()
     "Make the font bigger if running linux, because my laptop runs linux and my desktop runs Windows."
     (my-let
-     h (if (string= system-type "gnu/linux") 148 120)
+        h (if (string= system-type "gnu/linux") 148 120)
 
-     (dolist (f '(
-                  default
-                  fixed-pitch
-                  variable-pitch
-                  ))
-       (set-face-attribute f nil :height h))))
+        (dolist (f '(
+                     default
+                     fixed-pitch
+                     variable-pitch
+                     ))
+          (set-face-attribute f nil :height h))))
 
   (my-hook-up
    '(
@@ -1181,34 +1177,34 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
 
   (defun my-box->lines (FACE)
     (my-let
-     color
-     (pcase (face-attribute FACE :box)
-       (`nil nil)
-       (`t (face-attribute 'default :color))
-       ((and (pred stringp) c) c)
-       (plist (plist-get plist :color)))
+        color
+      (pcase (face-attribute FACE :box)
+        (`nil nil)
+        (`t (face-attribute 'default :color))
+        ((and (pred stringp) c) c)
+        (plist (plist-get plist :color)))
 
-     (when color (set-face-attribute
-                  FACE nil :box nil :underline color :overline color))))
+      (when color (set-face-attribute
+                   FACE nil :box nil :underline color :overline color))))
 
   (defun my-laser-minor-theme (&optional COLOR)
     "Add borders to the mode-line and disable its background color."
     (interactive)
     (my-let
-     c (if COLOR COLOR
-         (face-attribute 'my-statusbar-active-face :foreground nil 'default))
+        c (if COLOR COLOR
+            (face-attribute 'my-statusbar-active-face :foreground nil 'default))
 
-     (my-set-face-attributes
-      `(
-        (mode-line
-         :box nil
-         :foreground unspecified
-         :background unspecified
-         :underline ,c
-         :overline ,c
-         :inherit font-lock-comment-face)
-        (window-divider :foreground ,c)
-        ))))
+        (my-set-face-attributes
+         `(
+           (mode-line
+            :box nil
+            :foreground unspecified
+            :background unspecified
+            :underline ,c
+            :overline ,c
+            :inherit font-lock-comment-face)
+           (window-divider :foreground ,c)
+           ))))
 
   (defun my-material-minor-theme ()
     "Remove borders from the mode-line when its background is different from the buffer's."
