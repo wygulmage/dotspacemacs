@@ -445,16 +445,12 @@ before packages are loaded."
 
 ;;;; Helpful Procedures
 
-  (defun my-group (N LIST)
-    (when LIST
-      (cons (seq-take LIST N)
-            (my-group N (nthcdr N LIST)))))
-
   (defmacro my-let (&rest BINDINGS.EXPRESSION)
     "Bind BINDINGS and then evaluate EXPRESSION.
 Bindings of the form SYMBOL (ARGS BODY) are bound as procedures.
 Bindings of the form SEQUENCE SEQUENCE are pattern-matched.
 Other bindings are bound as usual."
+    ;; TODO: Make this macro less ugly.
     (seq-let (e &rest rev-bs) (reverse BINDINGS.EXPRESSION)
       (cl-labels
           ((let-helper
@@ -465,12 +461,15 @@ Other bindings are bound as usual."
                    ((and (symbolp var)
                          (consp val)
                          (listp (car val)))
+                    ;; Bind procedure.
                     `(cl-labels ((,var ,(car val) ,@(cdr val)))
                        ,(let-helper bs EXPRESSION)))
                    ((sequencep var)
+                    ;; Pattern-match sequence.
                     `(seq-let ,var ,val
                        ,(let-helper bs EXPRESSION)))
                    (t
+                    ;; Bind as usual.
                     `(let ((,var ,val))
                        ,(let-helper bs EXPRESSION)))))
               EXPRESSION)))
@@ -478,14 +477,14 @@ Other bindings are bound as usual."
 
   (defmacro my-if (&rest CONDITIONS)
     (my-let
-        rev-c (reverse (my-group 2 CONDITIONS))
-        final (car rev-c)
-        cs (reverse
-            (cons (if (> 2 (length final))
-                      (cons t final)
-                    final)
-                  (cdr rev-c)))
-        `(cond ,@cs)))
+     (final &rest rev-c) (reverse (seq-partition CONDITIONS 2))
+     cs (reverse
+         `((t (error "Fallthrough on incomplete match"))
+           ,(if (= 1 (length final))
+                (cons t final) ; final else-clause; fallthrough error never reached.
+              final) ; final then-clause.
+           ,@rev-c))
+     `(cond ,@cs)))
 
   (defun my-princ (OBJECT &optional PRINT-CHAR-FUNCTION)
     "`princ' but does not print the colon of a keyword"
@@ -547,10 +546,9 @@ Use `advice-add' to add run-WHEN-PROCEDURE-hook as advice to PROCEDURE."
   (defun my-set-primary-pane (&rest _)
     "Set the primary pane."
     (my-let
-        p (frame-selected-window)
-
-        (unless (minibuffer-window-active-p p)
-          (setq my-primary-pane p))))
+     p (frame-selected-window)
+     (unless (minibuffer-window-active-p p)
+       (setq my-primary-pane p))))
 
   (defun my-primary-pane-active? ()
     (eq my-primary-pane (selected-window)))
@@ -596,17 +594,15 @@ Use `advice-add' to add run-WHEN-PROCEDURE-hook as advice to PROCEDURE."
   (defun my-buffer-file-path (&optional BUFFER)
     "The file path if BUFFER is a file, otherwise nil. If BUFFER is nil, use the current buffer."
     (my-let
-        file (buffer-file-name BUFFER)
-
-        (when file (abbreviate-file-name (file-truename file)))))
+     file (buffer-file-name BUFFER)
+     (when file (abbreviate-file-name (file-truename file)))))
 
   (defun my-primary-file-or-buffer-name ()
     "The name of the file or buffer in the primary pane."
     (my-let
-        b (window-buffer my-primary-pane)
-
-        (or (my-buffer-file-path b)
-            (buffer-name b))))
+     b (window-buffer my-primary-pane)
+     (or (my-buffer-file-path b)
+         (buffer-name b))))
 
   ;;; The hook for this may be failing and messing things up.
   ;; (defvar-local my-file-vc-status nil
@@ -676,16 +672,16 @@ Pad string S with spaces to width W. A negative width means add the padding on t
     "(R G B) -> (R G B) -> (R G B)
 Evenly blend C1 and C2, two emacs RGB triplets."
     (declare (pure t) (side-effect-free t))
-    (-zip-with (lambda (X Y) (* 0.5 (+ X Y)))
-               C1 C2))
+    (seq-mapn (lambda (X Y) (* 0.5 (+ X Y)))
+              C1 C2))
 
   (defun my-intensify-color (COLOR REFERENCE)
     "(R G B) -> (R G B) -> (R G B)
 Shift COLOR away from REFERENCE."
     (declare (pure t) (side-effect-free t))
-    (-zip-with (lambda (C R)
-                 (* 0.5 (+ C (if (> C R) 1 0))))
-               COLOR REFERENCE))
+    (seq-mapn (lambda (C R)
+                (* 0.5 (+ C (if (> C R) 1 0))))
+              COLOR REFERENCE))
 
 ;;; Fonts & Faces
 
@@ -713,27 +709,27 @@ Shift COLOR away from REFERENCE."
     "Make FACE's foreground a less intense version of REFERENCE's.
 REFERENCE is used to avoid fading FACE into oblivion with repreated applications."
     (my-let
-        color-of ((KEY)
-                  (color-name-to-rgb (face-attribute REFERENCE KEY nil 'default)))
-        (set-face-attribute
-         FACE
-         nil
-         :foreground (apply #'color-rgb-to-hex
-                            (my-blend-colors (color-of :foreground)
-                                             (color-of :background))))))
+     color-of ((KEY)
+               (color-name-to-rgb (face-attribute REFERENCE KEY nil 'default)))
+     (set-face-attribute
+      FACE
+      nil
+      :foreground (apply #'color-rgb-to-hex
+                         (my-blend-colors (color-of :foreground)
+                                          (color-of :background))))))
 
   (defun my--shift-face-foreground (FUNCTION FACE REFERENCE)
     "Set FACE's foreground to the result of applying FUNCTION to REFERENCE's foreground and background."
     (my-let
-        color-of ((KEY)
-                  (color-name-to-rgb (face-attribute REFERENCE KEY nil 'default)))
-        (set-face-attribute
-         FACE
-         nil
-         :foreground (apply #'color-rgb-to-hex
-                            (funcall FUNCTION
-                                     (color-of :foreground)
-                                     (color-of :background))))))
+     color-of ((KEY)
+               (color-name-to-rgb (face-attribute REFERENCE KEY nil 'default)))
+     (set-face-attribute
+      FACE
+      nil
+      :foreground (apply #'color-rgb-to-hex
+                         (funcall FUNCTION
+                                  (color-of :foreground)
+                                  (color-of :background))))))
 
   (defun my-intensify-face-foreground (FACE REFERENCE)
     (my--shift-face-foreground #'my-intensify-color FACE REFERENCE))
@@ -849,15 +845,14 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
   (defun my-line-position ()
     "Current line / total lines. Click to toggle line numbers."
     (my-let
-        lines (number-to-string my-buffer-line-count)
-
-        (propertize
-         (concat
-          (my-pad (length lines) (format-mode-line "%l"))
-          (propertize "/" 'face (my-get-statusbar-shadow-face))
-          lines)
-         'help-echo (if (bound-and-true-p linum-mode) "Hide line numbers." "Show line numbers.")
-         'local-map (make-mode-line-mouse-map 'mouse-1 #'linum-mode))))
+     lines (number-to-string my-buffer-line-count)
+     (propertize
+      (concat
+       (my-pad (length lines) (format-mode-line "%l"))
+       (propertize "/" 'face (my-get-statusbar-shadow-face))
+       lines)
+      'help-echo (if (bound-and-true-p linum-mode) "Hide line numbers." "Show line numbers.")
+      'local-map (make-mode-line-mouse-map 'mouse-1 #'linum-mode))))
 
   ;; ;;; TODO: Create shortened mode-line faces for a collapsed but visible mode line.
 
@@ -936,14 +931,13 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
   (defun my-reset-font-height-by-platform ()
     "Make the font bigger if running linux, because my laptop runs linux and my desktop runs Windows."
     (my-let
-        h (if (string= system-type "gnu/linux") 148 120)
-
-        (dolist (f '(
-                     default
-                     fixed-pitch
-                     variable-pitch
-                     ))
-          (set-face-attribute f nil :height h))))
+     h (if (string= system-type "gnu/linux") 148 120)
+     (dolist (f '(
+                  default
+                  fixed-pitch
+                  variable-pitch
+                  ))
+       (set-face-attribute f nil :height h))))
 
   (my-hook-up
    '(
@@ -1192,51 +1186,50 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
 
   (defun my-box->lines (FACE)
     (my-let
-        color
-      (pcase (face-attribute FACE :box)
-        (`nil nil)
-        (`t (face-attribute 'default :color))
-        ((and (pred stringp) c) c)
-        (plist (plist-get plist :color)))
-
-      (when color (set-face-attribute
-                   FACE nil :box nil :underline color :overline color))))
+     color
+     (pcase (face-attribute FACE :box)
+       (`nil nil)
+       (`t (face-attribute 'default :color))
+       ((and (pred stringp) c) c)
+       (plist (plist-get plist :color)))
+     (when color (set-face-attribute
+                  FACE nil :box nil :underline color :overline color))))
 
   (defun my-laser-minor-theme (&optional COLOR)
     "Add borders to the mode-line and disable its background color."
     (interactive)
     (my-let
-        c (if COLOR COLOR
-            (face-attribute 'my-statusbar-active-face :foreground nil 'default))
+     c (if COLOR COLOR
+         (face-attribute 'my-statusbar-active-face :foreground nil 'default))
 
-        (my-set-face-attributes
-         `(
-           (mode-line
-            :box nil
-            :foreground unspecified
-            :background unspecified
-            :underline ,c
-            :overline ,c
-            :inherit font-lock-comment-face)
-           (window-divider :foreground ,c)
-           ))))
+     (my-set-face-attributes
+      `(
+        (mode-line
+         :box nil
+         :foreground unspecified
+         :background unspecified
+         :underline ,c
+         :overline ,c
+         :inherit font-lock-comment-face)
+        (window-divider :foreground ,c)
+        ))))
 
   (defun my-material-minor-theme ()
     "Remove borders from the mode-line when its background is different from the buffer's."
     (interactive)
     (my-let
-        unbox ((FACE)
-               (unless (equal
-                        (face-attribute 'default :background)
-                        (face-attribute FACE :background nil 'default))
-                 (set-face-attribute
-                  FACE nil
-                  :box nil
-                  :underline nil
-                  :overline nil)))
-        (progn
-          (unbox 'mode-line)
-          (unbox 'mode-line-inactive))))
+     unbox ((FACE)
+            (unless (equal
+                     (face-attribute 'default :background)
+                     (face-attribute FACE :background nil 'default))
+              (set-face-attribute
+               FACE nil
+               :box nil
+               :underline nil
+               :overline nil)))
+     (progn
+       (unbox 'mode-line)
+       (unbox 'mode-line-inactive))))
 
   (defun my-theme-tweaks ()
     "Tweak faces to simplify themes."
