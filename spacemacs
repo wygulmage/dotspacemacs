@@ -1053,73 +1053,33 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
   ;;; ------------------------------
   ;;; Key Maps
 
-  ;; (defmacro my-def-keys (MAP BINDINGS)
-  ;;   "Define keys in MAP. BINDINGS must be a sequence of [KEY1 PROCEDURE1 KEY2 PROCEDURE2 ...]."
-  ;;   (declare (indent defun))
-  ;;   (seq-doseq (b (seq-partition BINDINGS 2))
-  ;;     (my-let
-  ;;        [key fn] b
-  ;;        `(define-key ,MAP
-  ;;          (kbd ,key)
-  ;;          ,fn))))
-
-  (defun my-def-keys (MAP BINDINGS)
+  (defun my-def-keys (MAP &rest BINDINGS)
+    (declare (indent defun))
     (seq-doseq (b (seq-partition BINDINGS 2))
       (define-key MAP (kbd (seq-elt b 0))
         (seq-elt b 1))))
 
   ;; Ignore mouse-wheel left and right.
   (my-def-keys global-map
-    [
-     "<mouse-6>" ignore
-     "<mouse-7>" ignore
-     ])
+    "<mouse-6>" #'ignore
+    "<mouse-7>" #'ignore
+    )
 
   (unless (string= system-type "gnu/linux")
     (my-def-keys help-mode-map
-      [
-       "<mouse-4>" help-go-back ; Windows mouse back (Linux mouse wheel up)
-       "<mouse-5>" help-go-forward ; mouse forwards
-       ]))
+      "<mouse-4>" #'help-go-back ; Windows mouse back (Linux mouse wheel up)
+      "<mouse-5>" #'help-go-forward ; mouse forwards
+      ))
 
   ;; Navigate wrapped lines.
   (my-def-keys evil-normal-state-map
-    [
-     "j" evil-next-visual-line
-     "k" evil-previous-visual-line
-     ])
+    "j" #'evil-next-visual-line
+    "k" #'evil-previous-visual-line
+    )
 
-  ;; ;; Paste with Ctrl p.
-  ;; (define-key evil-insert-state-map
-  ;;     (kbd "C-p") 'evil-paste-after)
-
-;;; Insert unicode character with Ctrl Shift u.
-  ;;   (defun my-ivy-prefix-sort (name candidates)
-  ;;     "Re-sort CANDIDATES.
-  ;; Prefix matches to NAME are put ahead of the list, with the shortest matches first."
-  ;;     ;; What I want it to push exact matches to the top.
-  ;;     (if (or (string-match "^\\^" name) (string= name ""))
-  ;;         candidates
-  ;;       (let ((re-prefix (concat "^" (funcall ivy--regex-function name)))
-  ;;             res-prefix
-  ;;             res-noprefix)
-  ;;         (dolist (s candidates)
-  ;;           (if (string-match re-prefix s)
-  ;;               (push s res-prefix)
-  ;;             (push s res-noprefix)))
-  ;;         (nconc
-  ;;          res-prefix
-  ;;          (nreverse res-noprefix)))))
-  ;;   (add-to-list 'ivy-sort-matches-functions-alist
-  ;;                '(counsel-unicode-char . my-ivy-prefix-sort))
-
-  ;; (defun my-ivy-compare-strings-by-length (S1 S2)
-  ;;   "Compare first by length (shortest first), then alphabetically (case insensitive)"
-  ;;   (let ((L1 (length S1))
-  ;;         (L2 (length S2)))
-  ;;     (or (< L1 L2) (> L1 L2) (string-collate-lessp S1 S2 nil t))))
-  ;; (add-to-list 'ivy-sort-functions-alist
-  ;;              '(counsel-unicode-char . my-ivy-compare-strings-by-length))
+  ;; Paste with Ctrl p.
+  (my-def-keys evil-insert-state-map
+    "C-p" #'evil-paste-after)
 
   (global-set-key
    (kbd "C-S-u") 'counsel-unicode-char) ; `counsel-unicode-char' is slow...
@@ -1144,10 +1104,10 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
   (defun my-zoom-out ()
     (interactive)
     (text-scale-decrease 1.01))
-  (dolist (x '(
-               [my-zoom-in "C-<mouse-4>" "C-<wheel-up>"]
-               [my-zoom-out "C-<mouse-5>" "C-<wheel-down>"]
-               ))
+  (seq-doseq (x '[
+                  [my-zoom-in "C-<mouse-4>" "C-<wheel-up>"]
+                  [my-zoom-out "C-<mouse-5>" "C-<wheel-down>"]
+                  ])
     (global-set-key
      (kbd (aref x (if (string= system-type "gnu/linux") 1 2)))
      (aref x 0)))
@@ -1158,7 +1118,7 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
   ;; ;;; Mouse & copy / paste / delete
   (setq
    ;;  ;; mouse-drag-copy-region t ; Copy on select -- disable for acme-mouse.
-   ;;  delete-selection-mode t ; Allow typing over the selection.
+   ;;  delete-selection-mode t ; Allow typing over the selection. Only useful when there's a selection in insert state?
    kill-do-not-save-duplicates t ; Don't copy identical text twice.
    )
 
@@ -1176,7 +1136,7 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
 
   ;;; Git
   ;; Use spacemacs for editing git commit messages.
-  ;; (global-git-commit-mode t)
+  (global-git-commit-mode t)
 
   ;;;Ranger
   ;; Don't annoy me with constant messages obscuring important minibuffer information.
