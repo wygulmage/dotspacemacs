@@ -444,7 +444,6 @@ configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
 
-
 ;;;; Helpful Procedures
 
   (defmacro my-let (&rest BINDINGS.EXPRESSION)
@@ -515,21 +514,22 @@ Create variable WHEN-PROCEDURE-hook and assign it the value CONTINGENT.
 Create function WHEN-PROCEDURE-hook to run WHEN PROCEDURE-hook using `run-hooks'.
 Use `advice-add' to add run-WHEN-PROCEDURE-hook as advice to PROCEDURE."
     (declare (indent 2))
-    (my-let hook (my-isymb WHEN "-" PROCEDURE "-hook")
-            `(progn
-               (defvar ,hook ',CONTINGENT
-                 ,(my-mkstr "procedures to run " WHEN " `" PROCEDURE "'"))
-               (defun ,hook (&rest _)
-                 ,(my-mkstr "Use `run-hooks' to run `" hook "'.")
-                 (run-hooks ',hook))
-               (advice-add ',PROCEDURE ,WHEN #',hook
-                           '((name . ,hook)
-                             (depth . -100))))))
+    (my-let
+     hook (my-isymb WHEN "-" PROCEDURE "-hook")
+     `(progn
+        (defvar ,hook ',CONTINGENT
+          ,(my-mkstr "procedures to run " WHEN " `" PROCEDURE "'"))
+        (defun ,hook (&rest _)
+          ,(my-mkstr "Use `run-hooks' to run `" hook "'.")
+          (run-hooks ',hook))
+        (advice-add ',PROCEDURE ,WHEN #',hook
+                    '((name . ,hook)
+                      (depth . -100))))))
 
   (defun my-hook-up (HOOKS FUNCTIONS)
     "Hang all FUNCTIONS, in order, on all HOOKS."
-    (dolist (h HOOKS)
-      (dolist (f (reverse FUNCTIONS))
+    (seq-doseq (h HOOKS)
+      (seq-doseq (f (seq-reverse FUNCTIONS))
         (add-hook h f))))
 
 ;;; Buffers and Panes
@@ -939,11 +939,11 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
     "Make the font bigger if running linux, because my laptop runs linux and my desktop runs Windows."
     (my-let
      h (if (string= system-type "gnu/linux") 148 120)
-     (dolist (f '(
-                  default
-                  fixed-pitch
-                  variable-pitch
-                  ))
+     (seq-doseq (f [
+                    default
+                    fixed-pitch
+                    variable-pitch
+                    ])
        (set-face-attribute f nil :height h))))
 
   (my-hook-up
@@ -963,12 +963,12 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
 
   ;;; ----------------------------------
   ;; ;;; Set Evil to not behave like Vim.
-  ;; (customize-set-variable 'evil-move-beyond-eol t) ; Allow the cursor to move beyond the end of the line.
-  ;; (customize-set-variable 'evil-move-cursor-back nil) ; Don't move the cursor when exiting insert mode.
+  (customize-set-variable 'evil-move-beyond-eol t) ; Allow the cursor to move beyond the end of the line.
+  (customize-set-variable 'evil-move-cursor-back nil) ; Don't move the cursor when exiting insert mode.
 
   ;; ;; Flip Vi a/A behavior.
-  ;; (define-key evil-normal-state-map "a" 'evil-append-line)
-  ;; (define-key evil-normal-state-map "A" 'evil-append)
+  (define-key evil-normal-state-map "a" 'evil-append-line)
+  (define-key evil-normal-state-map "A" 'evil-append)
 
   ;; (defun my-evil-forward-end (THING &optional COUNT)
   ;;   "Move forward past the end of THING. Repeat COUNT times."
@@ -1054,6 +1054,8 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
   ;;; Key Maps
 
   (defun my-def-keys (MAP &rest BINDINGS)
+    "Create new key bindings in MAP.
+Each binding should be a string that can be passed to `kbd' followed by an interactive procedure."
     (declare (indent defun))
     (seq-doseq (b (seq-partition BINDINGS 2))
       (define-key MAP (kbd (seq-elt b 0))
