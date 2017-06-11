@@ -728,6 +728,16 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
   (defun my-intensify-face-foreground (FACE REFERENCE)
     (my--shift-face-foreground #'my-intensify-color FACE REFERENCE))
 
+  ;;; Key Maps
+
+  (defun my-def-keys (MAP &rest BINDINGS)
+    "Create new key bindings in MAP.
+Each binding should be a string that can be passed to `kbd' followed by an interactive procedure."
+    (declare (indent defun))
+    (seq-doseq (b (seq-partition BINDINGS 2))
+      (define-key MAP (kbd (seq-elt b 0))
+        (seq-elt b 1))))
+
   ;;; ----------------------------------------------
   ;;   ;;; Mode Line, Header Line, and Frame Title Format
 
@@ -1039,14 +1049,6 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
 
   ;;; ------------------------------
   ;;; Key Maps
-
-  (defun my-def-keys (MAP &rest BINDINGS)
-    "Create new key bindings in MAP.
-Each binding should be a string that can be passed to `kbd' followed by an interactive procedure."
-    (declare (indent defun))
-    (seq-doseq (b (seq-partition BINDINGS 2))
-      (define-key MAP (kbd (seq-elt b 0))
-        (seq-elt b 1))))
 
   ;; Ignore mouse-wheel left and right.
   (my-def-keys global-map
