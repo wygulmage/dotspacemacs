@@ -707,19 +707,6 @@ Shift COLOR away from REFERENCE."
              (unless (facep face) (make-face face))
              (apply 'set-face-attribute face BUFFER attributes)))
 
-  ;;   (defun my-fade-face-foreground (FACE REFERENCE)
-  ;;     "Make FACE's foreground a less intense version of REFERENCE's.
-  ;; REFERENCE is used to avoid fading FACE into oblivion with repreated applications."
-  ;;     (my-let
-  ;;      color-of ((KEY)
-  ;;                (color-name-to-rgb (face-attribute REFERENCE KEY nil 'default)))
-  ;;      (set-face-attribute
-  ;;       FACE
-  ;;       nil
-  ;;       :foreground (apply #'color-rgb-to-hex
-  ;;                          (my-blend-colors (color-of :foreground)
-  ;;                                           (color-of :background))))))
-
   (defun my--shift-face-foreground (FUNCTION FACE REFERENCE)
     "Set FACE's foreground to the result of applying FUNCTION to REFERENCE's foreground and background."
     (my-let
@@ -965,8 +952,10 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
   (customize-set-variable 'evil-move-cursor-back nil) ; Don't move the cursor when exiting insert mode.
 
   ;; ;; Flip Vi a/A behavior.
-  (define-key evil-normal-state-map "a" 'evil-append-line)
-  (define-key evil-normal-state-map "A" 'evil-append)
+  (my-def-keys evil-normal-state-map
+    "a" #'evil-append-line
+    "A" #'evil-append
+    )
 
   ;; (defun my-evil-forward-end (THING &optional COUNT)
   ;;   "Move forward past the end of THING. Repeat COUNT times."
@@ -1177,12 +1166,11 @@ Each binding should be a string that can be passed to `kbd' followed by an inter
 
   (defun my-box->lines (FACE)
     (my-let
-     color
-     (pcase (face-attribute FACE :box)
-       (`nil nil)
-       (`t (face-attribute 'default :color))
-       ((and (pred stringp) c) c)
-       (plist (plist-get plist :color)))
+     color (pcase (face-attribute FACE :box)
+             (`nil nil)
+             (`t (face-attribute 'default :color))
+             ((and (pred stringp) c) c)
+             (plist (plist-get plist :color)))
      (when color (set-face-attribute
                   FACE nil :box nil :underline color :overline color))))
 
@@ -1192,7 +1180,6 @@ Each binding should be a string that can be passed to `kbd' followed by an inter
     (my-let
      c (if COLOR COLOR
          (face-attribute 'my-statusbar-active-face :foreground nil 'default))
-
      (my-set-face-attributes
       `(
         (mode-line
