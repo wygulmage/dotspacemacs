@@ -2,6 +2,7 @@
 ;; This file is loaded by Spacemacs at startup. It must be stored in your home directory.
 ;; FIXME: `gui-get-primary-selection' tries to activate on entering this buffer and fails with a message.
 ;; FIXME: `emacs-lisp' layer pops up an args out of bounds error on save.
+;; FIXME: Prevent emacs from pasting contents of clipboard on entering buffer.
 
 (defun dotspacemacs/layers ()
   "Layer configuration:
@@ -416,6 +417,7 @@ This function is called immediately after `dotspacemacs/init', before layer
 configuration.
 It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
+  (setq-default exec-path-from-shell-check-startup-files nil) ; Don't worry about where I set environment variables. You're not my mom!
 
   (defconst the-default-mode-line mode-line-format) ; Save in case you want to know.
 
@@ -705,18 +707,18 @@ Shift COLOR away from REFERENCE."
              (unless (facep face) (make-face face))
              (apply 'set-face-attribute face BUFFER attributes)))
 
-  (defun my-fade-face-foreground (FACE REFERENCE)
-    "Make FACE's foreground a less intense version of REFERENCE's.
-REFERENCE is used to avoid fading FACE into oblivion with repreated applications."
-    (my-let
-     color-of ((KEY)
-               (color-name-to-rgb (face-attribute REFERENCE KEY nil 'default)))
-     (set-face-attribute
-      FACE
-      nil
-      :foreground (apply #'color-rgb-to-hex
-                         (my-blend-colors (color-of :foreground)
-                                          (color-of :background))))))
+  ;;   (defun my-fade-face-foreground (FACE REFERENCE)
+  ;;     "Make FACE's foreground a less intense version of REFERENCE's.
+  ;; REFERENCE is used to avoid fading FACE into oblivion with repreated applications."
+  ;;     (my-let
+  ;;      color-of ((KEY)
+  ;;                (color-name-to-rgb (face-attribute REFERENCE KEY nil 'default)))
+  ;;      (set-face-attribute
+  ;;       FACE
+  ;;       nil
+  ;;       :foreground (apply #'color-rgb-to-hex
+  ;;                          (my-blend-colors (color-of :foreground)
+  ;;                                           (color-of :background))))))
 
   (defun my--shift-face-foreground (FUNCTION FACE REFERENCE)
     "Set FACE's foreground to the result of applying FUNCTION to REFERENCE's foreground and background."
@@ -730,6 +732,11 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
                          (funcall FUNCTION
                                   (color-of :foreground)
                                   (color-of :background))))))
+
+  (defun my-fade-face-foreground (FACE REFERENCE)
+    "Make FACE's foreground a less intense version of REFERENCE's.
+REFERENCE is used to avoid fading FACE into oblivion with repreated applications."
+    (my--shift-face-foreground #'my-blend-colors FACE REFERENCE))
 
   (defun my-intensify-face-foreground (FACE REFERENCE)
     (my--shift-face-foreground #'my-intensify-color FACE REFERENCE))
@@ -1046,17 +1053,41 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
   ;;; ------------------------------
   ;;; Key Maps
 
+  ;; (defmacro my-def-keys (MAP BINDINGS)
+  ;;   "Define keys in MAP. BINDINGS must be a sequence of [KEY1 PROCEDURE1 KEY2 PROCEDURE2 ...]."
+  ;;   (declare (indent defun))
+  ;;   (seq-doseq (b (seq-partition BINDINGS 2))
+  ;;     (my-let
+  ;;        [key fn] b
+  ;;        `(define-key ,MAP
+  ;;          (kbd ,key)
+  ;;          ,fn))))
+
+  (defun my-def-keys (MAP BINDINGS)
+    (seq-doseq (b (seq-partition BINDINGS 2))
+      (define-key MAP (kbd (seq-elt b 0))
+        (seq-elt b 1))))
+
+  ;; Ignore mouse-wheel left and right.
+  (my-def-keys global-map
+    [
+     "<mouse-6>" ignore
+     "<mouse-7>" ignore
+     ])
+
   (unless (string= system-type "gnu/linux")
-    (define-key help-mode-map
-      (kbd "<mouse-4>") 'help-go-back) ; mouse forwards
-    (define-key help-mode-map
-      (kbd "<mouse-5>") 'help-go-forward)) ; mouse back
+    (my-def-keys help-mode-map
+      [
+       "<mouse-4>" help-go-back ; Windows mouse back (Linux mouse wheel up)
+       "<mouse-5>" help-go-forward ; mouse forwards
+       ]))
 
   ;; Navigate wrapped lines.
-  (define-key evil-normal-state-map
-    (kbd "j") 'evil-next-visual-line)
-  (define-key evil-normal-state-map
-    (kbd "k") 'evil-previous-visual-line)
+  (my-def-keys evil-normal-state-map
+    [
+     "j" evil-next-visual-line
+     "k" evil-previous-visual-line
+     ])
 
   ;; ;; Paste with Ctrl p.
   ;; (define-key evil-insert-state-map
