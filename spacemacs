@@ -687,11 +687,11 @@ Shift COLOR away from REFERENCE."
 
 ;;; Fonts & Faces
 
-  (defun my-select-font (FONTS)
+  (defun my-select-font (&rest FONTS)
     "Return the first available font in FONTS, or the default font if none are available."
     (my-if (null FONTS) (face-attribute 'default :family)
            (member (car FONTS) (font-family-list)) (car FONTS)
-           (my-select-font (cdr FONTS))))
+           (apply #'my-select-font (cdr FONTS))))
 
   (defun my-def-faces (GROUP &rest FACES)
     "Create FACES (name docstring properties) in GROUP. No fancy business here; the display is always t."
@@ -913,27 +913,25 @@ REFERENCE is used to avoid fading FACE into oblivion with repreated applications
   (set-face-attribute
    'fixed-pitch nil
    :family (my-select-font
-            '(
-              "Source Code Pro"
-              "IBM 3720"
-              "DejaVu Sans Mono"
-              "Monaco"
-              "Lucida Console"
-              )))
+            "Source Code Pro"
+            "IBM 3720"
+            "DejaVu Sans Mono"
+            "Monaco"
+            "Lucida Console"
+            ))
 
   (set-face-attribute
    'variable-pitch nil
    :family (my-select-font
-            '(
-              "ET Book"
-              "ETBembo"
-              "Bembo Book MT Std"
-              "Bembo MT Book Std"
-              "Garamond Premier Pro"
-              "Garamond Premr Pro"
-              "Adobe Garamond Expert"
-              "Garamond"
-              )))
+            "ET Book"
+            "ETBembo"
+            "Bembo Book MT Std"
+            "Bembo MT Book Std"
+            "Garamond Premier Pro"
+            "Garamond Premr Pro"
+            "Adobe Garamond Expert"
+            "Garamond"
+            ))
 
   (defun my-reset-font-height-by-platform ()
     "Make the font bigger if running linux, because my laptop runs linux and my desktop runs Windows."
