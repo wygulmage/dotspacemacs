@@ -994,20 +994,12 @@ FACE-SETUP should a procedure of 2 arguments (faces) that sets attributes of the
   ;;   (my-evil-forward-word-end COUNT t))
 
   ;; ;; Flip Vi e/E behavior to make a more useful distiction from w/W.
-  ;; (define-key evil-motion-state-map "E" 'my-evil-forward-word-end)
-  ;; (define-key evil-motion-state-map "e" 'my-evil-forward-WORD-end)
+  ;; (my-def-keys evil-motion-state-map
+  ;;  "E" #'my-evil-forward-word-end
+  ;;  "e" #'my-evil-forward-WORD-end)
 
   ;;; ----------------------------------
   ;;; Hooks
-
-  ;; (my-hook-up
-  ;;  '(
-  ;;    after-change-major-mode-hook
-  ;;    after-save-hook
-  ;;    buffer-list-update-hook
-  ;;    first-change-hook
-  ;;    )
-  ;;  '(force-mode-line-update))
 
   ;; Refresh VC state to update mode line info. Fall back to expensive vc-find-file-hook if `vc-refresh-state' is not available.
 
@@ -1036,7 +1028,7 @@ FACE-SETUP should a procedure of 2 arguments (faces) that sets attributes of the
   (my-hook-up
    '(text-mode-hook)
    '(
-     flycheck-mode
+     flyspell-mode
      variable-pitch-mode
      my-format-text-mode-line
      ))
