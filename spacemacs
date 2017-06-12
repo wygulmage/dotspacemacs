@@ -753,7 +753,7 @@ Each face should be used by calling (GROUP-NAME-face).
 
 The active or inactive version can be modified by setting the attributes of GROUP-NAME-active-face or GROUP-NAME-inactive-face.
 
-FACE-SETUP should a procedure of 2 arguments (the active and inactive faces) that set any theme-dependent attributes."
+FACE-SETUP should a procedure of 2 arguments (faces) that sets attributes of the first argument relative to the second; the :inherit of the active faces will be used for the second."
     (my-let
      def-adaptive-face
      ((name doc active inactive &optional face-setup)
@@ -774,9 +774,10 @@ FACE-SETUP should a procedure of 2 arguments (the active and inactive faces) tha
          (when face-setup
            (add-hook 'adaptive-faces-setup
                      `(lambda ()
-                        (funcall ,face-setup
-                                 ',active-name
-                                 ',inactive-name)))))))
+                        (,face-setup ',active-name
+                                     ',(face-attribute active-name :inherit))
+                        (,face-setup ',inactive-name
+                                     ',(face-attribute inactive-name :inherit))))))))
      (seq-doseq (f ADAPTIVE-FACES)
        (apply #'def-adaptive-face f))))
 
@@ -794,16 +795,12 @@ FACE-SETUP should a procedure of 2 arguments (the active and inactive faces) tha
      (:weight bold
               :underline t
               :inherit my-statusbar-default-inactive-face)
-     (lambda (aface iface)
-       (my-intensify-face-foreground aface 'my-statusbar-default-active-face)
-       (my-intensify-face-foreground iface 'my-statusbar-default-inactive-face)))
+     my-intensify-face-foreground)
    '(shadow
      "a dimmed face for the mode-line"
      (:inherit my-statusbar-default-active-face)
      (:inherit my-statusbar-default-inactive-face)
-     (lambda (aface iface)
-       (my-fade-face-foreground aface 'my-statusbar-default-active-face)
-       (my-fade-face-foreground iface 'my-statusbar-default-inactive-face)))
+     my-fade-face-foreground)
    )
 
   (defun my-reset-statusbar-faces ()
