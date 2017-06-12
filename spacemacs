@@ -741,36 +741,89 @@ Each binding should be a string that can be passed to `kbd' followed by an inter
   ;;; ----------------------------------------------
   ;;   ;;; Mode Line, Header Line, and Frame Title Format
 
+  ;; (defmacro my-def-adaptive-face
+  ;;     (NAME DOCSTRING GROUP ACTIVE-ATTRIBUTES INACTIVE-ATTRIBUTES)
+  ;;   (declare (indent defun))
+  ;;   (my-let
+  ;;    active-name (my-isymb NAME "-active-face")
+  ;;    inactive-name (my-isymb NAME "-inactive-face")
+  ;;    getter-name (my-isymb NAME "-face")
+  ;;    `(progn
+  ;;       (my-def-faces ',GROUP
+  ;;         '(,active-name
+  ;;           ,DOCSTRING
+  ;;           ,@ACTIVE-ATTRIBUTES)
+  ;;         '(,inactive-name
+  ;;           ,DOCSTRING
+  ;;           ,@INACTIVE-ATTRIBUTES))
+  ;;       (defun ,getter-name ()
+  ;;         (if (my-primary-pane-active?)
+  ;;             ',active-name
+  ;;           ',inactive-name)))))
+
+  ;; (defmacro my-def-adaptive-faces (GROUP &rest AFACES)
+  ;;   `(seq-doseq (f ,AFACES)
+  ;;      (my-let
+  ;;       (name doc active inactive) f
+  ;;       (my-def-adaptive-face name doc ,GROUP active inactive))))
+
+  (defun my-def-adaptive-face (NAME DOCSTRING GROUP ACTIVE-ATTRIBUTES INACTIVE-ATTRIBUTES)
+    (my-let
+     face-symbol ((s) (my-isymb NAME s "-face"))
+     active-name (face-symbol "-active")
+     inactive-name (face-symbol "-inactive")
+     getter-name (face-symbol "")
+     (progn
+       (my-def-faces GROUP
+         `(,active-name ,DOCSTRING ,@ACTIVE-ATTRIBUTES)
+         `(,inactive-name ,DOCSTRING ,@INACTIVE-ATTRIBUTES))
+       (fset getter-name
+             `(lambda ()
+                (if (my-primary-pane-active?)
+                    ',active-name
+                  ',inactive-name))))))
+
+  (defun my-def-adaptive-faces (GROUP &rest ADAPTIVE-FACES)
+    (cl-loop for (name doc active inactive) in ADAPTIVE-FACES
+             do (my-def-adaptive-face name doc GROUP active inactive)))
+
+  (my-def-adaptive-faces
+   'statusbar
+   '(my-statusbar-default
+    "an alias af mode-line and mode-line-inactive faces"
+    (:inherit mode-line)
+    (:inherit mode-line-inactive)))
+
   (my-def-faces 'statusbar
-    '(my-statusbar-active-face
-      "an alias for mode-line face"
-      :inherit mode-line)
-    '(my-statusbar-inactive-face
-      "an alias for mode-line-inactive face"
-      :inherit mode-line-inactive)
+    ;; '(my-statusbar-active-face
+    ;;   "an alias for mode-line face"
+    ;;   :inherit mode-line)
+    ;; '(my-statusbar-inactive-face
+    ;;   "an alias for mode-line-inactive face"
+    ;;   :inherit mode-line-inactive)
     '(my-statusbar-active-highlight-face
       "an emphasized face for the active mode-line"
       :weight bold
       :underline t
-      :inherit my-statusbar-active-face)
+      :inherit my-statusbar-default-active-face)
     '(my-statusbar-inactive-highlight-face
       "an emphasized face for the inactive mode-line"
       :weight bold
       :underline t
-      :inherit my-statusbar-inactive-face)
+      :inherit my-statusbar-default-inactive-face)
     '(my-statusbar-active-shadow-face
       "a dimmed face for the active mode-line"
-      :inherit my-statusbar-active-face)
+      :inherit my-statusbar-default-active-face)
     '(my-statusbar-inactive-shadow-face
       "a dimmed face for the inactive mode-line"
-      :inherit my-statusbar-inactive-face)
+      :inherit my-statusbar-default-inactive-face)
     )
 
-  (defun my-get-statusbar-face ()
-    "an ersatz face that switches between statusbar-active- and statusbar-inactive-face"
-    (if (my-primary-pane-active?)
-        'my-statusbar-active-face
-      'my-statusbar-inactive-face))
+  ;; (defun my-get-statusbar-face ()
+  ;;   "an ersatz face that switches between statusbar-active- and statusbar-inactive-face"
+  ;;   (if (my-primary-pane-active?)
+  ;;       'my-statusbar-active-face
+  ;;     'my-statusbar-inactive-face))
 
   (defun my-get-statusbar-highlight-face ()
     "an ersatz face that switches between statusbar-active- and statusbar-inactive-face"
@@ -785,20 +838,20 @@ Each binding should be a string that can be passed to `kbd' followed by an inter
       'my-statusbar-inactive-shadow-face))
 
   (defun my-reset-statusbar-faces ()
-    "Set statusbar shadow faces to be faded versions of their counterparts."
+    "Set statusbar shadow faces to be faded versions of their counterparts, and bright faces to be intensified versions."
     (interactive)
     (my-intensify-face-foreground
      'my-statusbar-active-highlight-face
-     'my-statusbar-active-face)
+     'my-statusbar-default-active-face)
     (my-intensify-face-foreground
      'my-statusbar-inactive-highlight-face
-     'my-statusbar-inactive-face)
+     'my-statusbar-default-inactive-face)
     (my-fade-face-foreground
      'my-statusbar-active-shadow-face
-     'my-statusbar-active-face)
+     'my-statusbar-default-active-face)
     (my-fade-face-foreground
      'my-statusbar-inactive-shadow-face
-     'my-statusbar-inactive-face))
+     'my-statusbar-default-inactive-face))
   (my-reset-statusbar-faces)
 
   (my-make-hook :after load-theme
@@ -841,7 +894,7 @@ Each binding should be a string that can be passed to `kbd' followed by an inter
        (propertize "(" 'face (my-get-statusbar-shadow-face))
        (propertize
         (replace-regexp-in-string " Git[:\-]" "" vc-mode)
-        'mouse-face (my-get-statusbar-face)
+        'mouse-face (my-statusbar-default-face)
         'local-map (make-mode-line-mouse-map 'mouse-1 #'magit-status))
        (propertize ")" 'face (my-get-statusbar-shadow-face))
        )))
@@ -1214,7 +1267,7 @@ Each binding should be a string that can be passed to `kbd' followed by an inter
   (defun my-theme-tweaks ()
     "Tweak faces to simplify themes."
     (my-set-face-attributes
-     `(
+     '(
        ;;; Things that don't do stuff:
        (font-lock-comment-face
         :background unspecified
@@ -1247,6 +1300,7 @@ Each binding should be a string that can be passed to `kbd' followed by an inter
     (my-box->lines 'mode-line)
     (my-box->lines 'mode-line-inactive)
     (my-material-minor-theme))
+
   (my-theme-tweaks)
   (add-hook 'after-load-theme-hook #'my-theme-tweaks)
 
