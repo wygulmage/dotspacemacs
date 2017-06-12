@@ -452,7 +452,7 @@ Bindings of the form SYMBOL (ARGS BODY) are bound as procedures.
 Bindings of the form SEQUENCE SEQUENCE are pattern-matched.
 Other bindings are bound as usual."
     ;; TODO: Make this macro less ugly.
-    (seq-let (e &rest rev-bs) (reverse BINDINGS.EXPRESSION)
+    (seq-let (e &rest rev-bs) (reverse BINDINGS.EXPRESSION) ; Reverse to get the expression at the end.
       (cl-labels
           ((let-helper
             (BINDINGS EXPRESSION)
@@ -474,7 +474,7 @@ Other bindings are bound as usual."
                     `(let ((,var ,val))
                        ,(let-helper bs EXPRESSION)))))
               EXPRESSION)))
-        (let-helper (reverse rev-bs) e))))
+        (let-helper (reverse rev-bs) e)))) ; Reverse to get the bindings in the right order again.
 
   (defmacro my-if (&rest CONDITIONS)
     (my-let
@@ -495,6 +495,7 @@ Other bindings are bound as usual."
            PRINT-CHAR-FUNCTION))
 
   (defun my-mkstr (&rest ARGS)
+    "Create a string from arbitrary arguments."
     (with-output-to-string
       (mapc #'my-princ ARGS)))
 
@@ -741,61 +742,72 @@ Each binding should be a string that can be passed to `kbd' followed by an inter
   ;;; ----------------------------------------------
   ;;   ;;; Mode Line, Header Line, and Frame Title Format
 
-  (defun my-def-adaptive-face (NAME DOCSTRING GROUP ACTIVE-ATTRIBUTES INACTIVE-ATTRIBUTES)
-    (my-let
-     face-symbol ((s) (my-isymb NAME s "-face"))
-     active-name (face-symbol "-active")
-     inactive-name (face-symbol "-inactive")
-     getter-name (face-symbol "")
-     (progn
-       (my-def-faces GROUP
-         `(,active-name ,DOCSTRING ,@ACTIVE-ATTRIBUTES)
-         `(,inactive-name ,DOCSTRING ,@INACTIVE-ATTRIBUTES))
-       (fset getter-name
-             `(lambda ()
-                (if (my-primary-pane-active?)
-                    ',active-name
-                  ',inactive-name))))))
+  (defvar adaptive-faces-setup ()
+    "a list of adaptive face setup functions")
 
   (defun my-def-adaptive-faces (GROUP &rest ADAPTIVE-FACES)
-    (cl-loop for (name doc active inactive) in ADAPTIVE-FACES
-             do (my-def-adaptive-face name doc GROUP active inactive)))
+    "Create ersatz faces in customization group GROUP.
+Each ADAPTIVE-FACE take the form (NAME DOCSTRING ACTIVE-ATTRIBUTES INACTIVE-ATTRIBUTES &optional ACTIVE-SETUP INACTIVE-SETUP).
+
+Each face should be used by calling (GROUP-NAME-face).
+
+The active or inactive version can be modified by setting the attributes of GROUP-NAME-active-face or GROUP-NAME-inactive-face.
+
+FACE-SETUP should a procedure of 2 arguments (the active and inactive faces) that set any theme-dependent attributes."
+    (my-let
+     def-adaptive-face
+     ((name doc active inactive &optional face-setup)
+      (my-let
+       face-symbol ((s) (my-isymb GROUP "-" name s "-face"))
+       active-name (face-symbol "-active")
+       inactive-name (face-symbol "-inactive")
+       getter-name (face-symbol "")
+       (progn
+         (my-def-faces GROUP
+           `(,active-name ,doc ,@active)
+           `(,inactive-name ,doc ,@inactive))
+         (fset getter-name
+               `(lambda ()
+                  (if (my-primary-pane-active?)
+                      ',active-name
+                    ',inactive-name)))
+         (when face-setup
+           (add-hook 'adaptive-faces-setup
+                     `(lambda ()
+                        (funcall ,face-setup
+                                 ',active-name
+                                 ',inactive-name)))))))
+     (seq-doseq (f ADAPTIVE-FACES)
+       (apply #'def-adaptive-face f))))
 
   (my-def-adaptive-faces
-   'statusbar
-   '(my-statusbar-default
-     "an alias af mode-line and mode-line-inactive faces"
-     (:inherit mode-line)
-     (:inherit mode-line-inactive))
-   '(my-statusbar-highlight
+   'my-statusbar
+   '(default
+      "an alias af mode-line and mode-line-inactive faces"
+      (:inherit mode-line)
+      (:inherit mode-line-inactive))
+   '(highlight
      "an emphasized face for the mode-line"
      (:weight bold
               :underline t
               :inherit my-statusbar-default-active-face)
      (:weight bold
               :underline t
-              :inherit my-statusbar-default-inactive-face))
-   '(my-statusbar-shadow
+              :inherit my-statusbar-default-inactive-face)
+     (lambda (aface iface)
+       (my-intensify-face-foreground aface 'my-statusbar-default-active-face)
+       (my-intensify-face-foreground iface 'my-statusbar-default-inactive-face)))
+   '(shadow
      "a dimmed face for the mode-line"
      (:inherit my-statusbar-default-active-face)
-     (:inherit my-statusbar-default-inactive-face))
+     (:inherit my-statusbar-default-inactive-face)
+     (lambda (aface iface)
+       (my-fade-face-foreground aface 'my-statusbar-default-active-face)
+       (my-fade-face-foreground iface 'my-statusbar-default-inactive-face)))
    )
 
   (defun my-reset-statusbar-faces ()
-    "Set statusbar shadow faces to be faded versions of their counterparts, and bright faces to be intensified versions."
-    (interactive)
-    (my-intensify-face-foreground
-     'my-statusbar-highlight-active-face
-     'my-statusbar-default-active-face)
-    (my-intensify-face-foreground
-     'my-statusbar-highlight-inactive-face
-     'my-statusbar-default-inactive-face)
-    (my-fade-face-foreground
-     'my-statusbar-shadow-active-face
-     'my-statusbar-default-active-face)
-    (my-fade-face-foreground
-     'my-statusbar-shadow-inactive-face
-     'my-statusbar-default-inactive-face))
+    (run-hooks 'adaptive-faces-setup))
   (my-reset-statusbar-faces)
 
   (my-make-hook :after load-theme
