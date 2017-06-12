@@ -968,10 +968,10 @@ FACE-SETUP should a procedure of 2 arguments (faces) that sets attributes of the
   (customize-set-variable 'evil-move-cursor-back nil) ; Don't move the cursor when exiting insert mode.
 
   ;; ;; Flip Vi a/A behavior.
-  (my-def-keys evil-normal-state-map
-    "a" #'evil-append-line
-    "A" #'evil-append
-    )
+  ;; (my-def-keys evil-normal-state-map
+  ;;   "a" #'evil-append-line
+  ;;   "A" #'evil-append
+  ;;   )
 
   ;; (defun my-evil-forward-end (THING &optional COUNT)
   ;;   "Move forward past the end of THING. Repeat COUNT times."
