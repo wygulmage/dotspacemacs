@@ -513,6 +513,16 @@ Other bindings are bound as usual."
      for e1 in L1 and e2 in L2
      append (list e1 e2)))
 
+;;; Let's write a whole new set of procedures for accessing files!
+
+  (defun my-seq-slice (RANGE SEQUENCE)
+    "Return a subsequence of SEQUENCE from RANGE of (START &optional END)"
+    (seq-subseq (seq-elt 0) (seq--elt-safe 1)))
+
+  ;; (defun my-seq-find (SUBSEQUENCE SEQUENCE)
+  ;;   "Return the start and end of the first occurrence of SUBSEQUENCE in SEQUENCE"
+  ;;   )
+
 ;;; Hooks
 
   (defmacro my-make-hook (WHEN PROCEDURE &rest CONTINGENT)
@@ -1019,7 +1029,7 @@ FACE-SETUP should a procedure of 2 arguments (faces) that sets attributes of the
      after-magit-start-process-hook
      )
    `(
-     ,(if (fboundp 'vc-refresh-state) 'vc-refresh-state 'vc-find-file-hook)
+     ,(if (fboundp 'vc-refresh-state) #'vc-refresh-state #'vc-find-file-hook)
      (lambda () (force-mode-line-update t)) ; refresh all mode lines.
      ))
 
