@@ -507,6 +507,12 @@ Other bindings are bound as usual."
     "Create a new uninterned symbol."
     (make-symbol (apply #'my-mkstr ARGS)))
 
+  (defun my-alternate (L1 L2)
+    "Create a list that alternates the elements of L1 and L2."
+    (cl-loop
+     for e1 in L1 and e2 in L2
+     append (list e1 e2)))
+
 ;;; Hooks
 
   (defmacro my-make-hook (WHEN PROCEDURE &rest CONTINGENT)
@@ -1014,8 +1020,8 @@ FACE-SETUP should a procedure of 2 arguments (faces) that sets attributes of the
   ;;    )
   ;;  `(
   ;;    ,(if (fboundp 'vc-refresh-state) 'vc-refresh-state 'vc-find-file-hook)
-  ;;     ,(lambda () (force-mode-line-update t)) ; refresh all mode lines.
-  ;;     ))
+  ;;    (lambda () (force-mode-line-update t)) ; refresh all mode lines.
+  ;;    ))
 
   (my-hook-up
    '(prog-mode-hook)
@@ -1093,13 +1099,13 @@ FACE-SETUP should a procedure of 2 arguments (faces) that sets attributes of the
   (defun my-zoom-out ()
     (interactive)
     (text-scale-decrease 1.01))
-  (seq-doseq (x '[
-                  [my-zoom-in "C-<mouse-4>" "C-<wheel-up>"]
-                  [my-zoom-out "C-<mouse-5>" "C-<wheel-down>"]
-                  ])
-    (global-set-key
-     (kbd (aref x (if (string= system-type "gnu/linux") 1 2)))
-     (aref x 0)))
+
+  (apply #'my-def-keys global-map
+         (my-alternate
+          (if (string= system-type "gnu/linux")
+              '("C-<mouse-4>" "C-<mouse-5>") ; Linux mouse wheel
+            '("C-<wheel-up>" "C-<wheel-down>")) ; Windows mouse wheel
+          '(my-zoom-in my-zoom-out)))
 
   ;;; Use hex for unicode character input.
   (setq-default read-quoted-char-radix 16)
