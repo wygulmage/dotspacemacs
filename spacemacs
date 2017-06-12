@@ -1009,9 +1009,9 @@ FACE-SETUP should a procedure of 2 arguments (faces) that sets attributes of the
 
   ;; Refresh VC state to update mode line info. Fall back to expensive vc-find-file-hook if `vc-refresh-state' is not available.
 
-  (my-make-hook :after 'magit-run-git)
+  (my-make-hook :after magit-run-git)
 
-  (my-make-hook :after 'magit-start-process)
+  (my-make-hook :after magit-start-process)
 
   (my-hook-up
    '(
