@@ -741,32 +741,6 @@ Each binding should be a string that can be passed to `kbd' followed by an inter
   ;;; ----------------------------------------------
   ;;   ;;; Mode Line, Header Line, and Frame Title Format
 
-  ;; (defmacro my-def-adaptive-face
-  ;;     (NAME DOCSTRING GROUP ACTIVE-ATTRIBUTES INACTIVE-ATTRIBUTES)
-  ;;   (declare (indent defun))
-  ;;   (my-let
-  ;;    active-name (my-isymb NAME "-active-face")
-  ;;    inactive-name (my-isymb NAME "-inactive-face")
-  ;;    getter-name (my-isymb NAME "-face")
-  ;;    `(progn
-  ;;       (my-def-faces ',GROUP
-  ;;         '(,active-name
-  ;;           ,DOCSTRING
-  ;;           ,@ACTIVE-ATTRIBUTES)
-  ;;         '(,inactive-name
-  ;;           ,DOCSTRING
-  ;;           ,@INACTIVE-ATTRIBUTES))
-  ;;       (defun ,getter-name ()
-  ;;         (if (my-primary-pane-active?)
-  ;;             ',active-name
-  ;;           ',inactive-name)))))
-
-  ;; (defmacro my-def-adaptive-faces (GROUP &rest AFACES)
-  ;;   `(seq-doseq (f ,AFACES)
-  ;;      (my-let
-  ;;       (name doc active inactive) f
-  ;;       (my-def-adaptive-face name doc ,GROUP active inactive))))
-
   (defun my-def-adaptive-face (NAME DOCSTRING GROUP ACTIVE-ATTRIBUTES INACTIVE-ATTRIBUTES)
     (my-let
      face-symbol ((s) (my-isymb NAME s "-face"))
@@ -790,67 +764,37 @@ Each binding should be a string that can be passed to `kbd' followed by an inter
   (my-def-adaptive-faces
    'statusbar
    '(my-statusbar-default
-    "an alias af mode-line and mode-line-inactive faces"
-    (:inherit mode-line)
-    (:inherit mode-line-inactive)))
-
-  (my-def-faces 'statusbar
-    ;; '(my-statusbar-active-face
-    ;;   "an alias for mode-line face"
-    ;;   :inherit mode-line)
-    ;; '(my-statusbar-inactive-face
-    ;;   "an alias for mode-line-inactive face"
-    ;;   :inherit mode-line-inactive)
-    '(my-statusbar-active-highlight-face
-      "an emphasized face for the active mode-line"
-      :weight bold
-      :underline t
-      :inherit my-statusbar-default-active-face)
-    '(my-statusbar-inactive-highlight-face
-      "an emphasized face for the inactive mode-line"
-      :weight bold
-      :underline t
-      :inherit my-statusbar-default-inactive-face)
-    '(my-statusbar-active-shadow-face
-      "a dimmed face for the active mode-line"
-      :inherit my-statusbar-default-active-face)
-    '(my-statusbar-inactive-shadow-face
-      "a dimmed face for the inactive mode-line"
-      :inherit my-statusbar-default-inactive-face)
-    )
-
-  ;; (defun my-get-statusbar-face ()
-  ;;   "an ersatz face that switches between statusbar-active- and statusbar-inactive-face"
-  ;;   (if (my-primary-pane-active?)
-  ;;       'my-statusbar-active-face
-  ;;     'my-statusbar-inactive-face))
-
-  (defun my-get-statusbar-highlight-face ()
-    "an ersatz face that switches between statusbar-active- and statusbar-inactive-face"
-    (if (my-primary-pane-active?)
-        'my-statusbar-active-highlight-face
-      'my-statusbar-inactive-highlight-face))
-
-  (defun my-get-statusbar-shadow-face ()
-    "an ersatz face that switches between statusbar-active- and statusbar-inactive-shadow-face"
-    (if (my-primary-pane-active?)
-        'my-statusbar-active-shadow-face
-      'my-statusbar-inactive-shadow-face))
+     "an alias af mode-line and mode-line-inactive faces"
+     (:inherit mode-line)
+     (:inherit mode-line-inactive))
+   '(my-statusbar-highlight
+     "an emphasized face for the mode-line"
+     (:weight bold
+              :underline t
+              :inherit my-statusbar-default-active-face)
+     (:weight bold
+              :underline t
+              :inherit my-statusbar-default-inactive-face))
+   '(my-statusbar-shadow
+     "a dimmed face for the mode-line"
+     (:inherit my-statusbar-default-active-face)
+     (:inherit my-statusbar-default-inactive-face))
+   )
 
   (defun my-reset-statusbar-faces ()
     "Set statusbar shadow faces to be faded versions of their counterparts, and bright faces to be intensified versions."
     (interactive)
     (my-intensify-face-foreground
-     'my-statusbar-active-highlight-face
+     'my-statusbar-highlight-active-face
      'my-statusbar-default-active-face)
     (my-intensify-face-foreground
-     'my-statusbar-inactive-highlight-face
+     'my-statusbar-highlight-inactive-face
      'my-statusbar-default-inactive-face)
     (my-fade-face-foreground
-     'my-statusbar-active-shadow-face
+     'my-statusbar-shadow-active-face
      'my-statusbar-default-active-face)
     (my-fade-face-foreground
-     'my-statusbar-inactive-shadow-face
+     'my-statusbar-shadow-inactive-face
      'my-statusbar-default-inactive-face))
   (my-reset-statusbar-faces)
 
@@ -891,12 +835,12 @@ Each binding should be a string that can be passed to `kbd' followed by an inter
     (if (not vc-mode)
         ""
       (concat
-       (propertize "(" 'face (my-get-statusbar-shadow-face))
+       (propertize "(" 'face (my-statusbar-shadow-face))
        (propertize
         (replace-regexp-in-string " Git[:\-]" "" vc-mode)
         'mouse-face (my-statusbar-default-face)
         'local-map (make-mode-line-mouse-map 'mouse-1 #'magit-status))
-       (propertize ")" 'face (my-get-statusbar-shadow-face))
+       (propertize ")" 'face (my-statusbar-shadow-face))
        )))
 
   (defun my-line-position ()
@@ -906,7 +850,7 @@ Each binding should be a string that can be passed to `kbd' followed by an inter
      (propertize
       (concat
        (my-pad (length lines) (format-mode-line "%l"))
-       (propertize "/" 'face (my-get-statusbar-shadow-face))
+       (propertize "/" 'face (my-statusbar-shadow-face))
        lines)
       'help-echo (if (bound-and-true-p linum-mode) "Hide line numbers." "Show line numbers.")
       'local-map (make-mode-line-mouse-map 'mouse-1 #'linum-mode))))
