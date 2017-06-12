@@ -1009,19 +1009,19 @@ FACE-SETUP should a procedure of 2 arguments (faces) that sets attributes of the
 
   ;; Refresh VC state to update mode line info. Fall back to expensive vc-find-file-hook if `vc-refresh-state' is not available.
 
-  ;; (my-make-hook :after 'magit-run-git)
+  (my-make-hook :after 'magit-run-git)
 
-  ;; (my-make-hook :after 'magit-start-process)
+  (my-make-hook :after 'magit-start-process)
 
-  ;; (my-hook-up
-  ;;  '(
-  ;;    after-magit-run-git-hook
-  ;;    after-magit-start-process-hook
-  ;;    )
-  ;;  `(
-  ;;    ,(if (fboundp 'vc-refresh-state) 'vc-refresh-state 'vc-find-file-hook)
-  ;;    (lambda () (force-mode-line-update t)) ; refresh all mode lines.
-  ;;    ))
+  (my-hook-up
+   '(
+     after-magit-run-git-hook
+     after-magit-start-process-hook
+     )
+   `(
+     ,(if (fboundp 'vc-refresh-state) 'vc-refresh-state 'vc-find-file-hook)
+     (lambda () (force-mode-line-update t)) ; refresh all mode lines.
+     ))
 
   (my-hook-up
    '(prog-mode-hook)
