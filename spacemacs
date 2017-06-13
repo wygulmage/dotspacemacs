@@ -417,6 +417,7 @@ This function is called immediately after `dotspacemacs/init', before layer
 configuration.
 It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
+  (profiler-start 'cpu+mem)
   (setq-default exec-path-from-shell-check-startup-files nil) ; Don't worry about where I set environment variables. You're not my mom!
 
   (defconst the-default-mode-line mode-line-format) ; Save in case you want to know.
@@ -515,9 +516,59 @@ Other bindings are bound as usual."
 
 ;;; Let's write a whole new set of procedures for accessing files!
 
-  (defun my-seq-slice (RANGE SEQUENCE)
-    "Return a subsequence of SEQUENCE from RANGE of (START &optional END)"
-    (seq-subseq (seq-elt 0) (seq--elt-safe 1)))
+  (cl-defgeneric my-slice (RANGE SEQUENCE)
+    (:documentation
+     "Return a slice of SEQUENCE with RANGE of (&optional START END).
+If RANGE is empty, return the whole sequence unchanged.
+Slicing stops at the end of SEQUENCE and will not error."))
+
+  (cl-defmethod my-slice (RANGE (SEQUENCE list))
+    (let ((l (length RANGE)))
+      (if (= l 0) SEQUENCE
+        (let* ((start (elt RANGE 0))
+               (rest (nthcdr start SEQUENCE)))
+          (if (= l 1) rest
+            (let* ((i (- (elt RANGE 1) start))
+                   (accumulator ()))
+              (while (and (> i 0) rest)
+                (setq i (+ i -1)
+                      accumulator (cons (car rest) accumulator)
+                      rest (cdr rest)))
+              (nreverse accumulator)))))))
+
+  (cl-defmethod my-slice (RANGE (SEQUENCE array))
+    (let ((l (length RANGE)))
+      (cond ((= l 0) SEQUENCE)
+            ((= l 1) (substring SEQUENCE (elt RANGE 0)))
+            (t (substring SEQUENCE (elt RANGE 0) (min l (elt RANGE 1)))))))
+
+  (cl-defgeneric my-slice-unsafe (RANGE SEQUENCE)
+    (:documentation
+     "Return a slice of SEQUENCE with RANGE of (&optional START END).
+If RANGE is empty, return the whole sequence unchanged.
+If END > (length SEQUENCE), throw an out-of-bounds error."))
+
+  (cl-defmethod my-slice-unsafe (RANGE (SEQUENCE array))
+    (let ((l (length RANGE)))
+      (cond ((= l 0) SEQUENCE)
+            ((= l 1) (substring SEQUENCE (elt RANGE 0)))
+            (t (substring SEQUENCE (elt RANGE 0) (elt RANGE 1))))))
+
+  (cl-defmethod my-slice-unsafe (RANGE (SEQUENCE list))
+    (let ((l (length RANGE)))
+      (if (= l 0) SEQUENCE
+        (let* ((start (elt RANGE 0))
+               (rest (nthcdr start SEQUENCE)))
+          (if (= l 1) rest
+            (let* ((i (- (elt RANGE 1) start))
+                   (accumulator ()))
+              (while (> i 0)
+                (unless rest
+                  (error "%s out of bounds %s" (elt RANGE 1) (length SEQUENCE)))
+                (setq i (+ i -1)
+                      accumulator (cons (car rest) accumulator)
+                      rest (cdr rest)))
+              (nreverse accumulator)))))))
 
   ;; (defun my-seq-find (SUBSEQUENCE SEQUENCE)
   ;;   "Return the start and end of the first occurrence of SUBSEQUENCE in SEQUENCE"
