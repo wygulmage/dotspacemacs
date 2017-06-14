@@ -520,7 +520,8 @@ Other bindings are bound as usual."
     (:documentation
      "Return a slice of SEQUENCE with RANGE of (&optional START END).
 If RANGE is empty, return the whole sequence unchanged.
-Slicing stops at the end of SEQUENCE and will not error."))
+Slicing stops at the end of SEQUENCE and will not error.")
+    (declare (pure t) (side-effect-free t)))
 
   (cl-defmethod my-slice (RANGE (SEQUENCE list))
     (let ((l (length RANGE)))
@@ -528,47 +529,13 @@ Slicing stops at the end of SEQUENCE and will not error."))
         (let* ((start (elt RANGE 0))
                (rest (nthcdr start SEQUENCE)))
           (if (= l 1) rest
-            (let* ((i (- (elt RANGE 1) start))
-                   (accumulator ()))
-              (while (and (> i 0) rest)
-                (setq i (+ i -1)
-                      accumulator (cons (car rest) accumulator)
-                      rest (cdr rest)))
-              (nreverse accumulator)))))))
+            (-take (- (elt RANGE 1) start) rest)))))) ; Dash's `-take' is _fast_
 
   (cl-defmethod my-slice (RANGE (SEQUENCE array))
     (let ((l (length RANGE)))
       (cond ((= l 0) SEQUENCE)
             ((= l 1) (substring SEQUENCE (elt RANGE 0)))
-            (t (substring SEQUENCE (elt RANGE 0) (min l (elt RANGE 1)))))))
-
-  (cl-defgeneric my-slice-unsafe (RANGE SEQUENCE)
-    (:documentation
-     "Return a slice of SEQUENCE with RANGE of (&optional START END).
-If RANGE is empty, return the whole sequence unchanged.
-If END > (length SEQUENCE), throw an out-of-bounds error."))
-
-  (cl-defmethod my-slice-unsafe (RANGE (SEQUENCE array))
-    (let ((l (length RANGE)))
-      (cond ((= l 0) SEQUENCE)
-            ((= l 1) (substring SEQUENCE (elt RANGE 0)))
-            (t (substring SEQUENCE (elt RANGE 0) (elt RANGE 1))))))
-
-  (cl-defmethod my-slice-unsafe (RANGE (SEQUENCE list))
-    (let ((l (length RANGE)))
-      (if (= l 0) SEQUENCE
-        (let* ((start (elt RANGE 0))
-               (rest (nthcdr start SEQUENCE)))
-          (if (= l 1) rest
-            (let* ((i (- (elt RANGE 1) start))
-                   (accumulator ()))
-              (while (> i 0)
-                (unless rest
-                  (error "%s out of bounds %s" (elt RANGE 1) (length SEQUENCE)))
-                (setq i (+ i -1)
-                      accumulator (cons (car rest) accumulator)
-                      rest (cdr rest)))
-              (nreverse accumulator)))))))
+            (t (substring SEQUENCE (elt RANGE 0) (min (length SEQUENCE) (elt RANGE 1)))))))
 
   ;; (defun my-seq-find (SUBSEQUENCE SEQUENCE)
   ;;   "Return the start and end of the first occurrence of SUBSEQUENCE in SEQUENCE"
