@@ -529,9 +529,13 @@ Slicing stops at the end of SEQUENCE and will not error.")
         (let* ((start (elt RANGE 0))
                (rest (nthcdr start SEQUENCE)))
           (if (= l 1) rest
-            (-take (- (elt RANGE 1) start) rest)))))) ; Dash's `-take' is _fast_
+            (let ((end (- (elt RANGE 1) start)))
+              (if (nthcdr end rest)
+                  (-take end rest) ; Dash's `-take' is _fast_
+                rest))))))) ; Share if at all possible.
 
   (cl-defmethod my-slice (RANGE (SEQUENCE array))
+    ;; TODO: Don't copy array if subseq = seq.
     (let ((l (length RANGE)))
       (cond ((= l 0) SEQUENCE)
             ((= l 1) (substring SEQUENCE (elt RANGE 0)))
