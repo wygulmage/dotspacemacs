@@ -566,7 +566,7 @@ Slicing stops at the end of SEQUENCE and will not error.")
                     (helper (+ 1 end) (+ 1 end) 0)))
      (helper 0 0 0)))
 
-  (cl-defgeneric my--seq-get (INDEXS EQ))
+  (cl-defgeneric my--seq-get (INDEX SEQ))
 
   (cl-defmethod my--seq-get (INDEX (SEQ list))
     `(,(seq-elt SEQ INDEX) 0 ,(nthcdr (+ 1 INDEX) SEQ)))
