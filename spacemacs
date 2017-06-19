@@ -539,14 +539,14 @@ Slicing stops at the end of SEQUENCE and will not error.")
     (let* ((l_r (length RANGE))
            (l_s (length SEQUENCE))
            (start (if (> l_r 0)
-                      (min l_s (RANGE 0))
+                      (min l_s (elt RANGE 0))
                     0))
            (end (if (> l_r 1)
-                    (min l_s (RANGE 1))
+                    (min l_s (elt RANGE 1))
                   l_s)))
-      (if (= l_s (- start end))
+      (if (= l_s (- end start))
           SEQUENCE
-        (substring start end))))
+        (substring SEQUENCE start end))))
 
   (cl-defgeneric my-seq-find (SUBSEQUENCE SEQUENCE)
     (:documentation "Return the start and end of the first occurrence of SUBSEQUENCE in SEQUENCE")
@@ -566,20 +566,12 @@ Slicing stops at the end of SEQUENCE and will not error.")
     (my-let
      helper ((start end sub-ix)
              (my-if (= sub-ix (length SUBSEQUENCE)) (vector start end)
-                    (> end (length SEQUENCE)) ()
-                    (equal (seq-elt SUBSEQUENCE sub-ix)
-                           (seq-elt SEQUENCE end))
+                    (> end (length SEQUENCE)) []
+                    (equal (aref SUBSEQUENCE sub-ix)
+                           (aref SEQUENCE end))
                     (helper start (+ 1 end) (+ 1 sub-ix))
-                    (helper (+ 1 end) (+ 1 end) 0)))
+                    (helper (+ 1 end (- sub-ix)) (+ 1 end (- sub-ix)) 0)))
      (helper 0 0 0)))
-
-  (cl-defgeneric my--seq-get (INDEX SEQ))
-
-  (cl-defmethod my--seq-get (INDEX (SEQ list))
-    `(,(seq-elt SEQ INDEX) 0 ,(nthcdr (+ 1 INDEX) SEQ)))
-
-  (cl-defmethod my--seq-get (INDEX (SEQ array))
-    `(,(seq-elt SEQ INDEX) ,(+ 1 INDEX) ,SEQ))
 
   ;; TODO: sequence 'regular expressions'
 
