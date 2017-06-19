@@ -551,6 +551,7 @@ Slicing stops at the end of SEQUENCE and will not error.")
   (cl-defgeneric my-seq-find (SUBSEQUENCE SEQUENCE)
     (:documentation "Return the start and end of the first occurrence of SUBSEQUENCE in SEQUENCE")
     (declare (pure t) (side-effect-free t)))
+  ;; FIXME: Split methods in two to allow mixing of lists and arrays.
 
   (cl-defmethod my-seq-find ((SUBSEQUENCE list) (SEQUENCE list))
     ;; TODO: Fix backtracking.
