@@ -548,13 +548,6 @@ Slicing stops at the end of SEQUENCE and will not error.")
           SEQUENCE
         (substring start end))))
 
-  (cl-defmethod my-slice-unsafe (RANGE (SEQUENCE array))
-    ;; TODO: Don't copy array if subseq = seq.
-    (let ((l_r (length RANGE)))
-      (cond ((= l_r 0) SEQUENCE)
-            ((= l_r 1) (substring SEQUENCE (elt RANGE 0)))
-            (t (substring SEQUENCE (elt RANGE 0) (elt RANGE 1))))))
-
   (cl-defgeneric my-seq-find (SUBSEQUENCE SEQUENCE)
     (:documentation "Return the start and end of the first occurrence of SUBSEQUENCE in SEQUENCE")
     (declare (pure t) (side-effect-free t)))
