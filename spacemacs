@@ -530,16 +530,30 @@ Slicing stops at the end of SEQUENCE and will not error.")
                (rest (nthcdr start SEQUENCE)))
           (if (= l 1) rest
             (let ((end (- (elt RANGE 1) start)))
-              (if (nthcdr end rest)
-                  (-take end rest) ; Dash's `-take' is _fast_
-                rest))))))) ; Share if at all possible.
+              (if (null (nthcdr end rest))
+                  rest ; Share if at all possible.
+                (-take end rest) ; Dash's `-take' is _fast_
+                )))))))
 
   (cl-defmethod my-slice (RANGE (SEQUENCE array))
+    (let* ((l_r (length RANGE))
+           (l_s (length SEQUENCE))
+           (start (if (> l_r 0)
+                      (min l_s (RANGE 0))
+                    0))
+           (end (if (> l_r 1)
+                    (min l_s (RANGE 1))
+                  l_s)))
+      (if (= l_s (- start end))
+          SEQUENCE
+        (substring start end))))
+
+  (cl-defmethod my-slice-unsafe (RANGE (SEQUENCE array))
     ;; TODO: Don't copy array if subseq = seq.
-    (let ((l (length RANGE)))
-      (cond ((= l 0) SEQUENCE)
-            ((= l 1) (substring SEQUENCE (elt RANGE 0)))
-            (t (substring SEQUENCE (elt RANGE 0) (min (length SEQUENCE) (elt RANGE 1)))))))
+    (let ((l_r (length RANGE)))
+      (cond ((= l_r 0) SEQUENCE)
+            ((= l_r 1) (substring SEQUENCE (elt RANGE 0)))
+            (t (substring SEQUENCE (elt RANGE 0) (elt RANGE 1))))))
 
   (cl-defgeneric my-seq-find (SUBSEQUENCE SEQUENCE)
     (:documentation "Return the start and end of the first occurrence of SUBSEQUENCE in SEQUENCE")
