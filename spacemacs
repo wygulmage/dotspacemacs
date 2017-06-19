@@ -553,6 +553,7 @@ Slicing stops at the end of SEQUENCE and will not error.")
     (declare (pure t) (side-effect-free t)))
 
   (cl-defmethod my-seq-find ((SUBSEQUENCE list) (SEQUENCE list))
+    ;; TODO: Fix backtracking.
     (my-let
      helper ((start end sub seq)
              (my-if (not sub) `(,start ,end)
@@ -564,13 +565,16 @@ Slicing stops at the end of SEQUENCE and will not error.")
 
   (cl-defmethod my-seq-find ((SUBSEQUENCE array) (SEQUENCE array))
     (my-let
-     helper ((start end sub-ix)
-             (my-if (= sub-ix (length SUBSEQUENCE)) (vector start end)
-                    (> end (length SEQUENCE)) []
-                    (equal (aref SUBSEQUENCE sub-ix)
-                           (aref SEQUENCE end))
-                    (helper start (+ 1 end) (+ 1 sub-ix))
-                    (helper (+ 1 end (- sub-ix)) (+ 1 end (- sub-ix)) 0)))
+     helper
+     ((start end sub-ix)
+      (my-if (= sub-ix (length SUBSEQUENCE)) (vector start end)
+             (> end (length SEQUENCE)) []
+             (equal (aref SUBSEQUENCE sub-ix)
+                    (aref SEQUENCE end)) (helper start
+                                                 (+ 1 end)
+                                                 (+ 1 sub-ix))
+                    (my-let reset (+ 1 end (- sub-ix))
+                            (helper reset reset 0))))
      (helper 0 0 0)))
 
   ;; TODO: sequence 'regular expressions'
