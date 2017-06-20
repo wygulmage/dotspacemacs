@@ -554,15 +554,20 @@ Slicing stops at the end of SEQUENCE and will not error.")
   ;; FIXME: Split methods in two to allow mixing of lists and arrays.
 
   (cl-defmethod my-seq-find ((SUBSEQUENCE list) (SEQUENCE list))
-    ;; TODO: Fix backtracking.
     (my-let
-     helper ((start end sub seq)
-             (my-if (not sub) `(,start ,end)
-                    (not seq) ()
-                    (equal (car sub) (car seq))
-                    (helper start (+ 1 end) (cdr sub) (cdr seq))
-                    (helper (+ 1 end) (+ 1 end) SUBSEQUENCE seq)))
-     (helper 0 0 SUBSEQUENCE SEQUENCE)))
+     prefix? ((prefix list)
+              (my-if
+               (not prefix) t
+               (not list) f
+               (when (equal (car prefix) (car list))
+                 (prefix? (cdr prefix) (cdr list)))))
+     helper ((start rest)
+             (my-if (prefix? SUBSEQUENCE rest)
+                    `(,start ,(+ start (length SUBSEQUENCE)))
+                    (not rest)
+                    ()
+                    (helper (+ 1 start) (cdr rest))))
+     (helper 0 SEQUENCE)))
 
   (cl-defmethod my-seq-find ((SUBSEQUENCE array) (SEQUENCE array))
     (my-let
