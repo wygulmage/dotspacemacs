@@ -1272,7 +1272,7 @@ FACE-SETUP should a procedure of 2 arguments (faces) that sets attributes of the
      unbox ((FACE)
             (unless (equal
                      (face-attribute 'default :background)
-                     (face-attribute FACE :background nil 'default))
+                     (face-attribute FACE :background nil t))
               (set-face-attribute
                FACE nil
                :box nil
@@ -1317,7 +1317,8 @@ FACE-SETUP should a procedure of 2 arguments (faces) that sets attributes of the
     (my-fade-face-foreground 'font-lock-comment-delimiter-face 'font-lock-comment-face)
     (my-box->lines 'mode-line)
     (my-box->lines 'mode-line-inactive)
-    (my-material-minor-theme))
+    ;; (my-material-minor-theme)
+    )
 
   (my-theme-tweaks)
   (add-hook 'after-load-theme-hook #'my-theme-tweaks)
