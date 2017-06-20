@@ -685,6 +685,8 @@ Use `advice-add' to add run-WHEN-PROCEDURE-hook as advice to PROCEDURE."
      (or (my-buffer-file-path b)
          (buffer-name b))))
 
+;;; VC info
+
   ;; ;; Ways `magit' can run git:
   ;; ;; `magit-start-process'
   ;; ;; `magit-call-process'
@@ -722,13 +724,13 @@ Use `advice-add' to add run-WHEN-PROCEDURE-hook as advice to PROCEDURE."
     (pcase my-file-vc-status
       (`up-to-date "")
       (`ignored "")
-      (`edited "◆")
-      (`needs-update "U")
-      (`needs-merge "M")
-      (`added "+")
-      (`removed "-")
-      (`conflict "!")
-      (`missing "?")
+      (`edited "◆ ")
+      (`needs-update "U ")
+      (`needs-merge "M ")
+      (`added "+ ")
+      (`removed "- ")
+      (`conflict "! ")
+      (`missing "? ")
       (_ nil)))
 
 ;;; Numbers:
@@ -926,7 +928,6 @@ FACE-SETUP should a procedure of 2 arguments (faces) that sets attributes of the
        (propertize
         (concat
          (my-file-vc-status-string)
-         " "
          (replace-regexp-in-string " Git[:\-]" "" vc-mode))
         'mouse-face (my-statusbar-default-face)
         'local-map (make-mode-line-mouse-map 'mouse-1 #'magit-status))
