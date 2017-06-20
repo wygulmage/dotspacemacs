@@ -685,17 +685,6 @@ Use `advice-add' to add run-WHEN-PROCEDURE-hook as advice to PROCEDURE."
      (or (my-buffer-file-path b)
          (buffer-name b))))
 
-  ;;; The hook for this may be failing and messing things up.
-  ;; (defvar-local my-file-vc-status nil
-  ;;   "The version-control status of the current file.")
-  ;; (defun my-file-vc-status (&optional FILE)
-  ;;   "The version-control status of FILE or the file visited by the current buffer."
-  ;;   (let ((f (or FILE (my-buffer-file-path))))
-  ;;     (and f (vc-state f))))
-  ;; (defun my-set-file-vc-status (&rest _)
-  ;;   "Set the buffer-local variable `my-file-vc-status' to the version-control status of the file visited by the current buffer."
-  ;;   (setf my-file-vc-status (my-file-vc-status)))
-
   ;; ;; Ways `magit' can run git:
   ;; ;; `magit-start-process'
   ;; ;; `magit-call-process'
@@ -709,27 +698,38 @@ Use `advice-add' to add run-WHEN-PROCEDURE-hook as advice to PROCEDURE."
   ;; ;; `magit-run-git-with-logfile' uses `magit-process-file'.
   ;; ;; `magit-git-wash'
 
-  ;; (my-hook-up
-  ;;  '(
-  ;;    after-save-hook
-  ;;    find-file-hook
-  ;;    first-change-hook
-  ;;    )
-  ;;  '(my-set-file-vc-status))
+  ;;; The hook for this may be failing and messing things up.
+  (defvar-local my-file-vc-status nil
+    "The version-control status of the current file.")
+  (defun my-file-vc-status (&optional FILE)
+    "The version-control status of FILE or the file visited by the current buffer."
+    (let ((f (or FILE (my-buffer-file-path))))
+      (and f (vc-state f))))
+  (defun my-set-file-vc-status (&rest _)
+    "Set the buffer-local variable `my-file-vc-status' to the version-control status of the file visited by the current buffer."
+    (setf my-file-vc-status (my-file-vc-status)))
 
-  ;; (defun my-file-vc-status-string ()
-  ;;   "A string that represents the VC status of the file visited by the current buffer."
-  ;;   (pcase my-file-vc-status
-  ;;     (`up-to-date "")
-  ;;     (`ignored "")
-  ;;     (`edited "◆")
-  ;;     (`needs-update "U")
-  ;;     (`needs-merge "M")
-  ;;     (`added "+")
-  ;;     (`removed "-")
-  ;;     (`conflict "!")
-  ;;     (`missing "?")
-  ;;     (_ nil)))
+  (my-hook-up
+   '(
+     after-save-hook
+     find-file-hook
+     first-change-hook
+     )
+   '(my-set-file-vc-status))
+
+  (defun my-file-vc-status-string ()
+    "A string that represents the VC status of the file visited by the current buffer."
+    (pcase my-file-vc-status
+      (`up-to-date "")
+      (`ignored "")
+      (`edited "◆")
+      (`needs-update "U")
+      (`needs-merge "M")
+      (`added "+")
+      (`removed "-")
+      (`conflict "!")
+      (`missing "?")
+      (_ nil)))
 
 ;;; Numbers:
 
@@ -924,7 +924,10 @@ FACE-SETUP should a procedure of 2 arguments (faces) that sets attributes of the
       (concat
        (propertize "(" 'face (my-statusbar-shadow-face))
        (propertize
-        (replace-regexp-in-string " Git[:\-]" "" vc-mode)
+        (concat
+         (my-file-vc-status-string)
+         " "
+         (replace-regexp-in-string " Git[:\-]" "" vc-mode))
         'mouse-face (my-statusbar-default-face)
         'local-map (make-mode-line-mouse-map 'mouse-1 #'magit-status))
        (propertize ")" 'face (my-statusbar-shadow-face))
