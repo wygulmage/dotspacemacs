@@ -1,4 +1,5 @@
-;; -*- mode: emacs-lisp; lexical-binding: t; -*-
+;; -*- mode: emacs-lisp; lexical-binding: t -*-
+(setq-local lisp-indent-function #'common-lisp-indent-function)
 ;; This file is loaded by Spacemacs at startup. It must be stored in your home directory.
 ;; FIXME: `gui-get-primary-selection' tries to activate on entering this buffer and fails with a message.
 ;; FIXME: `emacs-lisp' layer pops up an args out of bounds error on save.
@@ -455,26 +456,25 @@ Other bindings are bound as usual."
     ;; TODO: Make this macro less ugly.
     (seq-let (e &rest rev-bs) (reverse BINDINGS.EXPRESSION) ; Reverse to get the expression at the end.
       (cl-labels
-          ((let-helper
-            (BINDINGS EXPRESSION)
-            (if BINDINGS
-                (seq-let (var val &rest bs) BINDINGS
-                  (cond
-                   ((and (symbolp var)
-                         (consp val)
-                         (listp (car val)))
-                    ;; Bind procedure.
-                    `(cl-labels ((,var ,(car val) ,@(cdr val)))
-                       ,(let-helper bs EXPRESSION)))
-                   ((sequencep var)
-                    ;; Pattern-match sequence.
-                    `(seq-let ,var ,val
-                       ,(let-helper bs EXPRESSION)))
-                   (t
-                    ;; Bind as usual.
-                    `(let ((,var ,val))
-                       ,(let-helper bs EXPRESSION)))))
-              EXPRESSION)))
+          ((let-helper (BINDINGS EXPRESSION)
+             (if BINDINGS
+                 (seq-let (var val &rest bs) BINDINGS
+                   (cond
+                     ((and (symbolp var)
+                           (consp val)
+                           (listp (car val)))
+                      ;; Bind procedure.
+                      `(cl-labels ((,var ,(car val) ,@(cdr val)))
+                         ,(let-helper bs EXPRESSION)))
+                     ((sequencep var)
+                      ;; Pattern-match sequence.
+                      `(seq-let ,var ,val
+                         ,(let-helper bs EXPRESSION)))
+                     (t
+                      ;; Bind as usual.
+                      `(let ((,var ,val))
+                         ,(let-helper bs EXPRESSION)))))
+               EXPRESSION)))
         (let-helper (reverse rev-bs) e)))) ; Reverse to get the bindings in the right order again.
 
   (defmacro my-if (&rest CONDITIONS)
@@ -511,10 +511,16 @@ Other bindings are bound as usual."
   (defun my-alternate (L1 L2)
     "Create a list that alternates the elements of L1 and L2."
     (cl-loop
-     for e1 in L1 and e2 in L2
-     append (list e1 e2)))
+       for e1 in L1 and e2 in L2
+       append (list e1 e2)))
 
 ;;; Let's write a whole new set of procedures for accessing files!
+
+  (cl-defgeneric nonempty? (SEQUENCE)
+    (> (length SEQUENCE) 0))
+
+  (cl-defmethod nonempty? (SEQUENCE list)
+    list)
 
   (cl-defgeneric my-slice (RANGE SEQUENCE)
     (:documentation
@@ -778,15 +784,15 @@ Shift COLOR away from REFERENCE."
     "Create FACES (name docstring properties) in GROUP. No fancy business here; the display is always t."
     (declare (indent 1))
     (cl-loop
-     for (name docstring . properties) in FACES
-     do (custom-declare-face name `((t . ,properties)) docstring :group GROUP)))
+       for (name docstring . properties) in FACES
+       do (custom-declare-face name `((t . ,properties)) docstring :group GROUP)))
 
   (defun my-set-face-attributes (L &optional BUFFER)
     "From list L of (face :attr-1 a1 :attr-2 a2 ...) lists, give each face its attributes. Create undefined faces."
     (cl-loop for (face . attributes) in L
-             do
-             (unless (facep face) (make-face face))
-             (apply 'set-face-attribute face BUFFER attributes)))
+       do
+         (unless (facep face) (make-face face))
+         (apply 'set-face-attribute face BUFFER attributes)))
 
   (defun my--shift-face-foreground (FUNCTION FACE REFERENCE)
     "Set FACE's foreground to the result of applying FUNCTION to REFERENCE's foreground and background."
@@ -864,17 +870,17 @@ FACE-SETUP should a procedure of 2 arguments (faces) that sets attributes of the
   (my-def-adaptive-faces
    'my-statusbar
    '(default
-      "an alias af mode-line and mode-line-inactive faces"
-      (:inherit mode-line)
-      (:inherit mode-line-inactive))
+     "an alias af mode-line and mode-line-inactive faces"
+     (:inherit mode-line)
+     (:inherit mode-line-inactive))
    '(highlight
      "an emphasized face for the mode-line"
      (:weight bold
-              :underline t
-              :inherit my-statusbar-default-active-face)
+      :underline t
+      :inherit my-statusbar-default-active-face)
      (:weight bold
-              :underline t
-              :inherit my-statusbar-default-inactive-face)
+      :underline t
+      :inherit my-statusbar-default-inactive-face)
      my-intensify-face-foreground)
    '(shadow
      "a dimmed face for the mode-line"
@@ -897,7 +903,7 @@ FACE-SETUP should a procedure of 2 arguments (faces) that sets attributes of the
                     'help-echo (abbreviate-file-name buffer-file-truename)
                     'local-map (make-mode-line-mouse-map
                                 'mouse-1 (lambda () (interactive)
-                                           (dired (file-name-directory buffer-file-truename)))))
+                                                 (dired (file-name-directory buffer-file-truename)))))
       (buffer-name)))
 
   (defun my-major-mode-name ()
@@ -1022,11 +1028,7 @@ FACE-SETUP should a procedure of 2 arguments (faces) that sets attributes of the
     "Make the font bigger if running linux, because my laptop runs linux and my desktop runs Windows."
     (my-let
      h (if (string= system-type "gnu/linux") 148 120)
-     (seq-doseq (f [
-                    default
-                    fixed-pitch
-                    variable-pitch
-                    ])
+     (seq-doseq (f [default fixed-pitch variable-pitch])
        (set-face-attribute f nil :height h))))
 
   (my-hook-up
@@ -1046,8 +1048,8 @@ FACE-SETUP should a procedure of 2 arguments (faces) that sets attributes of the
 
   ;;; ----------------------------------
   ;; ;;; Set Evil to not behave like Vim.
-  (customize-set-variable 'evil-move-beyond-eol t) ; Allow the cursor to move beyond the end of the line.
-  (customize-set-variable 'evil-move-cursor-back nil) ; Don't move the cursor when exiting insert mode.
+  ;; (customize-set-variable 'evil-move-beyond-eol t) ; Allow the cursor to move beyond the end of the line.
+  ;; (customize-set-variable 'evil-move-cursor-back nil) ; Don't move the cursor when exiting insert mode.
 
   ;; ;; Flip Vi a/A behavior.
   ;; (my-def-keys evil-normal-state-map
@@ -1096,8 +1098,8 @@ FACE-SETUP should a procedure of 2 arguments (faces) that sets attributes of the
      )
    `(
      ,(if (fboundp 'vc-refresh-state) #'vc-refresh-state #'vc-find-file-hook)
-     (lambda () (force-mode-line-update t)) ; refresh all mode lines.
-     ))
+      (lambda () (force-mode-line-update t)) ; refresh all mode lines.
+      ))
 
   (my-hook-up
    '(prog-mode-hook)
@@ -1132,25 +1134,25 @@ FACE-SETUP should a procedure of 2 arguments (faces) that sets attributes of the
 
   ;; Ignore mouse-wheel left and right.
   (my-def-keys global-map
-    "<mouse-6>" #'ignore
-    "<mouse-7>" #'ignore
-    )
+      "<mouse-6>" #'ignore
+      "<mouse-7>" #'ignore
+      )
 
   (unless (string= system-type "gnu/linux")
     (my-def-keys help-mode-map
-      "<mouse-4>" #'help-go-back ; Windows mouse back (Linux mouse wheel up)
-      "<mouse-5>" #'help-go-forward ; mouse forwards
-      ))
+        "<mouse-4>" #'help-go-back ; Windows mouse back (Linux mouse wheel up)
+        "<mouse-5>" #'help-go-forward ; mouse forwards
+        ))
 
   ;; Navigate wrapped lines.
   (my-def-keys evil-normal-state-map
-    "j" #'evil-next-visual-line
-    "k" #'evil-previous-visual-line
-    )
+      "j" #'evil-next-visual-line
+      "k" #'evil-previous-visual-line
+      )
 
   ;; Paste with Ctrl p.
   (my-def-keys evil-insert-state-map
-    "C-p" #'evil-paste-after)
+      "C-p" #'evil-paste-after)
 
   (global-set-key
    (kbd "C-S-u") 'counsel-unicode-char) ; `counsel-unicode-char' is slow...
