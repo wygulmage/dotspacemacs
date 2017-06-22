@@ -38,25 +38,25 @@ This function should only modify configuration layer settings."
    dotspacemacs-configuration-layers
    '(
      (colors :packages
-             rainbow-mode ; for color strings only
-             :variables
-             rainbow-x-colors nil
-             rainbow-html-colors nil
-             )
+      rainbow-mode ; for color strings only
+      :variables
+      rainbow-x-colors nil
+      rainbow-html-colors nil
+      )
      ;; (org :variables org-enable-github-support t)
      (ranger :variables
-             ranger-override-dired t
-             ranger-show-preview t
-             ranger-show-literal nil
-             )
+      ranger-override-dired t
+      ranger-show-preview t
+      ranger-show-literal nil
+      )
      ;; (shell :variables
      ;;  shell-default-height 30
      ;;  shell-default-position 'bottom)
      spacemacs-completion
      spacemacs-editing
      (spacemacs-evil :packages
-                     (not vi-tilde-fringe)
-                     )
+      (not vi-tilde-fringe)
+      )
      spacemacs-navigation ; includes restart-emacs
      ;; ;;; Bindings:
      ;; better-defaults
@@ -65,12 +65,12 @@ This function should only modify configuration layer settings."
      auto-completion
      ivy
      (spell-checking :variables
-                     spell-checking-enable-by-default nil
-                     flyspell-sort-corrections nil
-                     )
+      spell-checking-enable-by-default nil
+      flyspell-sort-corrections nil
+      )
      (syntax-checking :variables
-                      syntax-checking-enable-by-default nil
-                      )
+      syntax-checking-enable-by-default nil
+      )
      ;;; Languages:
      ;; ;; (semantic :packages
      ;; ;;           semantic
@@ -79,14 +79,14 @@ This function should only modify configuration layer settings."
      emacs-lisp
      ;; haskell
      (html :variables ; for CSS ; this is called web-mode, not html-mode
-           web-mode-css-indent-offset 2
-           web-mode-enable-css-colorization nil ; already done with colors
-           )
+      web-mode-css-indent-offset 2
+      web-mode-enable-css-colorization nil ; already done with colors
+      )
      (java :variables
-           eclim-eclipse-dirs (if (string= system-type "gnu/linux")'("Ix/k/Programs/eclipse/current"))
-           eclim-executable (if (string= system-type "gnu/linux") "/Ix/k/Programs/eclipse/eclim/current/")
-           eclimd-default-workspace (if (string= system-type "gnu/linux") "/Ix/k/Files/Documents/Code/Java/workspaces/default")
-           )
+      eclim-eclipse-dirs (if (string= system-type "gnu/linux")'("Ix/k/Programs/eclipse/current"))
+      eclim-executable (if (string= system-type "gnu/linux") "/Ix/k/Programs/eclipse/eclim/current/")
+      eclimd-default-workspace (if (string= system-type "gnu/linux") "/Ix/k/Files/Documents/Code/Java/workspaces/default")
+      )
      ;; javascript
      ;; markdown
      ;; python
@@ -645,14 +645,14 @@ Example:
   (my-make-hook :after handle-select-window)
 
   (my-hook-up
-   '(
-     after-select-frame-hook
-     after-handle-select-window-hook
-     buffer-list-update-hook
-     focus-in-hook
-     window-configuration-change-hook
-     )
-   '(my-set-primary-pane))
+   [
+    after-select-frame-hook
+    after-handle-select-window-hook
+    buffer-list-update-hook
+    focus-in-hook
+    window-configuration-change-hook
+    ]
+   [my-set-primary-pane])
 
   (defvar-local my-buffer-line-count nil)
   (defun my-buffer-line-count (&optional BUFFER)
@@ -664,11 +664,11 @@ Example:
     (setf my-buffer-line-count (my-buffer-line-count)))
 
   (my-hook-up
-   '(
-     buffer-list-update-hook
-     after-change-functions
-     )
-   '(my-set-buffer-line-count))
+   [
+    buffer-list-update-hook
+    after-change-functions
+    ]
+   [my-set-buffer-line-count])
 
   (defun my-buffer-file-like-p (&optional BUFFER)
     "Is the buffer visiting something that should be a file?"
@@ -718,12 +718,12 @@ Example:
     (setf my-file-vc-status (my-file-vc-status)))
 
   (my-hook-up
-   '(
-     after-save-hook
-     find-file-hook
-     first-change-hook
-     )
-   '(my-set-file-vc-status))
+   [
+    after-save-hook
+    find-file-hook
+    first-change-hook
+    ]
+   [my-set-file-vc-status])
 
   (defun my-file-vc-status-string ()
     "A string that represents the VC status of the file visited by the current buffer."
@@ -792,7 +792,7 @@ Example:
     (cl-loop
        for (face . attributes) in FACES
        do
-         (unless (facep face) (make-face face))
+       ;; (unless (facep face) (make-face face))
          (apply #'set-face-attribute face nil attributes)))
 
   (defun my--shift-face-foreground (FUNCTION FACE REFERENCE)
@@ -1031,11 +1031,11 @@ FACE-SETUP should a procedure of 2 arguments (faces) that sets attributes of the
        (set-face-attribute f nil :height h))))
 
   (my-hook-up
-   '(
-     after-load-theme-hook
-     window-setup-hook
-     )
-   '(my-reset-font-height-by-platform))
+   [
+    after-load-theme-hook
+    window-setup-hook
+    ]
+   [my-reset-font-height-by-platform])
 
   ;;; ---------------------------------
   ;;; Miscelaneous Global Stuff
@@ -1091,10 +1091,10 @@ FACE-SETUP should a procedure of 2 arguments (faces) that sets attributes of the
   (my-make-hook :after magit-start-process)
 
   (my-hook-up
-   '(
-     after-magit-run-git-hook
-     after-magit-start-process-hook
-     )
+   [
+    after-magit-run-git-hook
+    after-magit-start-process-hook
+    ]
    `(
      ,(if (fboundp 'vc-refresh-state) #'vc-refresh-state #'vc-find-file-hook)
       (lambda () (force-mode-line-update t)) ; refresh all mode lines.
@@ -1120,13 +1120,13 @@ FACE-SETUP should a procedure of 2 arguments (faces) that sets attributes of the
 
   ;; Hide the mode-line when not needed useful.
   (my-hook-up
-   '(
-     help-mode-hook
-     magit-mode-hook
-     ranger-mode-hook
-     spacemacs-buffer-mode-hook
-     )
-   '((lambda () (setq mode-line-format nil))))
+   [
+    help-mode-hook
+    magit-mode-hook
+    ranger-mode-hook
+    spacemacs-buffer-mode-hook
+    ]
+   [(lambda () (setq mode-line-format nil))])
 
   ;;; ------------------------------
   ;;; Key Maps
@@ -1154,7 +1154,7 @@ FACE-SETUP should a procedure of 2 arguments (faces) that sets attributes of the
       "C-p" #'evil-paste-after)
 
   (global-set-key
-   (kbd "C-S-u") 'counsel-unicode-char) ; `counsel-unicode-char' is slow...
+   (kbd "C-S-u") #'counsel-unicode-char) ; `counsel-unicode-char' is slow...
 
   ;; (evil-define-command my-greedy-delete-backward () ;; commented out because it was bugging things.
   ;;   (evil-delete (save-excursion
@@ -1217,7 +1217,7 @@ FACE-SETUP should a procedure of 2 arguments (faces) that sets attributes of the
 
   ;; ;;; Elisp:
   (my-hook-up
-   '(emacs-lisp-mode-hook)
+   [emacs-lisp-mode-hook]
    lisp-minor-modes)
 
   ;;; Markdown:
