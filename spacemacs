@@ -106,7 +106,7 @@ This function should only modify configuration layer settings."
      ;; dash-functional
      ;;; Other Stuff
      (android-mode :variables
-                   android-mode-sdk-dir (if (string= system-type "gnu/linux") "/Ix/k/Programs/android-sdk-tools"))
+                   android-mode-sdk-dir ,(if (string= system-type "gnu/linux") "/Ix/k/Programs/android-sdk-tools"))
      ;; (acme-mouse :location (recipe :fetcher github :repo "akrito/acme-mouse")) ; does not work in Spacemacs.
      adaptive-wrap
      ;; aggressive-indent
@@ -474,7 +474,7 @@ Example:
     "Think `cond' with fewer parentheses and optionally a base case.
 
 Example:
-        vs.
+                      vs.
 \(my-if  x y            | (cond (x y)
         \(a-p b) (c d)  |       ((a-p b) (c d))
         \(e))           |       (t (e)))"
@@ -516,10 +516,11 @@ Example:
 
 ;;; Let's write a whole new set of procedures for accessing files!
 
-  (cl-defgeneric nonempty? (SEQUENCE)
-    (> (length SEQUENCE) 0))
+  (cl-defgeneric nonempty (SEQUENCE)
+    (when (> (length SEQUENCE) 0)
+      SEQUENCE))
 
-  (cl-defmethod nonempty? ((SEQUENCE list))
+  (cl-defmethod nonempty ((SEQUENCE list))
     SEQUENCE)
 
   (cl-defgeneric my-slice (RANGE SEQUENCE)
@@ -743,7 +744,9 @@ Example:
 
   (defun my-digits (N)
     "Number -> Integer
-    The number of decimal digits of N, including any period as a digit."
+The number of decimal digits of N, including any period as a digit.
+
+Example: (my-digits 10.7) => 4"
     (declare (pure t) (side-effect-free t))
     (length (number-to-string N)))
 
@@ -751,7 +754,9 @@ Example:
 
   (defun my-pad (W S)
     "Integer -> String -> String
-    Pad string S with spaces to width W. A negative width means add the padding on the right."
+Pad string S with spaces to width W. A negative width means add the padding on the right.
+
+Example: (my-pad 5 \"Hi!\") => \"  Hi!\""
     (declare (pure t) (side-effect-free t))
     (format (concat "%" (number-to-string W) "s") S))
 
