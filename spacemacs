@@ -1,4 +1,5 @@
-;; -*- mode: emacs-lisp; lexical-binding: t; -*-
+;; -*- mode: emacs-lisp; lexical-binding: t -*-
+(setq-local lisp-indent-function #'common-lisp-indent-function)
 ;; This file is loaded by Spacemacs at startup. It must be stored in your home directory.
 ;; FIXME: `gui-get-primary-selection' tries to activate on entering this buffer and fails with a message.
 ;; FIXME: `emacs-lisp' layer pops up an args out of bounds error on save.
@@ -105,7 +106,7 @@ This function should only modify configuration layer settings."
      ;; dash-functional
      ;;; Other Stuff
      (android-mode :variables
-                   android-mode-sdk-dir (if (string= system-type "gnu/linux") "/Ix/k/Programs/android-sdk-tools"))
+                   android-mode-sdk-dir ,(if (string= system-type "gnu/linux") "/Ix/k/Programs/android-sdk-tools"))
      ;; (acme-mouse :location (recipe :fetcher github :repo "akrito/acme-mouse")) ; does not work in Spacemacs.
      adaptive-wrap
      ;; aggressive-indent
@@ -422,20 +423,6 @@ If you are unsure, try setting them in `dotspacemacs/user-config' first."
 
   (defconst the-default-mode-line mode-line-format) ; Save in case you want to know.
 
-  ;; (if (display-graphic-p)
-  ;;     (progn
-  ;;       (customize-set-variable 'adaptive-fill-first-line-regexp
-  ;;                               "\\`[ \t]*\\'\\([*;]+\\)*")
-  ;;       (customize-set-variable 'adaptive-fill-regexp
-  ;;                               "[ \t]*\\([-–!|#%>·•‣⁃◦]+[ \t]*\\)*"))
-  ;;   (progn
-  ;;     (customize-set-variable 'adaptive-fill-first-line-regexp
-  ;;                             "\\`[ \t]*\\'\\*")
-  ;;     (customize-set-variable 'adaptive-fill-regexp
-  ;;                             "[ \t]*\\([-–!|#%;>·•‣⁃◦]+[ \t]*\\)*")))
-  ;; Removed ';' in graphic mode, since comments are indicated by text color. Removed '*' so I can make non-unicode bullet lists. Ideally there should be two separate variables: adaptive-fill-regexp and adaptive-indent-regexp. The first would indent with the 'whitespace' character, but the second would indent with actual whitespace.
-  ;; Default `adaptive-fill-regexp': [ \t]*\\([-–!|#%;>*·•‣⁃◦]+[ \t]*\\)*".
-  ;; Default `adaptive-fill-first-line-regexp': "\\`[ \t]*\\'".
   )
 
 (defun dotspacemacs/user-config ()
@@ -449,35 +436,48 @@ before packages are loaded."
 
   (defmacro my-let (&rest BINDINGS.EXPRESSION)
     "Bind BINDINGS and then evaluate EXPRESSION.
-Bindings of the form SYMBOL (ARGS BODY) are bound as procedures.
-Bindings of the form SEQUENCE SEQUENCE are pattern-matched.
-Other bindings are bound as usual."
+Bindings of the form SYMBOL (ARGS BODY) are bound as procedures with `cl-labels'.
+Bindings of the form SEQUENCE SEQUENCE are pattern-matched with `seq-let'.
+Other bindings are bound as with `let*'.
+
+Example:
+\(my-let
+    (e &rest rev-bs) (reverse BINDINGS.EXPRESSION)
+    let-helper ((BINDINGS EXPRESSION)
+                (...))
+  (let-helper (reverse rev-bs) e))"
     ;; TODO: Make this macro less ugly.
     (seq-let (e &rest rev-bs) (reverse BINDINGS.EXPRESSION) ; Reverse to get the expression at the end.
       (cl-labels
-          ((let-helper
-            (BINDINGS EXPRESSION)
-            (if BINDINGS
-                (seq-let (var val &rest bs) BINDINGS
-                  (cond
-                   ((and (symbolp var)
-                         (consp val)
-                         (listp (car val)))
-                    ;; Bind procedure.
-                    `(cl-labels ((,var ,(car val) ,@(cdr val)))
-                       ,(let-helper bs EXPRESSION)))
-                   ((sequencep var)
-                    ;; Pattern-match sequence.
-                    `(seq-let ,var ,val
-                       ,(let-helper bs EXPRESSION)))
-                   (t
-                    ;; Bind as usual.
-                    `(let ((,var ,val))
-                       ,(let-helper bs EXPRESSION)))))
-              EXPRESSION)))
+          ((let-helper (BINDINGS EXPRESSION)
+                       (if BINDINGS
+                           (seq-let (var val &rest bs) BINDINGS
+                             (cond
+                              ((and (symbolp var)
+                                    (consp val)
+                                    (listp (car val)))
+                               ;; Bind procedure.
+                               `(cl-labels ((,var ,(car val) ,@(cdr val)))
+                                  ,(let-helper bs EXPRESSION)))
+                              ((sequencep var)
+                               ;; Pattern-match sequence.
+                               `(seq-let ,var ,val
+                                  ,(let-helper bs EXPRESSION)))
+                              (t
+                               ;; Bind as usual.
+                               `(let ((,var ,val))
+                                  ,(let-helper bs EXPRESSION)))))
+                         EXPRESSION)))
         (let-helper (reverse rev-bs) e)))) ; Reverse to get the bindings in the right order again.
 
   (defmacro my-if (&rest CONDITIONS)
+    "Think `cond' with fewer parentheses and optionally a base case.
+
+Example:
+                      vs.
+\(my-if  x y            | (cond (x y)
+        \(a-p b) (c d)  |       ((a-p b) (c d))
+        \(e))           |       (t (e)))"
     (my-let
      (final &rest rev-c) (reverse (seq-partition CONDITIONS 2))
      cs (reverse
@@ -516,11 +516,18 @@ Other bindings are bound as usual."
 
 ;;; Let's write a whole new set of procedures for accessing files!
 
+  (cl-defgeneric nonempty (SEQUENCE)
+    (when (> (length SEQUENCE) 0)
+      SEQUENCE))
+
+  (cl-defmethod nonempty ((SEQUENCE list))
+    SEQUENCE)
+
   (cl-defgeneric my-slice (RANGE SEQUENCE)
     (:documentation
      "Return a slice of SEQUENCE with RANGE of (&optional START END).
-If RANGE is empty, return the whole sequence unchanged.
-Slicing stops at the end of SEQUENCE and will not error.")
+     If RANGE is empty, return the whole sequence unchanged.
+     Slicing stops at the end of SEQUENCE and will not error.")
     (declare (pure t) (side-effect-free t)))
 
   (cl-defmethod my-slice (RANGE (SEQUENCE list))
@@ -554,15 +561,20 @@ Slicing stops at the end of SEQUENCE and will not error.")
   ;; FIXME: Split methods in two to allow mixing of lists and arrays.
 
   (cl-defmethod my-seq-find ((SUBSEQUENCE list) (SEQUENCE list))
-    ;; TODO: Fix backtracking.
     (my-let
-     helper ((start end sub seq)
-             (my-if (not sub) `(,start ,end)
-                    (not seq) ()
-                    (equal (car sub) (car seq))
-                    (helper start (+ 1 end) (cdr sub) (cdr seq))
-                    (helper (+ 1 end) (+ 1 end) SUBSEQUENCE seq)))
-     (helper 0 0 SUBSEQUENCE SEQUENCE)))
+     prefix? ((prefix list)
+              (my-if
+               (not prefix) t
+               (not list) nil
+               (when (equal (car prefix) (car list))
+                 (prefix? (cdr prefix) (cdr list)))))
+     helper ((start rest)
+             (my-if (prefix? SUBSEQUENCE rest)
+                    `(,start ,(+ start (length SUBSEQUENCE)))
+                    (not rest)
+                    ()
+                    (helper (+ 1 start) (cdr rest))))
+     (helper 0 SEQUENCE)))
 
   (cl-defmethod my-seq-find ((SUBSEQUENCE array) (SEQUENCE array))
     (my-let
@@ -584,9 +596,9 @@ Slicing stops at the end of SEQUENCE and will not error.")
 
   (defmacro my-make-hook (WHEN PROCEDURE &rest CONTINGENT)
     "Set up a hook to run WHEN PROCEDURE.
-Create variable WHEN-PROCEDURE-hook and assign it the value CONTINGENT.
-Create function WHEN-PROCEDURE-hook to run WHEN PROCEDURE-hook using `run-hooks'.
-Use `advice-add' to add run-WHEN-PROCEDURE-hook as advice to PROCEDURE."
+    Create variable WHEN-PROCEDURE-hook and assign it the value CONTINGENT.
+    Create function WHEN-PROCEDURE-hook to run WHEN PROCEDURE-hook using `run-hooks'.
+    Use `advice-add' to add run-WHEN-PROCEDURE-hook as advice to PROCEDURE."
     (declare (indent 2))
     (my-let
      hook (my-isymb WHEN "-" PROCEDURE "-hook")
@@ -634,14 +646,14 @@ Use `advice-add' to add run-WHEN-PROCEDURE-hook as advice to PROCEDURE."
   (my-make-hook :after handle-select-window)
 
   (my-hook-up
-   '(
-     after-select-frame-hook
-     after-handle-select-window-hook
-     buffer-list-update-hook
-     focus-in-hook
-     window-configuration-change-hook
-     )
-   '(my-set-primary-pane))
+   [
+    after-select-frame-hook
+    after-handle-select-window-hook
+    buffer-list-update-hook
+    focus-in-hook
+    window-configuration-change-hook
+    ]
+   [my-set-primary-pane])
 
   (defvar-local my-buffer-line-count nil)
   (defun my-buffer-line-count (&optional BUFFER)
@@ -653,11 +665,11 @@ Use `advice-add' to add run-WHEN-PROCEDURE-hook as advice to PROCEDURE."
     (setf my-buffer-line-count (my-buffer-line-count)))
 
   (my-hook-up
-   '(
-     buffer-list-update-hook
-     after-change-functions
-     )
-   '(my-set-buffer-line-count))
+   [
+    buffer-list-update-hook
+    after-change-functions
+    ]
+   [my-set-buffer-line-count])
 
   (defun my-buffer-file-like-p (&optional BUFFER)
     "Is the buffer visiting something that should be a file?"
@@ -680,16 +692,7 @@ Use `advice-add' to add run-WHEN-PROCEDURE-hook as advice to PROCEDURE."
      (or (my-buffer-file-path b)
          (buffer-name b))))
 
-  ;;; The hook for this may be failing and messing things up.
-  ;; (defvar-local my-file-vc-status nil
-  ;;   "The version-control status of the current file.")
-  ;; (defun my-file-vc-status (&optional FILE)
-  ;;   "The version-control status of FILE or the file visited by the current buffer."
-  ;;   (let ((f (or FILE (my-buffer-file-path))))
-  ;;     (and f (vc-state f))))
-  ;; (defun my-set-file-vc-status (&rest _)
-  ;;   "Set the buffer-local variable `my-file-vc-status' to the version-control status of the file visited by the current buffer."
-  ;;   (setf my-file-vc-status (my-file-vc-status)))
+;;; VC info
 
   ;; ;; Ways `magit' can run git:
   ;; ;; `magit-start-process'
@@ -704,33 +707,46 @@ Use `advice-add' to add run-WHEN-PROCEDURE-hook as advice to PROCEDURE."
   ;; ;; `magit-run-git-with-logfile' uses `magit-process-file'.
   ;; ;; `magit-git-wash'
 
-  ;; (my-hook-up
-  ;;  '(
-  ;;    after-save-hook
-  ;;    find-file-hook
-  ;;    first-change-hook
-  ;;    )
-  ;;  '(my-set-file-vc-status))
+  ;;; The hook for this may be failing and messing things up.
+  (defvar-local my-file-vc-status nil
+    "The version-control status of the current file.")
+  (defun my-file-vc-status (&optional FILE)
+    "The version-control status of FILE or the file visited by the current buffer."
+    (let ((f (or FILE (my-buffer-file-path))))
+      (and f (vc-state f))))
+  (defun my-set-file-vc-status (&rest _)
+    "Set the buffer-local variable `my-file-vc-status' to the version-control status of the file visited by the current buffer."
+    (setf my-file-vc-status (my-file-vc-status)))
 
-  ;; (defun my-file-vc-status-string ()
-  ;;   "A string that represents the VC status of the file visited by the current buffer."
-  ;;   (pcase my-file-vc-status
-  ;;     (`up-to-date "")
-  ;;     (`ignored "")
-  ;;     (`edited "◆")
-  ;;     (`needs-update "U")
-  ;;     (`needs-merge "M")
-  ;;     (`added "+")
-  ;;     (`removed "-")
-  ;;     (`conflict "!")
-  ;;     (`missing "?")
-  ;;     (_ nil)))
+  (my-hook-up
+   [
+    after-save-hook
+    find-file-hook
+    first-change-hook
+    ]
+   [my-set-file-vc-status])
+
+  (defun my-file-vc-status-string ()
+    "A string that represents the VC status of the file visited by the current buffer."
+    (pcase my-file-vc-status
+      (`up-to-date "")
+      (`ignored "")
+      (`edited "◆ ")
+      (`needs-update "U ")
+      (`needs-merge "M ")
+      (`added "+ ")
+      (`removed "- ")
+      (`conflict "! ")
+      (`missing "? ")
+      (_ nil)))
 
 ;;; Numbers:
 
   (defun my-digits (N)
     "Number -> Integer
-The number of decimal digits of N, including any period as a digit."
+The number of decimal digits of N, including any period as a digit.
+
+Example: (my-digits 10.7) => 4"
     (declare (pure t) (side-effect-free t))
     (length (number-to-string N)))
 
@@ -738,7 +754,9 @@ The number of decimal digits of N, including any period as a digit."
 
   (defun my-pad (W S)
     "Integer -> String -> String
-Pad string S with spaces to width W. A negative width means add the padding on the right."
+Pad string S with spaces to width W. A negative width means add the padding on the right.
+
+Example: (my-pad 5 \"Hi!\") => \"  Hi!\""
     (declare (pure t) (side-effect-free t))
     (format (concat "%" (number-to-string W) "s") S))
 
@@ -746,14 +764,14 @@ Pad string S with spaces to width W. A negative width means add the padding on t
 
   (defun my-blend-colors (C1 C2)
     "(R G B) -> (R G B) -> (R G B)
-Evenly blend C1 and C2, two emacs RGB triplets."
+    Evenly blend C1 and C2, two emacs RGB triplets."
     (declare (pure t) (side-effect-free t))
     (seq-mapn (lambda (X Y) (* 0.5 (+ X Y)))
               C1 C2))
 
   (defun my-intensify-color (COLOR REFERENCE)
     "(R G B) -> (R G B) -> (R G B)
-Shift COLOR away from REFERENCE."
+    Shift COLOR away from REFERENCE."
     (declare (pure t) (side-effect-free t))
     (seq-mapn (lambda (C R)
                 (* 0.5 (+ C (if (> C R) 1 0))))
@@ -774,12 +792,13 @@ Shift COLOR away from REFERENCE."
      for (name docstring . properties) in FACES
      do (custom-declare-face name `((t . ,properties)) docstring :group GROUP)))
 
-  (defun my-set-face-attributes (L &optional BUFFER)
-    "From list L of (face :attr-1 a1 :attr-2 a2 ...) lists, give each face its attributes. Create undefined faces."
-    (cl-loop for (face . attributes) in L
-             do
-             (unless (facep face) (make-face face))
-             (apply 'set-face-attribute face BUFFER attributes)))
+  (defun my-set-face-attributes (&rest FACES)
+    "From FACES of (face :attr-1 a1 :attr-2 a2 ...) lists, give each face its attributes. Create undefined faces."
+    (cl-loop
+     for (face . attributes) in FACES
+     do
+     ;; (unless (facep face) (make-face face))
+     (apply #'set-face-attribute face nil attributes)))
 
   (defun my--shift-face-foreground (FUNCTION FACE REFERENCE)
     "Set FACE's foreground to the result of applying FUNCTION to REFERENCE's foreground and background."
@@ -827,6 +846,7 @@ Each face should be used by calling (GROUP-NAME-face).
 The active or inactive version can be modified by setting the attributes of GROUP-NAME-active-face or GROUP-NAME-inactive-face.
 
 FACE-SETUP should a procedure of 2 arguments (faces) that sets attributes of the first argument relative to the second; the :inherit of the active faces will be used for the second."
+    (declare (indent 1))
     (my-let
      def-adaptive-face
      ((name doc active inactive &optional face-setup)
@@ -854,27 +874,26 @@ FACE-SETUP should a procedure of 2 arguments (faces) that sets attributes of the
      (seq-doseq (f ADAPTIVE-FACES)
        (apply #'def-adaptive-face f))))
 
-  (my-def-adaptive-faces
-   'my-statusbar
-   '(default
-      "an alias af mode-line and mode-line-inactive faces"
-      (:inherit mode-line)
-      (:inherit mode-line-inactive))
-   '(highlight
-     "an emphasized face for the mode-line"
-     (:weight bold
-              :underline t
-              :inherit my-statusbar-default-active-face)
-     (:weight bold
-              :underline t
-              :inherit my-statusbar-default-inactive-face)
-     my-intensify-face-foreground)
-   '(shadow
-     "a dimmed face for the mode-line"
-     (:inherit my-statusbar-default-active-face)
-     (:inherit my-statusbar-default-inactive-face)
-     my-fade-face-foreground)
-   )
+  (my-def-adaptive-faces 'my-statusbar
+                         '(default
+                            "an alias af mode-line and mode-line-inactive faces"
+                            (:inherit mode-line)
+                            (:inherit mode-line-inactive))
+                         '(highlight
+                           "an emphasized face for the mode-line"
+                           (:weight bold
+                                    :underline t
+                                    :inherit my-statusbar-default-active-face)
+                           (:weight bold
+                                    :underline t
+                                    :inherit my-statusbar-default-inactive-face)
+                           my-intensify-face-foreground)
+                         '(shadow
+                           "a dimmed face for the mode-line"
+                           (:inherit my-statusbar-default-active-face)
+                           (:inherit my-statusbar-default-inactive-face)
+                           my-fade-face-foreground)
+                         )
 
   (defun my-reset-statusbar-faces ()
     (run-hooks 'adaptive-faces-setup))
@@ -919,7 +938,9 @@ FACE-SETUP should a procedure of 2 arguments (faces) that sets attributes of the
       (concat
        (propertize "(" 'face (my-statusbar-shadow-face))
        (propertize
-        (replace-regexp-in-string " Git[:\-]" "" vc-mode)
+        (concat
+         (my-file-vc-status-string)
+         (replace-regexp-in-string " Git[:\-]" "" vc-mode))
         'mouse-face (my-statusbar-default-face)
         'local-map (make-mode-line-mouse-map 'mouse-1 #'magit-status))
        (propertize ")" 'face (my-statusbar-shadow-face))
@@ -986,46 +1007,40 @@ FACE-SETUP should a procedure of 2 arguments (faces) that sets attributes of the
   ;;; --------------------------------
   ;;; Fonts
 
-  (set-face-attribute
-   'fixed-pitch nil
-   :family (my-select-font
-            "Source Code Pro"
-            "IBM 3720"
-            "DejaVu Sans Mono"
-            "Monaco"
-            "Lucida Console"
-            ))
-
-  (set-face-attribute
-   'variable-pitch nil
-   :family (my-select-font
-            "ET Book"
-            "ETBembo"
-            "Bembo Book MT Std"
-            "Bembo MT Book Std"
-            "Garamond Premier Pro"
-            "Garamond Premr Pro"
-            "Adobe Garamond Expert"
-            "Garamond"
-            ))
+  (my-set-face-attributes
+   `(fixed-pitch
+     :family ,(my-select-font
+               "Source Code Pro"
+               "IBM 3720"
+               "DejaVu Sans Mono"
+               "Monaco"
+               "Lucida Console"
+               ))
+   `(variable-pitch
+     :family ,(my-select-font
+               "ET Book"
+               "ETBembo"
+               "Bembo Book MT Std"
+               "Bembo MT Book Std"
+               "Garamond Premier Pro"
+               "Garamond Premr Pro"
+               "Adobe Garamond Expert"
+               "Garamond"
+               )))
 
   (defun my-reset-font-height-by-platform ()
     "Make the font bigger if running linux, because my laptop runs linux and my desktop runs Windows."
     (my-let
      h (if (string= system-type "gnu/linux") 148 120)
-     (seq-doseq (f [
-                    default
-                    fixed-pitch
-                    variable-pitch
-                    ])
+     (seq-doseq (f [default fixed-pitch variable-pitch])
        (set-face-attribute f nil :height h))))
 
   (my-hook-up
-   '(
-     after-load-theme-hook
-     window-setup-hook
-     )
-   '(my-reset-font-height-by-platform))
+   [
+    after-load-theme-hook
+    window-setup-hook
+    ]
+   [my-reset-font-height-by-platform])
 
   ;;; ---------------------------------
   ;;; Miscelaneous Global Stuff
@@ -1037,8 +1052,8 @@ FACE-SETUP should a procedure of 2 arguments (faces) that sets attributes of the
 
   ;;; ----------------------------------
   ;; ;;; Set Evil to not behave like Vim.
-  (customize-set-variable 'evil-move-beyond-eol t) ; Allow the cursor to move beyond the end of the line.
-  (customize-set-variable 'evil-move-cursor-back nil) ; Don't move the cursor when exiting insert mode.
+  ;; (customize-set-variable 'evil-move-beyond-eol t) ; Allow the cursor to move beyond the end of the line.
+  ;; (customize-set-variable 'evil-move-cursor-back nil) ; Don't move the cursor when exiting insert mode.
 
   ;; ;; Flip Vi a/A behavior.
   ;; (my-def-keys evil-normal-state-map
@@ -1081,42 +1096,42 @@ FACE-SETUP should a procedure of 2 arguments (faces) that sets attributes of the
   (my-make-hook :after magit-start-process)
 
   (my-hook-up
-   '(
-     after-magit-run-git-hook
-     after-magit-start-process-hook
-     )
+   [
+    after-magit-run-git-hook
+    after-magit-start-process-hook
+    ]
    `(
      ,(if (fboundp 'vc-refresh-state) #'vc-refresh-state #'vc-find-file-hook)
      (lambda () (force-mode-line-update t)) ; refresh all mode lines.
      ))
 
   (my-hook-up
-   '(prog-mode-hook)
-   '(
-     adaptive-wrap-prefix-mode ; Indent wrapped lines in source code.
-     rainbow-mode ; Color color strings like "#4971af" in source code.
-     my-format-prog-mode-line
-     ))
+   [prog-mode-hook]
+   [
+    adaptive-wrap-prefix-mode ; Indent wrapped lines in source code.
+    rainbow-mode ; Color color strings like "#4971af" in source code.
+    my-format-prog-mode-line
+    ])
 
   (my-hook-up
-   '(text-mode-hook)
-   '(
-     flyspell-mode
-     variable-pitch-mode
-     my-format-text-mode-line
-     ))
+   [text-mode-hook]
+   [
+    flyspell-mode
+    variable-pitch-mode
+    my-format-text-mode-line
+    ])
 
   (with-current-buffer "*Messages*" (my-format-text-mode-line)) ; Use a simple mode line for the *Messages* buffer.
 
   ;; Hide the mode-line when not needed useful.
   (my-hook-up
-   '(
-     help-mode-hook
-     magit-mode-hook
-     ranger-mode-hook
-     spacemacs-buffer-mode-hook
-     )
-   '((lambda () (setq mode-line-format nil))))
+   [
+    help-mode-hook
+    magit-mode-hook
+    ranger-mode-hook
+    spacemacs-buffer-mode-hook
+    ]
+   [(lambda () (setq mode-line-format nil))])
 
   ;;; ------------------------------
   ;;; Key Maps
@@ -1144,7 +1159,7 @@ FACE-SETUP should a procedure of 2 arguments (faces) that sets attributes of the
     "C-p" #'evil-paste-after)
 
   (global-set-key
-   (kbd "C-S-u") 'counsel-unicode-char) ; `counsel-unicode-char' is slow...
+   (kbd "C-S-u") #'counsel-unicode-char) ; `counsel-unicode-char' is slow...
 
   ;; (evil-define-command my-greedy-delete-backward () ;; commented out because it was bugging things.
   ;;   (evil-delete (save-excursion
@@ -1207,7 +1222,7 @@ FACE-SETUP should a procedure of 2 arguments (faces) that sets attributes of the
 
   ;; ;;; Elisp:
   (my-hook-up
-   '(emacs-lisp-mode-hook)
+   [emacs-lisp-mode-hook]
    lisp-minor-modes)
 
   ;;; Markdown:
@@ -1254,16 +1269,15 @@ FACE-SETUP should a procedure of 2 arguments (faces) that sets attributes of the
      c (if COLOR COLOR
          (face-attribute 'my-statusbar-default-active-face :foreground nil t))
      (my-set-face-attributes
-      `(
-        (my-statusbar-default-active-face
-         :box nil
-         :foreground unspecified
-         :background nil
-         :underline ,c
-         :overline ,c
-         :inherit font-lock-comment-face)
-        (window-divider :foreground ,c)
-        ))))
+      `(my-statusbar-default-active-face
+        :box nil
+        :foreground unspecified
+        :background nil
+        :underline ,c
+        :overline ,c
+        :inherit font-lock-comment-face)
+      `(window-divider :foreground ,c)
+      )))
 
   (defun my-material-minor-theme ()
     "Remove borders from the mode-line when its background is different from the buffer's."
@@ -1285,34 +1299,34 @@ FACE-SETUP should a procedure of 2 arguments (faces) that sets attributes of the
   (defun my-theme-tweaks ()
     "Tweak faces to simplify themes."
     (my-set-face-attributes
-     '(
        ;;; Things that don't do stuff:
-       (font-lock-comment-face
-        :background unspecified
-        :slant normal)
-       (font-lock-doc-face
-        :inherit font-lock-comment-face)
-       (fringe
-        :background unspecified
-        :foreground unspecified
-        :inherit font-lock-comment-face)
-       (linum
-        :background unspecified
-        :foreground unspecified
-        :inherit font-lock-comment-face)
+     '(font-lock-comment-face
+       :background unspecified
+       :slant normal)
+     '(font-lock-doc-face
+       :inherit font-lock-comment-face)
+     '(fringe
+       :background unspecified
+       :foreground unspecified
+       :inherit font-lock-comment-face)
+     '(linum
+       :background unspecified
+       :foreground unspecified
+       :inherit font-lock-comment-face)
        ;;; Things that do stuff:
-       (font-lock-keyword-face
-        :foreground unspecified
-        :inherit default)
-       (font-lock-function-name-face
-        :foreground unspecified
-        :inherit default)
-       (font-lock-variable-name-face
-        :foreground unspecified
-        :inherit default)
+     '(font-lock-keyword-face
+       :foreground unspecified
+       :inherit default)
+     '(font-lock-function-name-face
+       :foreground unspecified
+       :inherit default)
+     '(font-lock-variable-name-face
+       :foreground unspecified
+       :inherit default)
        ;;; Things that look like other things:
-       (font-lock-string-face :slant italic)
-       ))
+     '(font-lock-string-face
+       :slant italic)
+     )
     (my-fade-face-foreground 'shadow 'default)
     (my-fade-face-foreground 'font-lock-comment-delimiter-face 'font-lock-comment-face)
     (if (display-graphic-p)
