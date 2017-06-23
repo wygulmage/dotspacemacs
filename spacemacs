@@ -1252,13 +1252,13 @@ FACE-SETUP should a procedure of 2 arguments (faces) that sets attributes of the
     (interactive)
     (my-let
      c (if COLOR COLOR
-         (face-attribute 'my-statusbar-active-face :foreground nil 'default))
+         (face-attribute 'my-statusbar-default-active-face :foreground nil t))
      (my-set-face-attributes
       `(
-        (mode-line
+        (my-statusbar-default-active-face
          :box nil
          :foreground unspecified
-         :background unspecified
+         :background nil
          :underline ,c
          :overline ,c
          :inherit font-lock-comment-face)
@@ -1315,9 +1315,10 @@ FACE-SETUP should a procedure of 2 arguments (faces) that sets attributes of the
        ))
     (my-fade-face-foreground 'shadow 'default)
     (my-fade-face-foreground 'font-lock-comment-delimiter-face 'font-lock-comment-face)
-    (my-box->lines 'mode-line)
-    (my-box->lines 'mode-line-inactive)
-    ;; (my-material-minor-theme)
+    (if (display-graphic-p)
+        (my-material-minor-theme)
+      (my-box->lines 'my-statusbar-default-active-face)
+      (my-box->lines 'my-statusbar-default-inactive-face))
     )
 
   (my-theme-tweaks)
