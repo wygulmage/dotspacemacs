@@ -38,25 +38,25 @@ This function should only modify configuration layer settings."
    dotspacemacs-configuration-layers
    '(
      (colors :packages
-             rainbow-mode ; for color strings only
-             :variables
-             rainbow-x-colors nil
-             rainbow-html-colors nil
-             )
+      rainbow-mode ; for color strings only
+      :variables
+      rainbow-x-colors nil
+      rainbow-html-colors nil
+      )
      ;; (org :variables org-enable-github-support t)
      (ranger :variables
-             ranger-override-dired t
-             ranger-show-preview t
-             ranger-show-literal nil
-             )
+      ranger-override-dired t
+      ranger-show-preview t
+      ranger-show-literal nil
+      )
      ;; (shell :variables
      ;;  shell-default-height 30
      ;;  shell-default-position 'bottom)
      spacemacs-completion
      spacemacs-editing
      (spacemacs-evil :packages
-                     (not vi-tilde-fringe)
-                     )
+      (not vi-tilde-fringe)
+      )
      spacemacs-navigation ; includes restart-emacs
      ;; ;;; Bindings:
      ;; better-defaults
@@ -65,12 +65,12 @@ This function should only modify configuration layer settings."
      auto-completion
      ivy
      (spell-checking :variables
-                     spell-checking-enable-by-default nil
-                     flyspell-sort-corrections nil
-                     )
+      spell-checking-enable-by-default nil
+      flyspell-sort-corrections nil
+      )
      (syntax-checking :variables
-                      syntax-checking-enable-by-default nil
-                      )
+      syntax-checking-enable-by-default nil
+      )
      ;;; Languages:
      ;; ;; (semantic :packages
      ;; ;;           semantic
@@ -79,14 +79,14 @@ This function should only modify configuration layer settings."
      emacs-lisp
      ;; haskell
      (html :variables ; for CSS ; this is called web-mode, not html-mode
-           web-mode-css-indent-offset 2
-           web-mode-enable-css-colorization nil ; already done with colors
-           )
+      web-mode-css-indent-offset 2
+      web-mode-enable-css-colorization nil ; already done with colors
+      )
      (java :variables
-           eclim-eclipse-dirs (if (string= system-type "gnu/linux")'("Ix/k/Programs/eclipse/current"))
-           eclim-executable (if (string= system-type "gnu/linux") "/Ix/k/Programs/eclipse/eclim/current/")
-           eclimd-default-workspace (if (string= system-type "gnu/linux") "/Ix/k/Files/Documents/Code/Java/workspaces/default")
-           )
+      eclim-eclipse-dirs (if (string= system-type "gnu/linux")'("Ix/k/Programs/eclipse/current"))
+      eclim-executable (if (string= system-type "gnu/linux") "/Ix/k/Programs/eclipse/eclim/current/")
+      eclimd-default-workspace (if (string= system-type "gnu/linux") "/Ix/k/Files/Documents/Code/Java/workspaces/default")
+      )
      ;; javascript
      ;; markdown
      ;; python
@@ -433,6 +433,10 @@ Put your configuration code here, except for variables that should be set
 before packages are loaded."
 
 ;;;; Helpful Procedures
+  ;;; `cl-loop'
+  ;;; `pcase'
+  ;;; `pcase-lambda'
+  ;;; `seq-let' (like `pcase-let', but optimized for the common case)
 
   (defmacro my-let (&rest BINDINGS.EXPRESSION)
     "Bind BINDINGS and then evaluate EXPRESSION.
@@ -450,24 +454,24 @@ Example:
     (seq-let (e &rest rev-bs) (reverse BINDINGS.EXPRESSION) ; Reverse to get the expression at the end.
       (cl-labels
           ((let-helper (BINDINGS EXPRESSION)
-                       (if BINDINGS
-                           (seq-let (var val &rest bs) BINDINGS
-                             (cond
-                              ((and (symbolp var)
-                                    (consp val)
-                                    (listp (car val)))
-                               ;; Bind procedure.
-                               `(cl-labels ((,var ,(car val) ,@(cdr val)))
-                                  ,(let-helper bs EXPRESSION)))
-                              ((sequencep var)
-                               ;; Pattern-match sequence.
-                               `(seq-let ,var ,val
-                                  ,(let-helper bs EXPRESSION)))
-                              (t
-                               ;; Bind as usual.
-                               `(let ((,var ,val))
-                                  ,(let-helper bs EXPRESSION)))))
-                         EXPRESSION)))
+             (if BINDINGS
+                 (seq-let (var val &rest bs) BINDINGS
+                   (cond
+                     ((and (symbolp var)
+                           (consp val)
+                           (listp (car val)))
+                      ;; Bind procedure.
+                      `(cl-labels ((,var ,(car val) ,@(cdr val)))
+                         ,(let-helper bs EXPRESSION)))
+                     ((sequencep var)
+                      ;; Pattern-match sequence.
+                      `(seq-let ,var ,val
+                         ,(let-helper bs EXPRESSION)))
+                     (t
+                      ;; Bind as usual.
+                      `(let ((,var ,val))
+                         ,(let-helper bs EXPRESSION)))))
+               EXPRESSION)))
         (let-helper (reverse rev-bs) e)))) ; Reverse to get the bindings in the right order again.
 
   (defmacro my-if (&rest CONDITIONS)
@@ -511,8 +515,8 @@ Example:
   (defun my-alternate (L1 L2)
     "Create a list that alternates the elements of L1 and L2."
     (cl-loop
-     for e1 in L1 and e2 in L2
-     append (list e1 e2)))
+       for e1 in L1 and e2 in L2
+       append (list e1 e2)))
 
 ;;; Let's write a whole new set of procedures for accessing files!
 
@@ -789,16 +793,16 @@ Example: (my-pad 5 \"Hi!\") => \"  Hi!\""
     "Create FACES (name docstring properties) in GROUP. No fancy business here; the display is always t."
     (declare (indent 1))
     (cl-loop
-     for (name docstring . properties) in FACES
-     do (custom-declare-face name `((t . ,properties)) docstring :group GROUP)))
+       for (name docstring . properties) in FACES
+       do (custom-declare-face name `((t . ,properties)) docstring :group GROUP)))
 
   (defun my-set-face-attributes (&rest FACES)
     "From FACES of (face :attr-1 a1 :attr-2 a2 ...) lists, give each face its attributes. Create undefined faces."
     (cl-loop
-     for (face . attributes) in FACES
-     do
-     ;; (unless (facep face) (make-face face))
-     (apply #'set-face-attribute face nil attributes)))
+       for (face . attributes) in FACES
+       do
+       ;; (unless (facep face) (make-face face))
+         (apply #'set-face-attribute face nil attributes)))
 
   (defun my--shift-face-foreground (FUNCTION FACE REFERENCE)
     "Set FACE's foreground to the result of applying FUNCTION to REFERENCE's foreground and background."
@@ -875,25 +879,25 @@ FACE-SETUP should a procedure of 2 arguments (faces) that sets attributes of the
        (apply #'def-adaptive-face f))))
 
   (my-def-adaptive-faces 'my-statusbar
-                         '(default
-                            "an alias af mode-line and mode-line-inactive faces"
-                            (:inherit mode-line)
-                            (:inherit mode-line-inactive))
-                         '(highlight
-                           "an emphasized face for the mode-line"
-                           (:weight bold
-                                    :underline t
-                                    :inherit my-statusbar-default-active-face)
-                           (:weight bold
-                                    :underline t
-                                    :inherit my-statusbar-default-inactive-face)
-                           my-intensify-face-foreground)
-                         '(shadow
-                           "a dimmed face for the mode-line"
-                           (:inherit my-statusbar-default-active-face)
-                           (:inherit my-statusbar-default-inactive-face)
-                           my-fade-face-foreground)
-                         )
+    '(default
+      "an alias af mode-line and mode-line-inactive faces"
+      (:inherit mode-line)
+      (:inherit mode-line-inactive))
+    '(highlight
+      "an emphasized face for the mode-line"
+      (:weight bold
+       :underline t
+       :inherit my-statusbar-default-active-face)
+      (:weight bold
+       :underline t
+       :inherit my-statusbar-default-inactive-face)
+      my-intensify-face-foreground)
+    '(shadow
+      "a dimmed face for the mode-line"
+      (:inherit my-statusbar-default-active-face)
+      (:inherit my-statusbar-default-inactive-face)
+      my-fade-face-foreground)
+    )
 
   (defun my-reset-statusbar-faces ()
     (run-hooks 'adaptive-faces-setup))
@@ -909,7 +913,7 @@ FACE-SETUP should a procedure of 2 arguments (faces) that sets attributes of the
                     'help-echo (abbreviate-file-name buffer-file-truename)
                     'local-map (make-mode-line-mouse-map
                                 'mouse-1 (lambda () (interactive)
-                                           (dired (file-name-directory buffer-file-truename)))))
+                                                 (dired (file-name-directory buffer-file-truename)))))
       (buffer-name)))
 
   (defun my-major-mode-name ()
@@ -1102,8 +1106,8 @@ FACE-SETUP should a procedure of 2 arguments (faces) that sets attributes of the
     ]
    `(
      ,(if (fboundp 'vc-refresh-state) #'vc-refresh-state #'vc-find-file-hook)
-     (lambda () (force-mode-line-update t)) ; refresh all mode lines.
-     ))
+      (lambda () (force-mode-line-update t)) ; refresh all mode lines.
+      ))
 
   (my-hook-up
    [prog-mode-hook]
@@ -1138,25 +1142,25 @@ FACE-SETUP should a procedure of 2 arguments (faces) that sets attributes of the
 
   ;; Ignore mouse-wheel left and right.
   (my-def-keys global-map
-    "<mouse-6>" #'ignore
-    "<mouse-7>" #'ignore
-    )
+      "<mouse-6>" #'ignore
+      "<mouse-7>" #'ignore
+      )
 
   (unless (string= system-type "gnu/linux")
     (my-def-keys help-mode-map
-      "<mouse-4>" #'help-go-back ; Windows mouse back (Linux mouse wheel up)
-      "<mouse-5>" #'help-go-forward ; mouse forwards
-      ))
+        "<mouse-4>" #'help-go-back ; Windows mouse back (Linux mouse wheel up)
+        "<mouse-5>" #'help-go-forward ; mouse forwards
+        ))
 
   ;; Navigate wrapped lines.
   (my-def-keys evil-normal-state-map
-    "j" #'evil-next-visual-line
-    "k" #'evil-previous-visual-line
-    )
+      "j" #'evil-next-visual-line
+      "k" #'evil-previous-visual-line
+      )
 
   ;; Paste with Ctrl p.
   (my-def-keys evil-insert-state-map
-    "C-p" #'evil-paste-after)
+      "C-p" #'evil-paste-after)
 
   (global-set-key
    (kbd "C-S-u") #'counsel-unicode-char) ; `counsel-unicode-char' is slow...
