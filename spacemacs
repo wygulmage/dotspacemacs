@@ -1159,8 +1159,8 @@ FACE-SETUP should a procedure of 2 arguments (faces) that sets attributes of the
       )
 
   ;; Paste with Ctrl p.
-  (my-def-keys evil-insert-state-map
-      "C-p" #'evil-paste-after)
+  ;; (my-def-keys evil-insert-state-map
+  ;;     "C-p" #'evil-paste-after)
 
   (global-set-key
    (kbd "C-S-u") #'counsel-unicode-char) ; `counsel-unicode-char' is slow...
@@ -1198,7 +1198,7 @@ FACE-SETUP should a procedure of 2 arguments (faces) that sets attributes of the
 
   ;; ;;; Mouse & copy / paste / delete
   (setq
-   ;;  ;; mouse-drag-copy-region t ; Copy on select -- disable for acme-mouse.
+   ;;  mouse-drag-copy-region t ; Copy on select -- disable for acme-mouse.
    ;;  delete-selection-mode t ; Allow typing over the selection. Only useful when there's a selection in insert state?
    kill-do-not-save-duplicates t ; Don't copy identical text twice.
    )
@@ -1249,7 +1249,7 @@ FACE-SETUP should a procedure of 2 arguments (faces) that sets attributes of the
   ;;; Shen
   (add-to-list 'auto-mode-alist '("\\.shen$" . shen-mode))
   (my-hook-up
-   '(shen-mode-hook)
+   [shen-mode-hook]
    lisp-minor-modes)
 
  ;;; ---------------------------------------
