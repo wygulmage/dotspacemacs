@@ -63,6 +63,12 @@ This function should only modify configuration layer settings."
    '(
      adaptive-wrap
      paren-face
+     ;;; Strictly speaking, I should be using the statements below instead of using `require' in `dotspacemacs/init', but that would make offline development a pain.
+     ;; (umr :fetcher github :repo "wygulmage/umr.el")
+     ;; (miscellaneous :fetcher github :repo "wygulmage/miscellaneous.el")
+     ;; (hooker :fetcher github :repo "wygulmage/hooker.el")
+     ;; (primary-pane :fetcher github :repo "wygulmage/hooker.el")
+     ;; (fac :fetcher github :repo "wygulmage/fac.el")
      )
 
    ;; A list of packages that cannot be updated.
@@ -405,7 +411,7 @@ configuration.
 It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
 
-  ;; In order of dependencies...
+  ;;; In order of dependencies...
   (require 'umr "~/.emacs.d/private/local/umr/umr.el")
   (require 'miscellaneous "~/.emacs.d/private/local/miscellaneous/miscellaneous.el")
   (require 'hooker "~/.emacs.d/private/local/hooker/hooker.el")
@@ -416,8 +422,6 @@ If you are unsure, try setting them in `dotspacemacs/user-config' first."
   (require 'statusbar "~/.emacs.d/private/local/statusbar/statusbar.el")
   (setq-default mode-line-format statusbar-base-layout)
   (setq mode-line-format statusbar-base-layout)
-;;; Theming
-  (require 'minor-theme "~/.emacs.d/private/local/minor-theme/minor-theme.el")
 
   )
 
@@ -427,6 +431,9 @@ This function is called at the very end of Spacemacs startup, after layer
 configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
+
+;;; Theming
+  (require 'minor-theme "~/.emacs.d/private/local/minor-theme/minor-theme.el")
 
 (defun my-theme-tweaks ()
     "Tweak faces to simplify themes."
