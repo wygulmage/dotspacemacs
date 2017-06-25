@@ -432,6 +432,61 @@ configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
 
+;;; Miscellaneous Global Stuff
+  (global-hl-line-mode -1) ; Disable current line highlight.
+  (global-visual-line-mode 1) ; Always wrap lines to window.
+  (setq vc-follow-symlinks t)
+
+;;; Statusbar
+  (hooker-hook-up
+   [prog-mode-hook]
+   [
+    adaptive-wrap-prefix-mode ; Indent wrapped lines in source code.
+    rainbow-mode ; Color color strings like "#4971af" in source code.
+    statusbar-use-prog-mode-layout
+    ])
+
+  ;; Hide the mode-line when not needed useful.
+  (hooker-hook-up
+   [
+    help-mode-hook
+    magit-mode-hook
+    ranger-mode-hook
+    spacemacs-buffer-mode-hook
+    ]
+   [(lambda () (setq mode-line-format nil))])
+
+;;; Key Maps
+  ;; Ignore mouse-wheel left and right.
+  (misc--def-keys global-map
+               "<mouse-6>" #'ignore
+               "<mouse-7>" #'ignore
+               )
+
+  (unless (string= system-type "gnu/linux")
+    (misc--def-keys help-mode-map
+                 "<mouse-4>" #'help-go-back ; Windows mouse back (Linux mouse wheel up)
+                 "<mouse-5>" #'help-go-forward ; mouse forwards
+                 ))
+
+  ;; Navigate wrapped lines.
+  (misc--def-keys evil-normal-state-map
+               "j" #'evil-next-visual-line
+               "k" #'evil-previous-visual-line
+               )
+
+  ;; Zoom with Ctrl + mouse wheel.
+  (apply #'misc--def-keys global-map
+         (misc--alternate
+          (if (string= system-type "gnu/linux")
+              '("C-<mouse-4>" "C-<mouse-5>") ; Linux mouse wheel
+            '("C-<wheel-up>" "C-<wheel-down>")) ; Windows mouse wheel
+          '(spacemacs/scale-up-font spacemacs/scale-down-font)))
+
+;;; Languages
+  ;; Sh
+  (add-to-list 'auto-mode-alist '("\\.zsh$" . sh-mode))
+
 ;;; Theming
   (require 'minor-theme "~/.emacs.d/private/local/minor-theme/minor-theme.el")
 
