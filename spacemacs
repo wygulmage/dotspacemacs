@@ -66,8 +66,8 @@ This function should only modify configuration layer settings."
      ;;; Strictly speaking, I should be using the statements below instead of using `require' in `dotspacemacs/init', but that would make offline development a pain.
      ;; (umr :fetcher github :repo "wygulmage/umr.el")
      ;; (miscellaneous :fetcher github :repo "wygulmage/miscellaneous.el")
-     ;; (hooker :fetcher github :repo "wygulmage/hooker.el")
-     ;; (primary-pane :fetcher github :repo "wygulmage/hooker.el")
+     ;; (hook-up :fetcher github :repo "wygulmage/hook-up.el")
+     ;; (primary-pane :fetcher github :repo "wygulmage/primary-pane.el")
      ;; (fac :fetcher github :repo "wygulmage/fac.el")
      )
 
@@ -414,7 +414,7 @@ If you are unsure, try setting them in `dotspacemacs/user-config' first."
   ;;; In order of dependencies...
   (require 'umr "~/.emacs.d/private/local/umr/umr.el")
   (require 'miscellaneous "~/.emacs.d/private/local/miscellaneous/miscellaneous.el")
-  (require 'hooker "~/.emacs.d/private/local/hooker/hooker.el")
+  (require 'hook-up "~/.emacs.d/private/local/hook-up/hook-up.el")
   (require 'primary-pane "~/.emacs.d/private/local/primary-pane/primary-pane.el")
   (require 'fac "~/.emacs.d/private/local/fac/fac.el")
 
@@ -438,7 +438,7 @@ before packages are loaded."
   (setq vc-follow-symlinks t)
 
 ;;; Statusbar
-  (hooker-hook-up
+  (hook-up
    [prog-mode-hook]
    [
     adaptive-wrap-prefix-mode ; Indent wrapped lines in source code.
@@ -447,7 +447,7 @@ before packages are loaded."
     ])
 
   ;; Hide the mode-line when not needed useful.
-  (hooker-hook-up
+  (hook-up
    [
     help-mode-hook
     magit-mode-hook
