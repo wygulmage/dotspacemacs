@@ -29,7 +29,7 @@ This function should only modify configuration layer settings."
    ;; If non-nil layers with lazy install support are lazy installed.
    ;; List of additional paths where to look for configuration layers.
    ;; Paths must have a trailing slash (i.e. `~/.mycontribs/')
-   dotspacemacs-configuration-layer-path '()
+   dotspacemacs-configuration-layer-path '("~/.emacs.d/private/local/")
 
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
@@ -354,7 +354,7 @@ It should only modify the values of Spacemacs settings."
    ;; Select a scope to highlight delimiters. Possible values are `any',
    ;; `current', `all' or `nil'. Default is `all' (highlight any scope and
    ;; emphasis the current one). (default 'all)
-   dotspacemacs-highlight-delimiters 'all
+   dotspacemacs-highlight-delimiters 'any
 
    ;; If non-nil, advise quit functions to keep server open when quitting.
    ;; (default nil)
@@ -463,6 +463,7 @@ before packages are loaded."
                "<mouse-7>" #'ignore
                )
 
+  ;; Navigate help buffers.
   (unless (string= system-type "gnu/linux")
     (misc--def-keys help-mode-map
                  "<mouse-4>" #'help-go-back ; Windows mouse back (Linux mouse wheel up)
@@ -526,6 +527,8 @@ before packages are loaded."
     (if (display-graphic-p)
         (minor-theme-flat)
       (minor-theme-laser)))
+
+(hook-up [after-load-theme-hook] [my-theme-tweaks])
 
   )
 
