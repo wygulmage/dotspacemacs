@@ -43,7 +43,6 @@ This function should only modify configuration layer settings."
      emacs-lisp
      git
      markdown
-     ;; org
      ;; (shell :variables
      ;;        shell-default-height 30
      ;;        shell-default-position 'bottom)
@@ -55,6 +54,7 @@ This function should only modify configuration layer settings."
                  paredit
                  smart-yank
                  smart-tab))
+     spacemacs-editing
      spacemacs-navigation
      spell-checking
      syntax-checking
@@ -473,7 +473,7 @@ before packages are loaded."
   ;; (if (display-graphic-p)
   ;;     (minor-theme-flat)
   ;;   (minor-theme-laser))
-  
+
   (my-theme-tweaks)
   (hook-up [after-load-theme-hook] [my-theme-tweaks])
 
@@ -489,14 +489,14 @@ before packages are loaded."
    [adaptive-wrap-prefix-mode ; Indent wrapped lines in source code.
     rainbow-mode ; Color color strings like "#4971af" in source code.
     statusbar-use-prog-mode-layout])
-  
+
   ;; Hide the mode-line when not needed useful.
   (hook-up
    [help-mode-hook
     magit-mode-hook
     ranger-mode-hook
     spacemacs-buffer-mode-hook]
-   [(lambda () (setq mode-line-format nil))])
+   [statusbar-hide])
 
 ;;; Key Maps
   ;; Ignore mouse-wheel left and right.
