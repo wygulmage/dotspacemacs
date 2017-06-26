@@ -426,7 +426,7 @@ If you are unsure, try setting them in `dotspacemacs/user-config' first."
 ;;; Statusbar
   (require 'statusbar "~/.emacs.d/private/local/statusbar/statusbar.el")
   (setq-default mode-line-format statusbar-base-layout)
-  (setq mode-line-format statusbar-base-layout)
+  (setq mode-line-format statusbar-base-layout) ; just in case.
 
   )
 
@@ -440,7 +440,10 @@ before packages are loaded."
 ;;; Miscellaneous Global Stuff
   (global-hl-line-mode -1) ; Disable current line highlight.
   (global-visual-line-mode 1) ; Always wrap lines to window.
-  (setq vc-follow-symlinks t)
+  (setq
+   kill-do-not-save-duplicates t ; Don't copy identical text twice.
+   vc-follow-symlinks t ; Always follow symlinks to version-controlled files.
+   )
 
 ;;; Statusbar
   (hook-up
@@ -490,6 +493,17 @@ before packages are loaded."
           '(spacemacs/scale-up-font spacemacs/scale-down-font)))
 
 ;;; Languages
+  (setq-default
+   lisp-minor-modes
+   [
+    paren-face-mode
+    ])
+
+  ;; Emacs-Lisp
+  (hook-up
+   [emacs-lisp-mode-hook]
+   lisp-minor-modes)
+
   ;; Sh
   (add-to-list 'auto-mode-alist '("\\.zsh$" . sh-mode))
 
@@ -533,6 +547,7 @@ before packages are loaded."
         (minor-theme-flat)
       (minor-theme-laser)))
 
+  (my-theme-tweaks)
   (hook-up [after-load-theme-hook] [my-theme-tweaks])
 
   )
