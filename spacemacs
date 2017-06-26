@@ -36,7 +36,6 @@ This function should only modify configuration layer settings."
    '(
      ivy
      auto-completion
-     better-defaults
      (colors :packages
              rainbow-mode
              :variables
@@ -85,7 +84,7 @@ This function should only modify configuration layer settings."
    ;; installs only the used packages but won't delete unused ones. `all'
    ;; installs *all* packages supported by Spacemacs and never uninstalls them.
    ;; (default is `used-only')
-   dotspacemacs-install-packages 'used-only
+   dotspacemacs-install-packages 'used-but-keep-unused
    ))
 
 (defun dotspacemacs/init ()
@@ -508,7 +507,7 @@ before packages are loaded."
   (add-to-list 'auto-mode-alist '("\\.zsh$" . sh-mode))
 
 ;;; Theming
-  (require 'minor-theme "~/.emacs.d/private/local/minor-theme/minor-theme.el")
+;  (require 'minor-theme "~/.emacs.d/private/local/minor-theme/minor-theme.el")
 
 (defun my-theme-tweaks ()
     "Tweak faces to simplify themes."
@@ -543,9 +542,10 @@ before packages are loaded."
      )
     (fac-fade-foreground 'shadow 'default)
     (fac-fade-foreground 'font-lock-comment-delimiter-face 'font-lock-comment-face)
-    (if (display-graphic-p)
-        (minor-theme-flat)
-      (minor-theme-laser)))
+    ;; (if (display-graphic-p)
+    ;;     (minor-theme-flat)
+    ;;   (minor-theme-laser))
+    )
 
   (my-theme-tweaks)
   (hook-up [after-load-theme-hook] [my-theme-tweaks])
