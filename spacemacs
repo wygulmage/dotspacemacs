@@ -39,21 +39,23 @@ This function should only modify configuration layer settings."
              rainbow-mode
              :variables
              rainbow-x-colors nil
-             rainbow-html-colors nil)
+             rainbow-html-colors nil
+             )
      emacs-lisp
      git
      markdown
      ;; (shell :variables
      ;;        shell-default-height 30
      ;;        shell-default-position 'bottom)
-     (parinfer :variables
-               parinfer-auto-switch-indent-mode t
-               parinfer-extensions
-               '(defaults
-                 evil
-                 paredit
-                 smart-yank
-                 smart-tab))
+     evil-cleverparens
+     ;; (parinfer :variables
+     ;;           parinfer-auto-switch-indent-mode t
+     ;;           parinfer-extensions
+     ;;           '(defaults
+     ;;             evil
+     ;;             paredit
+     ;;             smart-yank
+     ;;             smart-tab))
      spacemacs-editing
      spacemacs-navigation
      spell-checking
@@ -87,7 +89,8 @@ This function should only modify configuration layer settings."
    ;; installs only the used packages but won't delete unused ones. `all'
    ;; installs *all* packages supported by Spacemacs and never uninstalls them.
    ;; (default is `used-only')
-   dotspacemacs-install-packages 'used-but-keep-unused))
+   dotspacemacs-install-packages 'used-but-keep-unused
+   ))
 
 (defun dotspacemacs/init ()
   "Initialization:
@@ -164,11 +167,13 @@ It should only modify the values of Spacemacs settings."
 
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
    ;; quickly tweak the mode-line size to make separators look not too crappy.
-   dotspacemacs-default-font '("Source Code Pro"
+   dotspacemacs-default-font '(
+                               "Source Code Pro"
                                :size 14.0
                                :weight normal
                                :width normal
-                               :powerline-scale 1.1)
+                               :powerline-scale 1.1
+                               )
 
    ;; The leader key
    dotspacemacs-leader-key "SPC"
@@ -407,7 +412,8 @@ It should only modify the values of Spacemacs settings."
    ;; Run `spacemacs/prettify-org-buffer' when
    ;; visiting README.org files of Spacemacs.
    ;; (default nil)
-   dotspacemacs-pretty-docs nil))
+   dotspacemacs-pretty-docs nil
+   ))
 
 
 (defun dotspacemacs/user-init ()
@@ -427,7 +433,8 @@ If you are unsure, try setting them in `dotspacemacs/user-config' first."
 ;;; Statusbar
   (require 'statusbar "~/.emacs.d/private/local/statusbar/statusbar.el")
   (setq-default mode-line-format statusbar-base-layout)
-  (setq mode-line-format statusbar-base-layout)) ; just in case.
+  (setq mode-line-format statusbar-base-layout) ; just in case.
+  )
 
 (defun dotspacemacs/user-config ()
   "Configuration for user code:
@@ -466,9 +473,11 @@ before packages are loaded."
        :inherit default)
        ;;; Things that look like other things:
      '(font-lock-string-face
-       :slant italic))
+       :slant italic)
+     )
     (fac-fade-foreground 'shadow 'default)
-    (fac-fade-foreground 'font-lock-comment-delimiter-face 'font-lock-comment-face))
+    (fac-fade-foreground 'font-lock-comment-delimiter-face 'font-lock-comment-face)
+    )
   ;;  (require 'minor-theme "~/.emacs.d/private/local/minor-theme/minor-theme.el")
   ;; (if (display-graphic-p)
   ;;     (minor-theme-flat)
@@ -486,16 +495,20 @@ before packages are loaded."
 
   (hook-up
    [prog-mode-hook]
-   [adaptive-wrap-prefix-mode ; Indent wrapped lines in source code.
+   [
+    adaptive-wrap-prefix-mode ; Indent wrapped lines in source code.
     rainbow-mode ; Color color strings like "#4971af" in source code.
-    statusbar-use-prog-mode-layout])
+    statusbar-use-prog-mode-layout
+    ])
 
   ;; Hide the mode-line when not needed useful.
   (hook-up
-   [help-mode-hook
+   [
+    help-mode-hook
     magit-mode-hook
     ranger-mode-hook
-    spacemacs-buffer-mode-hook]
+    spacemacs-buffer-mode-hook
+    ]
    [statusbar-hide])
 
 ;;; Key Maps
@@ -525,8 +538,11 @@ before packages are loaded."
 
 ;;; Languages
   (setq-default lisp-minor-modes
-                [paren-face-mode
-                 parinfer-mode])
+                [
+                 paren-face-mode
+                 ;; parinfer-mode
+                 evil-cleverparens-mode
+                 ])
 
   ;; Emacs-Lisp
   (hook-up
