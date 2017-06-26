@@ -33,8 +33,7 @@ This function should only modify configuration layer settings."
 
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(
-     ivy
+   '(ivy
      auto-completion
      (colors :packages
              rainbow-mode
@@ -48,34 +47,39 @@ This function should only modify configuration layer settings."
      ;; (shell :variables
      ;;        shell-default-height 30
      ;;        shell-default-position 'bottom)
+     (parinfer :variables
+               parinfer-auto-switch-indent-mode t
+               parinfer-extensions
+               '(defaults
+                  evil
+                  paredit
+                  pretty-parens
+                  smart-yank
+                  smart-tab))
      spacemacs-navigation
      spell-checking
      syntax-checking
-     version-control
-     )
+     version-control)
 
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
    ;; packages, then consider creating a layer. You can also put the
    ;; configuration in `dotspacemacs/user-config'.
    dotspacemacs-additional-packages
-   '(
-     adaptive-wrap
-     paren-face
+   '(adaptive-wrap
+     paren-face)
      ;;; Strictly speaking, I should be using the statements below instead of using `require' in `dotspacemacs/init', but that would make offline development a pain.
-     ;; (umr :fetcher github :repo "wygulmage/umr.el")
-     ;; (miscellaneous :fetcher github :repo "wygulmage/miscellaneous.el")
-     ;; (hook-up :fetcher github :repo "wygulmage/hook-up.el")
-     ;; (primary-pane :fetcher github :repo "wygulmage/primary-pane.el")
-     ;; (fac :fetcher github :repo "wygulmage/fac.el")
-     )
+   ;; (umr :fetcher github :repo "wygulmage/umr.el")
+   ;; (miscellaneous :fetcher github :repo "wygulmage/miscellaneous.el")
+   ;; (hook-up :fetcher github :repo "wygulmage/hook-up.el")
+   ;; (primary-pane :fetcher github :repo "wygulmage/primary-pane.el")
+   ;; (fac :fetcher github :repo "wygulmage/fac.el"))
 
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
 
    ;; A list of packages that will not be installed and loaded.
-   dotspacemacs-excluded-packages
-   '(orgit)
+   dotspacemacs-excluded-packages '(orgit)
 
    ;; Defines the behaviour of Spacemacs when installing packages.
    ;; Possible values are `used-only', `used-but-keep-unused' and `all'.
@@ -84,8 +88,7 @@ This function should only modify configuration layer settings."
    ;; installs only the used packages but won't delete unused ones. `all'
    ;; installs *all* packages supported by Spacemacs and never uninstalls them.
    ;; (default is `used-only')
-   dotspacemacs-install-packages 'used-but-keep-unused
-   ))
+   dotspacemacs-install-packages 'used-but-keep-unused))
 
 (defun dotspacemacs/init ()
   "Initialization:
@@ -127,7 +130,7 @@ It should only modify the values of Spacemacs settings."
    dotspacemacs-editing-style 'vim
 
    ;; If non-nil output loading progress in `*Messages*' buffer. (default nil)
-   dotspacemacs-verbose-loading nil
+   dotspacemacs-verbose-loading t
 
    ;; Specify the startup banner. Default value is `official', it displays
    ;; the official spacemacs logo. An integer value is the index of text
@@ -396,7 +399,7 @@ It should only modify the values of Spacemacs settings."
    ;; `trailing' to delete only the whitespace at end of lines, `changed' to
    ;; delete only whitespace for changed lines or `nil' to disable cleanup.
    ;; (default nil)
-   dotspacemacs-whitespace-cleanup 'changed
+   dotspacemacs-whitespace-cleanup 'trailing
 
    ;; Either nil or a number of seconds. If non-nil zone out after the specified
    ;; number of seconds. (default nil)
@@ -405,8 +408,8 @@ It should only modify the values of Spacemacs settings."
    ;; Run `spacemacs/prettify-org-buffer' when
    ;; visiting README.org files of Spacemacs.
    ;; (default nil)
-   dotspacemacs-pretty-docs nil
-  ))
+   dotspacemacs-pretty-docs nil))
+
 
 (defun dotspacemacs/user-init ()
   "Initialization for user code:
@@ -425,9 +428,7 @@ If you are unsure, try setting them in `dotspacemacs/user-config' first."
 ;;; Statusbar
   (require 'statusbar "~/.emacs.d/private/local/statusbar/statusbar.el")
   (setq-default mode-line-format statusbar-base-layout)
-  (setq mode-line-format statusbar-base-layout) ; just in case.
-
-  )
+  (setq mode-line-format statusbar-base-layout)) ; just in case.
 
 (defun dotspacemacs/user-config ()
   "Configuration for user code:
@@ -436,81 +437,9 @@ configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
 
-;;; Miscellaneous Global Stuff
-  (global-hl-line-mode -1) ; Disable current line highlight.
-  (global-visual-line-mode 1) ; Always wrap lines to window.
-  (setq
-   kill-do-not-save-duplicates t ; Don't copy identical text twice.
-   vc-follow-symlinks t ; Always follow symlinks to version-controlled files.
-   )
-
-;;; Statusbar
-  (hook-up
-   [prog-mode-hook]
-   [
-    adaptive-wrap-prefix-mode ; Indent wrapped lines in source code.
-    rainbow-mode ; Color color strings like "#4971af" in source code.
-    statusbar-use-prog-mode-layout
-    ])
-
-  ;; Hide the mode-line when not needed useful.
-  (hook-up
-   [
-    help-mode-hook
-    magit-mode-hook
-    ranger-mode-hook
-    spacemacs-buffer-mode-hook
-    ]
-   [(lambda () (setq mode-line-format nil))])
-
-;;; Key Maps
-  ;; Ignore mouse-wheel left and right.
-  (misc--def-keys global-map
-               "<mouse-6>" #'ignore
-               "<mouse-7>" #'ignore
-               )
-
-  ;; Navigate help buffers.
-  (unless (string= system-type "gnu/linux")
-    (misc--def-keys help-mode-map
-                 "<mouse-4>" #'help-go-back ; Windows mouse back (Linux mouse wheel up)
-                 "<mouse-5>" #'help-go-forward ; mouse forwards
-                 ))
-
-  ;; Navigate wrapped lines.
-  (misc--def-keys evil-normal-state-map
-               "j" #'evil-next-visual-line
-               "k" #'evil-previous-visual-line
-               )
-
-  ;; Zoom with Ctrl + mouse wheel.
-  (apply #'misc--def-keys global-map
-         (misc--alternate
-          (if (string= system-type "gnu/linux")
-              '("C-<mouse-4>" "C-<mouse-5>") ; Linux mouse wheel
-            '("C-<wheel-up>" "C-<wheel-down>")) ; Windows mouse wheel
-          '(spacemacs/scale-up-font spacemacs/scale-down-font)))
-
-;;; Languages
-  (setq-default
-   lisp-minor-modes
-   [
-    paren-face-mode
-    ])
-
-  ;; Emacs-Lisp
-  (hook-up
-   [emacs-lisp-mode-hook]
-   lisp-minor-modes)
-
-  ;; Sh
-  (add-to-list 'auto-mode-alist '("\\.zsh$" . sh-mode))
-
-;;; Theming
-;  (require 'minor-theme "~/.emacs.d/private/local/minor-theme/minor-theme.el")
-
-(defun my-theme-tweaks ()
-    "Tweak faces to simplify themes."
+  ;; Faces
+  (defun my-theme-tweaks ()
+    "Tweak faces to simplify themes. Requires `fac' and `statusbar'"
     (fac-set-attributes
        ;;; Things that don't do stuff:
      '(font-lock-comment-face
@@ -538,19 +467,73 @@ before packages are loaded."
        :inherit default)
        ;;; Things that look like other things:
      '(font-lock-string-face
-       :slant italic)
-     )
+       :slant italic))
     (fac-fade-foreground 'shadow 'default)
-    (fac-fade-foreground 'font-lock-comment-delimiter-face 'font-lock-comment-face)
-    ;; (if (display-graphic-p)
-    ;;     (minor-theme-flat)
-    ;;   (minor-theme-laser))
-    )
-
+    (fac-fade-foreground 'font-lock-comment-delimiter-face 'font-lock-comment-face))
+  ;;  (require 'minor-theme "~/.emacs.d/private/local/minor-theme/minor-theme.el")
+  ;; (if (display-graphic-p)
+  ;;     (minor-theme-flat)
+  ;;   (minor-theme-laser))
+  
   (my-theme-tweaks)
   (hook-up [after-load-theme-hook] [my-theme-tweaks])
 
-  )
+;;; Miscellaneous Global Stuff
+  (global-hl-line-mode -1) ; Disable current line highlight.
+  (global-visual-line-mode 1) ; Always wrap lines to window.
+  (setq
+   kill-do-not-save-duplicates t ; Don't copy identical text twice.
+   vc-follow-symlinks t) ; Always follow symlinks to version-controlled files.
+
+  (hook-up
+   [prog-mode-hook]
+   [adaptive-wrap-prefix-mode ; Indent wrapped lines in source code.
+    rainbow-mode ; Color color strings like "#4971af" in source code.
+    statusbar-use-prog-mode-layout])
+  
+  ;; Hide the mode-line when not needed useful.
+  (hook-up
+   [help-mode-hook
+    magit-mode-hook
+    ranger-mode-hook
+    spacemacs-buffer-mode-hook]
+   [(lambda () (setq mode-line-format nil))])
+
+;;; Key Maps
+  ;; Ignore mouse-wheel left and right.
+  (misc--def-keys global-map
+    "<mouse-6>" #'ignore
+    "<mouse-7>" #'ignore)
+
+  ;; Navigate help buffers.
+  (unless (string= system-type "gnu/linux")
+    (misc--def-keys help-mode-map
+      "<mouse-4>" #'help-go-back ; Windows mouse back (Linux mouse wheel up)
+      "<mouse-5>" #'help-go-forward)) ; mouse forwards
+
+  ;; Navigate wrapped lines.
+  (misc--def-keys evil-normal-state-map
+    "j" #'evil-next-visual-line
+    "k" #'evil-previous-visual-line)
+
+  ;; Zoom with Ctrl + mouse wheel.
+  (apply #'misc--def-keys global-map
+         (misc--alternate
+          (if (string= system-type "gnu/linux")
+              '("C-<mouse-4>" "C-<mouse-5>") ; Linux mouse wheel
+            '("C-<wheel-up>" "C-<wheel-down>")) ; Windows mouse wheel
+          '(spacemacs/scale-up-font spacemacs/scale-down-font)))
+
+;;; Languages
+  (setq-default lisp-minor-modes [parinfer-mode])
+
+  ;; Emacs-Lisp
+  (hook-up
+   [emacs-lisp-mode-hook]
+   lisp-minor-modes)
+
+  ;; Sh
+  (add-to-list 'auto-mode-alist '("\\.zsh$" . sh-mode)))
 
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.
