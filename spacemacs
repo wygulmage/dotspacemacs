@@ -51,11 +51,10 @@ This function should only modify configuration layer settings."
                parinfer-auto-switch-indent-mode t
                parinfer-extensions
                '(defaults
-                  evil
-                  paredit
-                  pretty-parens
-                  smart-yank
-                  smart-tab))
+                 evil
+                 paredit
+                 smart-yank
+                 smart-tab))
      spacemacs-navigation
      spell-checking
      syntax-checking
@@ -525,7 +524,9 @@ before packages are loaded."
           '(spacemacs/scale-up-font spacemacs/scale-down-font)))
 
 ;;; Languages
-  (setq-default lisp-minor-modes [parinfer-mode])
+  (setq-default lisp-minor-modes
+                [paren-face-mode
+                 parinfer-mode])
 
   ;; Emacs-Lisp
   (hook-up
