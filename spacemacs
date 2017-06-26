@@ -60,21 +60,24 @@ This function should only modify configuration layer settings."
      spacemacs-navigation
      spell-checking
      syntax-checking
-     version-control)
+     version-control
+     )
 
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
    ;; packages, then consider creating a layer. You can also put the
    ;; configuration in `dotspacemacs/user-config'.
    dotspacemacs-additional-packages
-   '(adaptive-wrap
-     paren-face)
-     ;;; Strictly speaking, I should be using the statements below instead of using `require' in `dotspacemacs/init', but that would make offline development a pain.
-   ;; (umr :fetcher github :repo "wygulmage/umr.el")
-   ;; (miscellaneous :fetcher github :repo "wygulmage/miscellaneous.el")
-   ;; (hook-up :fetcher github :repo "wygulmage/hook-up.el")
-   ;; (primary-pane :fetcher github :repo "wygulmage/primary-pane.el")
-   ;; (fac :fetcher github :repo "wygulmage/fac.el"))
+   '(
+     adaptive-wrap
+     paren-face
+;;; Strictly speaking, I should be using the statements below instead of using `require' in `dotspacemacs/init', but that would make offline development a pain.
+     ;; (umr :fetcher github :repo "wygulmage/umr.el")
+     ;; (miscellaneous :fetcher github :repo "wygulmage/miscellaneous.el")
+     ;; (hook-up :fetcher github :repo "wygulmage/hook-up.el")
+     ;; (primary-pane :fetcher github :repo "wygulmage/primary-pane.el")
+     ;; (fac :fetcher github :repo "wygulmage/fac.el"))
+     )
 
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -148,8 +151,8 @@ It should only modify the values of Spacemacs settings."
    ;; `recents' `bookmarks' `projects' `agenda' `todos'.
    ;; List sizes may be nil, in which case
    ;; `spacemacs-buffer-startup-lists-length' takes effect.
-   dotspacemacs-startup-lists '((recents . 5)
-                                (projects . 7))
+   dotspacemacs-startup-lists
+   '((recents . 5) (projects . 7))
 
    ;; True if the home buffer should respond to resize events.
    dotspacemacs-startup-buffer-responsive t
