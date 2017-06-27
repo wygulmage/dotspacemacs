@@ -170,13 +170,11 @@ It should only modify the values of Spacemacs settings."
 
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
    ;; quickly tweak the mode-line size to make separators look not too crappy.
-   dotspacemacs-default-font '(
-                               "Source Code Pro"
+   dotspacemacs-default-font '("Source Code Pro"
                                :size 14.0
                                :weight normal
                                :width normal
-                               :powerline-scale 1.1
-                               )
+                               :powerline-scale 1.1)
 
    ;; The leader key
    dotspacemacs-leader-key "SPC"
@@ -447,8 +445,9 @@ Put your configuration code here, except for variables that should be set
 before packages are loaded."
 
   ;; Faces
+  (require 'minor-theme "~/.emacs.d/private/local/minor-theme/minor-theme.el")
   (defun my-theme-tweaks ()
-    "Tweak faces to simplify themes. Requires `fac' and `statusbar'"
+    "Tweak faces to simplify themes. Requires `fac', `minor-theme', and `statusbar'"
     (fac-set-attributes
        ;;; Things that don't do stuff:
      '(font-lock-comment-face
@@ -480,11 +479,10 @@ before packages are loaded."
      )
     (fac-fade-foreground 'shadow 'default)
     (fac-fade-foreground 'font-lock-comment-delimiter-face 'font-lock-comment-face)
+    (if (and (display-graphic-p) (fboundp 'minor-theme-flat))
+        (minor-theme-flat)
+      (minor-theme-laser))
     )
-  ;;  (require 'minor-theme "~/.emacs.d/private/local/minor-theme/minor-theme.el")
-  ;; (if (display-graphic-p)
-  ;;     (minor-theme-flat)
-  ;;   (minor-theme-laser))
 
   (my-theme-tweaks)
   (hook-up [after-load-theme-hook] [my-theme-tweaks])
@@ -545,6 +543,7 @@ before packages are loaded."
                  paren-face-mode
                  ;; parinfer-mode
                  evil-cleverparens-mode
+                 aggressive-indent-mode
                  ])
 
   ;; Emacs-Lisp
