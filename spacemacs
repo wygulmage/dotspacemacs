@@ -423,8 +423,16 @@ This function is called immediately after `dotspacemacs/init', before layer
 configuration.
 It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
+  )
 
-  ;;; In order of dependencies...
+(defun dotspacemacs/user-config ()
+  "Configuration for user code:
+This function is called at the very end of Spacemacs startup, after layer
+configuration.
+Put your configuration code here, except for variables that should be set
+before packages are loaded."
+
+ ;;; In order of dependencies...
   (require 'umr "~/.emacs.d/private/local/umr/umr.el")
   (require 'miscellaneous "~/.emacs.d/private/local/miscellaneous/miscellaneous.el")
   (require 'hook-up "~/.emacs.d/private/local/hook-up/hook-up.el")
@@ -435,14 +443,6 @@ If you are unsure, try setting them in `dotspacemacs/user-config' first."
   (require 'statusbar "~/.emacs.d/private/local/statusbar/statusbar.el")
   (setq-default mode-line-format statusbar-base-layout)
   (setq mode-line-format statusbar-base-layout) ; just in case.
-  )
-
-(defun dotspacemacs/user-config ()
-  "Configuration for user code:
-This function is called at the very end of Spacemacs startup, after layer
-configuration.
-Put your configuration code here, except for variables that should be set
-before packages are loaded."
 
   ;; Faces
   (require 'minor-theme "~/.emacs.d/private/local/minor-theme/minor-theme.el")
