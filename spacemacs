@@ -47,15 +47,15 @@ This function should only modify configuration layer settings."
      ;; (shell :variables
      ;;        shell-default-height 30
      ;;        shell-default-position 'bottom)
-     evil-cleverparens
-     ;; (parinfer :variables
-     ;;           parinfer-auto-switch-indent-mode t
-     ;;           parinfer-extensions
-     ;;           '(defaults
-     ;;             evil
-     ;;             paredit
-     ;;             smart-yank
-     ;;             smart-tab))
+     ;;     evil-cleverparens
+     (parinfer :variables
+               parinfer-auto-switch-indent-mode t
+               parinfer-extensions
+               '(defaults
+                  evil
+                  paredit
+                  smart-yank
+                  smart-tab))
      spacemacs-editing
      spacemacs-navigation
      spell-checking
@@ -423,6 +423,7 @@ This function is called immediately after `dotspacemacs/init', before layer
 configuration.
 It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
+  (require 'parinferlib "~/.emacs.d/private/local/parinfer-elisp/parinferlib")
   )
 
 (defun dotspacemacs/user-config ()
@@ -541,9 +542,9 @@ before packages are loaded."
   (setq-default lisp-minor-modes
                 [
                  paren-face-mode
-                 ;; parinfer-mode
-                 evil-cleverparens-mode
-                 aggressive-indent-mode
+                 parinfer-mode
+                 ;; evil-cleverparens-mode
+                 ;; aggressive-indent-mode
                  ])
 
   ;; Emacs-Lisp
