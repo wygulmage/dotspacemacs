@@ -72,11 +72,6 @@ This function should only modify configuration layer settings."
      adaptive-wrap
      paren-face
 ;;; Strictly speaking, I should be using the statements below instead of using `require' in `dotspacemacs/init', but that would make offline development a pain.
-     ;; (umr :fetcher github :repo "wygulmage/umr.el")
-     ;; (miscellaneous :fetcher github :repo "wygulmage/miscellaneous.el")
-     ;; (hook-up :fetcher github :repo "wygulmage/hook-up.el")
-     ;; (primary-pane :fetcher github :repo "wygulmage/primary-pane.el")
-     ;; (fac :fetcher github :repo "wygulmage/fac.el"))
      )
 
    ;; A list of packages that cannot be updated.
@@ -423,8 +418,8 @@ This function is called immediately after `dotspacemacs/init', before layer
 configuration.
 It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
-  (require 'parinferlib "~/.emacs.d/private/local/parinfer-elisp/parinferlib")
-  )
+  (require 'parinferlib "~/.emacs.d/private/local/parinfer-elisp/parinferlib"))
+
 
 (defun dotspacemacs/user-config ()
   "Configuration for user code:
@@ -434,11 +429,20 @@ Put your configuration code here, except for variables that should be set
 before packages are loaded."
 
  ;;; In order of dependencies...
-  (require 'umr "~/.emacs.d/private/local/umr/umr.el")
-  (require 'miscellaneous "~/.emacs.d/private/local/miscellaneous/miscellaneous.el")
-  (require 'hook-up "~/.emacs.d/private/local/hook-up/hook-up.el")
-  (require 'primary-pane "~/.emacs.d/private/local/primary-pane/primary-pane.el")
-  (require 'fac "~/.emacs.d/private/local/fac/fac.el")
+  (defun my-require-or-quelpa (name)
+    "Use a copy of the package in the private/local/ dir, or if it's not there, get it with `quelpa'."
+    (let* ((package-path (concat "~/.emacs.d/private/local/"
+                                 name "/" name ".el"))
+           (package-symbol (intern name)))
+      (if (file-readable-p package-path)
+          (require package-symbol package-path)
+        (quelpa package-symbol :fetcher 'github :repo (concat "wygulmage/" name ".el"))
+        (message "Fetched %s from quelpa." name))))
+  (my-require-or-quelpa "umr")
+  (my-require-or-quelpa "miscellaneous")
+  (my-require-or-quelpa "hook-up")
+  (my-require-or-quelpa "primary-pane")
+  (my-require-or-quelpa "fac")
 
 ;;; Statusbar
   (require 'statusbar "~/.emacs.d/private/local/statusbar/statusbar.el")
@@ -476,14 +480,14 @@ before packages are loaded."
        :inherit default)
        ;;; Things that look like other things:
      '(font-lock-string-face
-       :slant italic)
-     )
+       :slant italic))
+
     (fac-fade-foreground 'shadow 'default)
     (fac-fade-foreground 'font-lock-comment-delimiter-face 'font-lock-comment-face)
     (if (and (display-graphic-p) (fboundp 'minor-theme-flat))
         (minor-theme-flat)
-      (minor-theme-laser))
-    )
+      (minor-theme-laser)))
+
 
   (my-theme-tweaks)
   (hook-up [after-load-theme-hook] [my-theme-tweaks])
@@ -500,8 +504,8 @@ before packages are loaded."
    [
     adaptive-wrap-prefix-mode ; Indent wrapped lines in source code.
     rainbow-mode ; Color color strings like "#4971af" in source code.
-    statusbar-use-prog-mode-layout
-    ])
+    statusbar-use-prog-mode-layout])
+
 
   ;; Hide the mode-line when not needed useful.
   (hook-up
@@ -509,8 +513,8 @@ before packages are loaded."
     help-mode-hook
     magit-mode-hook
     ranger-mode-hook
-    spacemacs-buffer-mode-hook
-    ]
+    spacemacs-buffer-mode-hook]
+
    [statusbar-hide])
 
 ;;; Key Maps
@@ -542,10 +546,10 @@ before packages are loaded."
   (setq-default lisp-minor-modes
                 [
                  paren-face-mode
-                 parinfer-mode
-                 ;; evil-cleverparens-mode
-                 ;; aggressive-indent-mode
-                 ])
+                 parinfer-mode])
+  ;; evil-cleverparens-mode
+  ;; aggressive-indent-mode
+
 
   ;; Emacs-Lisp
   (hook-up
