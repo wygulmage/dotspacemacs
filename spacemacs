@@ -437,20 +437,20 @@ before packages are loaded."
       (if (file-readable-p package-path)
           (require package-symbol package-path)
         (quelpa package-symbol :fetcher 'github :repo (concat "wygulmage/" name ".el"))
-        (message "Fetched %s from quelpa." name))))
+        (message "Fetched %s with quelpa." name))))
   (my-require-or-quelpa "umr")
   (my-require-or-quelpa "miscellaneous")
   (my-require-or-quelpa "hook-up")
   (my-require-or-quelpa "primary-pane")
   (my-require-or-quelpa "fac")
+  (my-require-or-quelpa "statusbar")
+  (my-require-or-quelpa "minor-theme")
 
 ;;; Statusbar
-  (require 'statusbar "~/.emacs.d/private/local/statusbar/statusbar.el")
   (setq-default mode-line-format statusbar-base-layout)
   (setq mode-line-format statusbar-base-layout) ; just in case.
 
   ;; Faces
-  (require 'minor-theme "~/.emacs.d/private/local/minor-theme/minor-theme.el")
   (defun my-theme-tweaks ()
     "Tweak faces to simplify themes. Requires `fac', `minor-theme', and `statusbar'"
     (fac-set-attributes
@@ -501,16 +501,14 @@ before packages are loaded."
 
   (hook-up
    [prog-mode-hook]
-   [
-    adaptive-wrap-prefix-mode ; Indent wrapped lines in source code.
+   [adaptive-wrap-prefix-mode ; Indent wrapped lines in source code.
     rainbow-mode ; Color color strings like "#4971af" in source code.
     statusbar-use-prog-mode-layout])
 
 
   ;; Hide the mode-line when not needed useful.
   (hook-up
-   [
-    help-mode-hook
+   [help-mode-hook
     magit-mode-hook
     ranger-mode-hook
     spacemacs-buffer-mode-hook]
@@ -544,8 +542,7 @@ before packages are loaded."
 
 ;;; Languages
   (setq-default lisp-minor-modes
-                [
-                 paren-face-mode
+                [paren-face-mode
                  parinfer-mode])
   ;; evil-cleverparens-mode
   ;; aggressive-indent-mode
