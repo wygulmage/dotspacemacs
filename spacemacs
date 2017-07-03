@@ -33,15 +33,20 @@ This function should only modify configuration layer settings."
 
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(ivy
-     auto-completion
+   '((ivy :packages
+          (not helm-make)) ; This may be misguided, but why???
+     (auto-completion :packages
+                      (not helm-company
+                           helm-c-yasnippet
+                           smartparens))
      (colors :packages
              rainbow-mode
              :variables
              rainbow-x-colors nil
              rainbow-html-colors nil)
      emacs-lisp
-     git
+     (git :packages
+          (not helm-gitignore))
      markdown
      ;; (shell :variables
      ;;        shell-default-height 30
@@ -55,8 +60,17 @@ This function should only modify configuration layer settings."
                  paredit
                  smart-yank
                  smart-tab))
-     spacemacs-editing
-     spacemacs-navigation
+     (spacemacs-completion :packages
+                           default-ivy-config)
+     (spacemacs-editing :packages
+                        (not aggressive-indent
+                             clean-aindent
+                             lorem-ipsum
+                             smartparens))
+     (spacemacs-navigation ; renamed from `spacemacs-ui'
+      :packages (not golden-ratio))
+     (spacemacs-visual :packages
+                       (not fill-column-indicator))
      spell-checking
      syntax-checking
      version-control)
@@ -73,7 +87,7 @@ This function should only modify configuration layer settings."
    dotspacemacs-frozen-packages '()
 
    ;; A list of packages that will not be installed and loaded.
-   dotspacemacs-excluded-packages '(orgit)
+   dotspacemacs-excluded-packages '(helm orgit)
 
    ;; Defines the behaviour of Spacemacs when installing packages.
    ;; Possible values are `used-only', `used-but-keep-unused' and `all'.
@@ -140,8 +154,8 @@ It should only modify the values of Spacemacs settings."
    ;; `recents' `bookmarks' `projects' `agenda' `todos'.
    ;; List sizes may be nil, in which case
    ;; `spacemacs-buffer-startup-lists-length' takes effect.
-   dotspacemacs-startup-lists
-   '((recents . 5) (projects . 7))
+   dotspacemacs-startup-lists '((recents . 5)
+                                (projects . 7))
 
    ;; True if the home buffer should respond to resize events.
    dotspacemacs-startup-buffer-responsive t
