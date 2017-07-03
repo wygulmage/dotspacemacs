@@ -431,26 +431,26 @@ before packages are loaded."
  ;;; In order of dependencies...
   (defun my-require-or-quelpa (name)
     "Use a copy of the package in the private/local/ dir, or if it's not there, get it with `quelpa'."
-    (let* ((package-path (concat "~/.emacs.d/private/local/"
-                                 name "/" name ".el"))
+    (let* ((package-path (concat "~/.emacs.d/private/local/" name "/" name ".el"))
            (package-symbol (intern name)))
       (if (file-readable-p package-path)
           (require package-symbol package-path)
         (quelpa package-symbol :fetcher 'github :repo (concat "wygulmage/" name ".el"))
         (message "Fetched %s from quelpa." name))))
-  (my-require-or-quelpa "umr")
-  (my-require-or-quelpa "miscellaneous")
-  (my-require-or-quelpa "hook-up")
-  (my-require-or-quelpa "primary-pane")
-  (my-require-or-quelpa "fac")
+  (mapc #'my-require-or-quelpa
+        ["umr"
+         "miscellaneous"
+         "hook-up"
+         "primary-pane"
+         "fac"])
 
 ;;; Statusbar
-  (require 'statusbar "~/.emacs.d/private/local/statusbar/statusbar.el")
+  (my-require-or-quelpa "statusbar")
   (setq-default mode-line-format statusbar-base-layout)
   (setq mode-line-format statusbar-base-layout) ; just in case.
 
   ;; Faces
-  (require 'minor-theme "~/.emacs.d/private/local/minor-theme/minor-theme.el")
+  (my-require-or-quelpa "minor-theme")
   (defun my-theme-tweaks ()
     "Tweak faces to simplify themes. Requires `fac', `minor-theme', and `statusbar'"
     (fac-set-attributes
@@ -501,16 +501,14 @@ before packages are loaded."
 
   (hook-up
    [prog-mode-hook]
-   [
-    adaptive-wrap-prefix-mode ; Indent wrapped lines in source code.
+   [adaptive-wrap-prefix-mode ; Indent wrapped lines in source code.
     rainbow-mode ; Color color strings like "#4971af" in source code.
     statusbar-use-prog-mode-layout])
 
 
   ;; Hide the mode-line when not needed useful.
   (hook-up
-   [
-    help-mode-hook
+   [help-mode-hook
     magit-mode-hook
     ranger-mode-hook
     spacemacs-buffer-mode-hook]
@@ -544,8 +542,7 @@ before packages are loaded."
 
 ;;; Languages
   (setq-default lisp-minor-modes
-                [
-                 paren-face-mode
+                [paren-face-mode
                  parinfer-mode])
   ;; evil-cleverparens-mode
   ;; aggressive-indent-mode
