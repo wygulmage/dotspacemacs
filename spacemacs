@@ -11,7 +11,7 @@ This function should only modify configuration layer settings."
    ;; or `spacemacs'. (default 'spacemacs)
    dotspacemacs-distribution 'spacemacs-base
 
-   ;; Lazy installatstatusion of layers (i.e. layers are installed only when a file
+   ;; Lazy installation of layers (i.e. layers are installed only when a file
    ;; with a supported type is opened). Possible values are `all', `unused'
    ;; and `nil'. `unused' will lazy install only unused layers (i.e. layers
    ;; not listed in variable `dotspacemacs-configuration-layers'), `all' will
@@ -39,8 +39,7 @@ This function should only modify configuration layer settings."
              rainbow-mode
              :variables
              rainbow-x-colors nil
-             rainbow-html-colors nil
-             )
+             rainbow-html-colors nil)
      emacs-lisp
      git
      markdown
@@ -52,27 +51,23 @@ This function should only modify configuration layer settings."
                parinfer-auto-switch-indent-mode t
                parinfer-extensions
                '(defaults
-                  evil
-                  paredit
-                  smart-yank
-                  smart-tab))
+                 evil
+                 paredit
+                 smart-yank
+                 smart-tab))
      spacemacs-editing
      spacemacs-navigation
      spell-checking
      syntax-checking
-     version-control
-     )
+     version-control)
 
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
    ;; packages, then consider creating a layer. You can also put the
    ;; configuration in `dotspacemacs/user-config'.
    dotspacemacs-additional-packages
-   '(
-     adaptive-wrap
-     paren-face
-;;; Strictly speaking, I should be using the statements below instead of using `require' in `dotspacemacs/init', but that would make offline development a pain.
-     )
+   '(adaptive-wrap
+     paren-face)
 
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -87,8 +82,7 @@ This function should only modify configuration layer settings."
    ;; installs only the used packages but won't delete unused ones. `all'
    ;; installs *all* packages supported by Spacemacs and never uninstalls them.
    ;; (default is `used-only')
-   dotspacemacs-install-packages 'used-but-keep-unused
-   ))
+   dotspacemacs-install-packages 'used-but-keep-unused))
 
 (defun dotspacemacs/init ()
   "Initialization:
@@ -151,7 +145,6 @@ It should only modify the values of Spacemacs settings."
 
    ;; True if the home buffer should respond to resize events.
    dotspacemacs-startup-buffer-responsive t
-
    ;; Default major mode of the scratch buffer (default `text-mode')
    dotspacemacs-scratch-mode 'text-mode
 
@@ -388,7 +381,7 @@ It should only modify the values of Spacemacs settings."
    ;; %n - Narrow if appropriate
    ;; %z - mnemonics of buffer, terminal, and keyboard coding systems
    ;; %Z - like %z, but including the end-of-line format
-   dotspacemacs-frame-title-format "%I@%S"
+   dotspacemacs-frame-title-format nil
 
    ;; Format specification for setting the icon title format
    ;; (default nil - same as frame-title-format)
@@ -408,8 +401,7 @@ It should only modify the values of Spacemacs settings."
    ;; Run `spacemacs/prettify-org-buffer' when
    ;; visiting README.org files of Spacemacs.
    ;; (default nil)
-   dotspacemacs-pretty-docs nil
-   ))
+   dotspacemacs-pretty-docs nil))
 
 
 (defun dotspacemacs/user-init ()
@@ -417,8 +409,9 @@ It should only modify the values of Spacemacs settings."
 This function is called immediately after `dotspacemacs/init', before layer
 configuration.
 It is mostly for variables that should be set before packages are loaded.
-If you are unsure, try setting them in `dotspacemacs/user-config' first."
-  (require 'parinferlib "~/.emacs.d/private/local/parinfer-elisp/parinferlib"))
+If you are unsure, try setting them in `dotspacemacs/user-config' first.")
+;; (require 'parinferlib "~/.emacs.d/private/local/parinfer-elisp/parinferlib")
+
 
 
 (defun dotspacemacs/user-config ()
@@ -448,7 +441,7 @@ before packages are loaded."
 
 ;;; Statusbar
   (setq-default mode-line-format statusbar-base-layout)
-  (setq mode-line-format statusbar-base-layout) ; just in case.
+  ;; (setq mode-line-format statusbar-base-layout) ; just in case.
 
   ;; Faces
   (defun my-theme-tweaks ()
@@ -485,7 +478,7 @@ before packages are loaded."
     (fac-fade-foreground 'shadow 'default)
     (fac-fade-foreground 'font-lock-comment-delimiter-face 'font-lock-comment-face)
     (if (and (display-graphic-p) (fboundp 'minor-theme-flat))
-        (minor-theme-flat)
+        nil ; (minor-theme-flat)
       (minor-theme-laser)))
 
 
@@ -512,7 +505,6 @@ before packages are loaded."
     magit-mode-hook
     ranger-mode-hook
     spacemacs-buffer-mode-hook]
-
    [statusbar-hide])
 
 ;;; Key Maps
