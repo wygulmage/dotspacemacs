@@ -423,8 +423,10 @@ It should only modify the values of Spacemacs settings."
 This function is called immediately after `dotspacemacs/init', before layer
 configuration.
 It is mostly for variables that should be set before packages are loaded.
-If you are unsure, try setting them in `dotspacemacs/user-config' first.")
-;; (require 'parinferlib "~/.emacs.d/private/local/parinfer-elisp/parinferlib")
+If you are unsure, try setting them in `dotspacemacs/user-config' first."
+;; (require 'parinferlib "~/.emacs.d/private/local/parinfer-elisp/parinferlib"
+
+(setq use-dialog-box nil))
 
 
 
