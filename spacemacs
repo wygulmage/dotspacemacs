@@ -459,48 +459,41 @@ before packages are loaded."
 ;;; Statusbar
   (let ((c (or (plist-get (face-attribute 'mode-line :box) :color)
                (face-attribute 'shadow :foreground))))
-    (set-face-attribute 'vertical-border nil :foreground c :background c)
-    (set-face-attribute 'border nil :foreground c :background c)
-    (set-face-attribute 'window-divider nil :foreground c :background c))
+    (seq-doseq (face [vertical-border border window-divider])
+      (set-face-attribute face nil :foreground c :background c)))
 
-  (set-frame-parameter nil 'bottom-divider-width 1)
+  ;; (set-frame-parameter nil 'bottom-divider-width 1)
+  ;; (add-to-list 'default-frame-alist '(bottom-divider-width 1))
+  ;; (add-to-list 'default-frame-alist '(right-divider-width 1))
 
-  (add-to-list 'default-frame-alist '(bottom-divider-width 1))
-  (add-to-list 'default-frame-alist '(right-divider-width 1))
   (setq-default mode-line-format statusbar-base-layout)
   (setq mode-line-format statusbar-base-layout) ; just in case.
 
   ;; Statusbar faces
   (defun my-theme-tweaks ()
     "Tweak faces to simplify themes. Requires `fac', `minor-theme', and `statusbar'"
-    (fac-set-attributes
-       ;;; Things that don't do stuff:
-     '(font-lock-comment-face
-       :background unspecified
-       :slant normal)
-     '(font-lock-doc-face
-       :inherit font-lock-comment-face)
-     '(fringe
-       :background unspecified
-       :foreground unspecified
-       :inherit font-lock-comment-face)
-     '(linum
-       :background unspecified
-       :foreground unspecified
-       :inherit font-lock-comment-face)
-       ;;; Things that do stuff:
-     '(font-lock-keyword-face
-       :foreground unspecified
-       :inherit default)
-     '(font-lock-function-name-face
-       :foreground unspecified
-       :inherit default)
-     '(font-lock-variable-name-face
-       :foreground unspecified
-       :inherit default)
+    ;; Faces of things that that don't do stuff:
+    (set-face-attribute 'font-lock-comment-face nil
+                        :background 'unspecified
+                        :slant 'normal)
+    (seq-doseq (face [font-lock-doc-face
+                      fringe
+                      linum])
+      (set-face-attribute face nil
+                          :foreground 'unspecified
+                          :background 'unspecified
+                          :inherit 'font-lock-comment-face))
+    ;; Faces of things that do stuff:
+    (seq-doseq (face [font-lock-keyword-face
+                      font-lock-function-name-face
+                      font-lock-variable-name-face])
+      (set-face-attribute face nil
+                          :foreground 'unspecified
+                          :background 'unspecified
+                          :inherit 'default))
        ;;; Things that look like other things:
-     '(font-lock-string-face
-       :slant italic))
+    (set-face-attribute 'font-lock-string-face nil
+       :slant 'italic)
 
     (fac-fade-foreground 'shadow 'default)
     (fac-fade-foreground 'font-lock-comment-delimiter-face 'font-lock-comment-face)
