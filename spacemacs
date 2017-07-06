@@ -457,9 +457,20 @@ before packages are loaded."
 
 
 ;;; Statusbar
-  (setq-default mode-line-format statusbar-base-layout)
+  (let ((c (or (plist-get (face-attribute 'mode-line :box) :color)
+               (face-attribute 'shadow :foreground))))
+    (set-face-attribute 'vertical-border nil :foreground c :background c)
+    (set-face-attribute 'border nil :foreground c :background c)
+    (set-face-attribute 'window-divider nil :foreground c :background c))
 
-  ;; Faces
+  (set-frame-parameter nil 'bottom-divider-width 1)
+
+  (add-to-list 'default-frame-alist '(bottom-divider-width 1))
+  (add-to-list 'default-frame-alist '(right-divider-width 1))
+  (setq-default mode-line-format statusbar-base-layout)
+  (setq mode-line-format statusbar-base-layout) ; just in case.
+
+  ;; Statusbar faces
   (defun my-theme-tweaks ()
     "Tweak faces to simplify themes. Requires `fac', `minor-theme', and `statusbar'"
     (fac-set-attributes
