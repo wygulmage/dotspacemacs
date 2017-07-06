@@ -426,7 +426,7 @@ configuration.
 It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
 ;; (require 'parinferlib "~/.emacs.d/private/local/parinfer-elisp/parinferlib"
-
+  (setq debug-on-error t)
   (setq use-dialog-box nil))
 
 
@@ -437,7 +437,7 @@ configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
 
- ;;; In order of dependencies...
+;;; In order of dependencies...
   (defun my-require-or-quelpa (name)
     "Use a copy of the package in the private/local/ dir, or if it's not there, get it with `quelpa'."
     (let* ((package-path (concat "~/.emacs.d/private/local/"
@@ -455,9 +455,9 @@ before packages are loaded."
   (my-require-or-quelpa "statusbar")
   (my-require-or-quelpa "minor-theme")
 
+
 ;;; Statusbar
   (setq-default mode-line-format statusbar-base-layout)
-  ;; (setq mode-line-format statusbar-base-layout) ; just in case.
 
   ;; Faces
   (defun my-theme-tweaks ()
@@ -501,6 +501,7 @@ before packages are loaded."
   (my-theme-tweaks)
   (hook-up [after-load-theme-hook] [my-theme-tweaks])
 
+
 ;;; Miscellaneous Global Stuff
   (global-hl-line-mode -1) ; Disable current line highlight.
   (global-visual-line-mode 1) ; Always wrap lines to window.
@@ -523,6 +524,34 @@ before packages are loaded."
     spacemacs-buffer-mode-hook]
    [statusbar-hide])
 
+
+;;; Key Maps
+
+  ;; Ignore mouse-wheel left and right.
+  (misc--def-keys global-map
+    "<mouse-6>" #'ignore
+    "<mouse-7>" #'ignore)
+
+  ;; Navigate help buffers.
+  (when (string= system-type "windows-nt")
+    (misc--def-keys help-mode-map
+      "<mouse-4>" #'help-go-back ; Windows mouse back (Linux mouse wheel up)
+      "<mouse-5>" #'help-go-forward)) ; Windows mouse forwards
+
+  ;; Navigate wrapped lines.
+  (misc--def-keys evil-normal-state-map
+    "j" #'evil-next-visual-line
+    "k" #'evil-previous-visual-line)
+
+  ;; Zoom with Ctrl + mouse wheel.
+  (apply #'misc--def-keys global-map
+         (misc--alternate
+          (if (string= system-type "gnu/linux")
+              '("C-<mouse-4>" "C-<mouse-5>") ; Linux mouse wheel
+            '("C-<wheel-up>" "C-<wheel-down>")) ; Windows mouse wheel
+          '(spacemacs/scale-up-font spacemacs/scale-down-font)))
+
+  ;; Toggle comment with SPC ;.
   (defun my-comment-dwim ()
     "If the region is not active, select the current line. Then, if the region is a comment, uncomment it, and otherwise comment it out."
     (interactive)
@@ -538,45 +567,19 @@ before packages are loaded."
     ";" #'my-comment-dwim)
 
 
-;;; Key Maps
-  ;; Ignore mouse-wheel left and right.
-  (misc--def-keys global-map
-    "<mouse-6>" #'ignore
-    "<mouse-7>" #'ignore)
-
-  ;; Navigate help buffers.
-  (unless (string= system-type "gnu/linux")
-    (misc--def-keys help-mode-map
-      "<mouse-4>" #'help-go-back ; Windows mouse back (Linux mouse wheel up)
-      "<mouse-5>" #'help-go-forward)) ; mouse forwards
-
-  ;; Navigate wrapped lines.
-  (misc--def-keys evil-normal-state-map
-    "j" #'evil-next-visual-line
-    "k" #'evil-previous-visual-line)
-
-  ;; Zoom with Ctrl + mouse wheel.
-  (apply #'misc--def-keys global-map
-         (misc--alternate
-          (if (string= system-type "gnu/linux")
-              '("C-<mouse-4>" "C-<mouse-5>") ; Linux mouse wheel
-            '("C-<wheel-up>" "C-<wheel-down>")) ; Windows mouse wheel
-          '(spacemacs/scale-up-font spacemacs/scale-down-font)))
-
 ;;; Languages
+
+;;;; Lisps
   (setq-default lisp-minor-modes
-                [paren-face-mode
-                 parinfer-mode])
-  ;; evil-cleverparens-mode
-  ;; aggressive-indent-mode
+                [paren-face-mode ; Dim parentheses.
+                 parinfer-mode]) ; Manage parentheses automagically.
 
-
-  ;; Emacs-Lisp
+;;;; Emacs-Lisp
   (hook-up
    [emacs-lisp-mode-hook]
    lisp-minor-modes)
 
-  ;; Sh
+;;;; Sh
   (add-to-list 'auto-mode-alist '("\\.zsh$" . sh-mode)))
 
 ;; Do not write anything past this comment. This is where Emacs will
