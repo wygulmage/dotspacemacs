@@ -33,44 +33,48 @@ This function should only modify configuration layer settings."
 
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '((ivy :packages
-          (not helm-make)) ; This may be misguided, but why???
-     (auto-completion :packages
-                      (not helm-company
-                           helm-c-yasnippet
-                           smartparens))
-     (colors :packages
-             rainbow-mode
-             :variables
-             rainbow-x-colors nil
-             rainbow-html-colors nil)
+   '((ivy
+      :packages (not helm-make)) ; This may be misguided, but why???
+     (auto-completion
+      :packages
+      (not helm-company
+           helm-c-yasnippet
+           smartparens))
+     (colors
+      :packages
+      rainbow-mode
+      :variables
+      rainbow-x-colors nil
+      rainbow-html-colors nil)
      emacs-lisp
-     (git :packages
-          (not helm-gitignore))
+     (git
+      :packages (not helm-gitignore))
      markdown
      ;; (shell :variables
      ;;        shell-default-height 30
      ;;        shell-default-position 'bottom)
      ;;     evil-cleverparens
-     (parinfer :variables
-               parinfer-auto-switch-indent-mode t
-               parinfer-extensions
-               '(defaults
-                 evil
-                 paredit
-                 smart-yank
-                 smart-tab))
-     (spacemacs-completion :packages
-                           default-ivy-config)
-     (spacemacs-editing :packages
-                        (not aggressive-indent
-                             clean-aindent
-                             lorem-ipsum
-                             smartparens))
+     (parinfer
+      :variables
+      parinfer-auto-switch-indent-mode t
+      parinfer-extensions
+      '(defaults
+        evil
+        paredit
+        smart-yank
+        smart-tab))
+     (spacemacs-completion
+      :packages default-ivy-config)
+     (spacemacs-editing
+      :packages
+      (not aggressive-indent
+           clean-aindent
+           lorem-ipsum
+           smartparens))
      (spacemacs-navigation ; renamed from `spacemacs-ui'
       :packages (not golden-ratio))
-     (spacemacs-visual :packages
-                       (not fill-column-indicator))
+     (spacemacs-visual
+      :packages (not fill-column-indicator))
      spell-checking
      syntax-checking
      version-control
@@ -447,14 +451,14 @@ before packages are loaded."
           (require package-symbol package-path)
         (quelpa package-symbol :fetcher 'github :repo (concat "wygulmage/" name ".el"))
         (message "Fetched %s with quelpa." name))))
-  (my-require-or-quelpa "umr")
-  (my-require-or-quelpa "miscellaneous")
-  (my-require-or-quelpa "hook-up")
-  (my-require-or-quelpa "primary-pane")
-  (my-require-or-quelpa "fac")
-  (my-require-or-quelpa "statusbar")
-  (my-require-or-quelpa "minor-theme")
-
+  (mapc #'my-require-or-quelpa
+        ["umr"
+         "miscellaneous"
+         "hook-up"
+         "primary-pane"
+         "fac"
+         "statusbar"
+         "minor-theme"])
 
 ;;; Statusbar
   (let ((c (or (plist-get (face-attribute 'mode-line :box) :color)
@@ -462,7 +466,7 @@ before packages are loaded."
     (seq-doseq (face [vertical-border border window-divider])
       (set-face-attribute face nil :foreground c :background c)))
 
-  ;; (set-frame-parameter nil 'bottom-divider-width 1)
+  (set-frame-parameter nil 'bottom-divider-width 1)
   ;; (add-to-list 'default-frame-alist '(bottom-divider-width 1))
   ;; (add-to-list 'default-frame-alist '(right-divider-width 1))
 
