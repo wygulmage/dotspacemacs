@@ -456,8 +456,16 @@ before packages are loaded."
   (my-require-or-quelpa "minor-theme")
 
 ;;; Statusbar
+  (let ((c (face-attribute 'shadow :foreground)))
+    (set-face-attribute 'vertical-border nil :foreground c :background c)
+    (set-face-attribute 'border nil :foreground c :background c))
+
+  (set-frame-parameter nil 'bottom-divider-width 1)
+
+  (add-to-list 'default-frame-alist '(bottom-divider-width 1))
+  (add-to-list 'default-frame-alist '(right-divider-width 1))
   (setq-default mode-line-format statusbar-base-layout)
-  ;; (setq mode-line-format statusbar-base-layout) ; just in case.
+  (setq mode-line-format statusbar-base-layout) ; just in case.
 
   ;; Faces
   (defun my-theme-tweaks ()
