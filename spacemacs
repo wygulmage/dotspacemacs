@@ -456,9 +456,11 @@ before packages are loaded."
   (my-require-or-quelpa "minor-theme")
 
 ;;; Statusbar
-  (let ((c (face-attribute 'shadow :foreground)))
+  (let ((c (or (plist-get (face-attribute 'mode-line :box) :color)
+               (face-attribute 'shadow :foreground))))
     (set-face-attribute 'vertical-border nil :foreground c :background c)
-    (set-face-attribute 'border nil :foreground c :background c))
+    (set-face-attribute 'border nil :foreground c :background c)
+    (set-face-attribute 'window-divider nil :foreground c :background c))
 
   (set-frame-parameter nil 'bottom-divider-width 1)
 
@@ -467,7 +469,7 @@ before packages are loaded."
   (setq-default mode-line-format statusbar-base-layout)
   (setq mode-line-format statusbar-base-layout) ; just in case.
 
-  ;; Faces
+  ;; Statusbar faces
   (defun my-theme-tweaks ()
     "Tweak faces to simplify themes. Requires `fac', `minor-theme', and `statusbar'"
     (fac-set-attributes
