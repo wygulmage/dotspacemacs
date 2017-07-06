@@ -73,7 +73,8 @@ This function should only modify configuration layer settings."
                        (not fill-column-indicator))
      spell-checking
      syntax-checking
-     version-control)
+     version-control
+     vinegar) ; Simplified/improved `dired'
 
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
@@ -426,8 +427,7 @@ It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
 ;; (require 'parinferlib "~/.emacs.d/private/local/parinfer-elisp/parinferlib"
 
-(setq use-dialog-box nil))
-
+  (setq use-dialog-box nil))
 
 
 (defun dotspacemacs/user-config ()
@@ -522,14 +522,29 @@ before packages are loaded."
     rainbow-mode ; Color color strings like "#4971af" in source code.
     statusbar-use-prog-mode-layout])
 
-
   ;; Hide the mode-line when not needed useful.
   (hook-up
-   [help-mode-hook
+   [dired-mode-hook
+    help-mode-hook
     magit-mode-hook
     ranger-mode-hook
     spacemacs-buffer-mode-hook]
    [statusbar-hide])
+
+  (defun my-comment-dwim ()
+    "If the region is not active, select the current line. Then, if the region is a comment, uncomment it, and otherwise comment it out."
+    (interactive)
+    (let ((start) (end))
+      (if (region-active-p)
+          (setq start (region-beginning)
+                end (region-end))
+        (setq start (line-beginning-position)
+              end (line-end-position)))
+      (comment-or-uncomment-region start end)))
+
+  (spacemacs/set-leader-keys
+    ";" #'my-comment-dwim)
+
 
 ;;; Key Maps
   ;; Ignore mouse-wheel left and right.
