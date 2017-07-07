@@ -431,13 +431,14 @@ This function is called immediately after `dotspacemacs/init', before layer
 configuration.
 It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
-;; (require 'parinferlib "~/.emacs.d/private/local/parinfer-elisp/parinferlib"
+  ;; (require 'parinferlib "~/.emacs.d/private/local/parinfer-elisp/parinferlib"
   (setq debug-on-error t)
   (setq use-dialog-box nil)
   ;; https://github.com/syl20bnr/spacemacs/issues/5435
   ;; This problem may be related with wid-edit.el and mouse-1-click-follows-link. Now I can avoid automatic yank by putting the following config in spacemacs/user-config.
-  (add-hook 'spacemacs-buffer-mode-hook (lambda ()
-                                          (set (make-local-variable 'mouse-1-click-follows-link) nil))))
+  (add-hook 'spacemacs-buffer-mode-hook
+            (lambda ()
+              (set (make-local-variable 'mouse-1-click-follows-link) nil))))
 
 
 (defun dotspacemacs/user-config ()
@@ -448,23 +449,23 @@ Put your configuration code here, except for variables that should be set
 before packages are loaded."
 
 ;;; In order of dependencies...
-  (defun my-require-or-quelpa (name)
+  (defun my-require-or-quelpa (package-symbol)
     "Use a copy of the package in the private/local/ dir, or if it's not there, get it with `quelpa'."
-    (let* ((package-path (concat "~/.emacs.d/private/local/"
-                                 name "/" name ".el"))
-           (package-symbol (intern name)))
+    (let* ((name (symbol-name package-symbol))
+           (package-path (concat "~/.emacs.d/private/local/"
+                                 name "/" name ".el")))
       (if (file-readable-p package-path)
           (require package-symbol package-path)
         (quelpa package-symbol :fetcher 'github :repo (concat "wygulmage/" name ".el"))
         (message "Fetched %s with quelpa." name))))
   (mapc #'my-require-or-quelpa
-        ["umr"
-         "miscellaneous"
-         "hook-up"
-         "primary-pane"
-         "fac"
-         "statusbar"
-         "minor-theme"])
+        [umr
+         miscellaneous
+         hook-up
+         primary-pane
+         fac
+         statusbar
+         minor-theme])
 
 ;;; Statusbar
   (let ((c (or (plist-get (face-attribute 'mode-line :box) :color)
