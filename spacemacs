@@ -516,6 +516,34 @@ before packages are loaded."
   (hook-up [after-load-theme-hook] [my-theme-tweaks])
 
 
+;;; Try to keep to 80 columns.
+  (defun my-80-column-display ()
+    "Make the text are 80 columns."
+    (interactive)
+    (let ((new-margins
+           (max 1
+                (floor (- (window-total-width)
+                          (or left-fringe-width 0)
+                          (or right-fringe-width 0)
+                          81)
+                       2))))
+       (set-window-margins nil new-margins new-margins)))
+
+  ;; Somehow this isn't an infinite loop:
+  (defun add-local-hook-for-80-column-display ()
+      (add-hook 'window-configuration-change-hook
+                #'my-80-column-display nil t))
+
+  ;; Use 80 columns in normal editing modes:
+  (hook-up [text-mode-hook prog-mode-hook]
+           [add-local-hook-for-80-column-display])
+
+  ;; Convince `evil' that the window is wide enough to split:
+  (defun my-zero-window-margins ()
+    (set-window-margins nil 0 0))
+  (hook-up-make-hook :before evil-window-vsplit
+              my-zero-window-margins)
+
 ;;; Miscellaneous Global Stuff
   (global-hl-line-mode -1) ; Disable current line highlight.
   (global-visual-line-mode 1) ; Always wrap lines to window.
