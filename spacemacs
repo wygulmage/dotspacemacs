@@ -431,7 +431,11 @@ It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
 ;; (require 'parinferlib "~/.emacs.d/private/local/parinfer-elisp/parinferlib"
   (setq debug-on-error t)
-  (setq use-dialog-box nil))
+  (setq use-dialog-box nil)
+  ;; https://github.com/syl20bnr/spacemacs/issues/5435
+  ;; This problem may be related with wid-edit.el and mouse-1-click-follows-link. Now I can avoid automatic yank by putting the following config in spacemacs/user-config.
+  (add-hook 'spacemacs-buffer-mode-hook (lambda ()
+                                          (set (make-local-variable 'mouse-1-click-follows-link) nil))))
 
 
 (defun dotspacemacs/user-config ()
@@ -497,7 +501,7 @@ before packages are loaded."
                           :inherit 'default))
        ;;; Things that look like other things:
     (set-face-attribute 'font-lock-string-face nil
-       :slant 'italic)
+                        :slant 'italic)
 
     (fac-fade-foreground 'shadow 'default)
     (fac-fade-foreground 'font-lock-comment-delimiter-face 'font-lock-comment-face)
