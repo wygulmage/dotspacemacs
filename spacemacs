@@ -33,48 +33,44 @@ This function should only modify configuration layer settings."
 
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '((ivy
-      :packages (not helm-make)) ; This may be misguided, but why???
-     (auto-completion
-      :packages
-      (not helm-company
-           helm-c-yasnippet
-           smartparens))
-     (colors
-      :packages
-      rainbow-mode
-      :variables
-      rainbow-x-colors nil
-      rainbow-html-colors nil)
+   '((ivy :packages
+          (not helm-make)) ; This may be misguided, but why???
+     (auto-completion :packages
+                      (not helm-company
+                           helm-c-yasnippet
+                           smartparens))
+     (colors :packages
+             rainbow-mode
+             :variables
+             rainbow-x-colors nil
+             rainbow-html-colors nil)
      emacs-lisp
-     (git
-      :packages (not helm-gitignore))
+     (git :packages
+          (not helm-gitignore))
      markdown
      ;; (shell :variables
      ;;        shell-default-height 30
      ;;        shell-default-position 'bottom)
      ;;     evil-cleverparens
-     (parinfer
-      :variables
-      parinfer-auto-switch-indent-mode t
-      parinfer-extensions
-      '(defaults
-        evil
-        paredit
-        smart-yank
-        smart-tab))
-     (spacemacs-completion
-      :packages default-ivy-config)
-     (spacemacs-editing
-      :packages
-      (not aggressive-indent
-           clean-aindent
-           lorem-ipsum
-           smartparens))
-     (spacemacs-navigation ; renamed from `spacemacs-ui'
-      :packages (not golden-ratio))
-     (spacemacs-visual
-      :packages (not fill-column-indicator))
+     (parinfer :variables
+               parinfer-auto-switch-indent-mode t
+               parinfer-extensions
+               '(defaults
+                  evil
+                  paredit
+                  smart-yank
+                  smart-tab))
+     (spacemacs-completion :packages
+                           default-ivy-config)
+     (spacemacs-editing :packages
+                        (not aggressive-indent
+                             clean-aindent
+                             lorem-ipsum
+                             smartparens))
+     (spacemacs-navigation :packages  ; renamed from `spacemacs-ui'
+                           (not golden-ratio))
+     (spacemacs-visual :packages
+                       (not fill-column-indicator))
      spell-checking
      syntax-checking
      version-control
@@ -456,7 +452,9 @@ before packages are loaded."
                                  name "/" name ".el")))
       (if (file-readable-p package-path)
           (require package-symbol package-path)
-        (quelpa package-symbol :fetcher 'github :repo (concat "wygulmage/" name ".el"))
+        (quelpa package-symbol
+                :fetcher 'github
+                :repo (concat "wygulmage/" name ".el"))
         (message "Fetched %s with quelpa." name))))
   (mapc #'my-require-or-quelpa
         [umr
@@ -518,6 +516,7 @@ before packages are loaded."
 
 
 ;;; Try to keep to 80 columns.
+  ;; FIXME: Does not work well with `linum-mode'.
   (defun my-80-column-display ()
     "Make the text are 80 columns."
     (interactive)
