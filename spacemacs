@@ -11,7 +11,7 @@ This function should only modify configuration layer settings."
    ;; or `spacemacs'. (default 'spacemacs)
    dotspacemacs-distribution 'spacemacs-base
 
-   ;; Lazy installatstatusion of layers (i.e. layers are installed only when a file
+   ;; Lazy installation of layers (i.e. layers are installed only when a file
    ;; with a supported type is opened). Possible values are `all', `unused'
    ;; and `nil'. `unused' will lazy install only unused layers (i.e. layers
    ;; not listed in variable `dotspacemacs-configuration-layers'), `all' will
@@ -33,16 +33,20 @@ This function should only modify configuration layer settings."
 
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(ivy
-     auto-completion
+   '((ivy :packages
+          (not helm-make)) ; This may be misguided, but why???
+     (auto-completion :packages
+                      (not helm-company
+                           helm-c-yasnippet
+                           smartparens))
      (colors :packages
              rainbow-mode
              :variables
              rainbow-x-colors nil
-             rainbow-html-colors nil
-             )
+             rainbow-html-colors nil)
      emacs-lisp
-     git
+     (git :packages
+          (not helm-gitignore))
      markdown
      ;; (shell :variables
      ;;        shell-default-height 30
@@ -56,29 +60,35 @@ This function should only modify configuration layer settings."
                   paredit
                   smart-yank
                   smart-tab))
-     spacemacs-editing
-     spacemacs-navigation
+     (spacemacs-completion :packages
+                           default-ivy-config)
+     (spacemacs-editing :packages
+                        (not aggressive-indent
+                             clean-aindent
+                             lorem-ipsum
+                             smartparens))
+     (spacemacs-navigation :packages  ; renamed from `spacemacs-ui'
+                           (not golden-ratio))
+     (spacemacs-visual :packages
+                       (not fill-column-indicator))
      spell-checking
      syntax-checking
      version-control
-     )
+     vinegar) ; Simplified/improved `dired'
 
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
    ;; packages, then consider creating a layer. You can also put the
    ;; configuration in `dotspacemacs/user-config'.
    dotspacemacs-additional-packages
-   '(
-     adaptive-wrap
-     paren-face
-;;; Strictly speaking, I should be using the statements below instead of using `require' in `dotspacemacs/init', but that would make offline development a pain.
-     )
+   '(adaptive-wrap
+     paren-face)
 
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
 
    ;; A list of packages that will not be installed and loaded.
-   dotspacemacs-excluded-packages '(orgit)
+   dotspacemacs-excluded-packages '(helm orgit)
 
    ;; Defines the behaviour of Spacemacs when installing packages.
    ;; Possible values are `used-only', `used-but-keep-unused' and `all'.
@@ -87,8 +97,7 @@ This function should only modify configuration layer settings."
    ;; installs only the used packages but won't delete unused ones. `all'
    ;; installs *all* packages supported by Spacemacs and never uninstalls them.
    ;; (default is `used-only')
-   dotspacemacs-install-packages 'used-but-keep-unused
-   ))
+   dotspacemacs-install-packages 'used-but-keep-unused))
 
 (defun dotspacemacs/init ()
   "Initialization:
@@ -119,7 +128,7 @@ It should only modify the values of Spacemacs settings."
    ;; If non-nil, a form that evaluates to a package directory. For example, to
    ;; use different package directories for different Emacs versions, set this
    ;; to `emacs-version'.
-   dotspacemacs-elpa-subdirectory nil
+   dotspacemacs-elpa-subdirectory emacs-version
 
    ;; One of `vim', `emacs' or `hybrid'.
    ;; `hybrid' is like `vim' except that `insert state' is replaced by the
@@ -146,12 +155,11 @@ It should only modify the values of Spacemacs settings."
    ;; `recents' `bookmarks' `projects' `agenda' `todos'.
    ;; List sizes may be nil, in which case
    ;; `spacemacs-buffer-startup-lists-length' takes effect.
-   dotspacemacs-startup-lists
-   '((recents . 5) (projects . 7))
+   dotspacemacs-startup-lists '((recents . 5)
+                                (projects . 7))
 
    ;; True if the home buffer should respond to resize events.
    dotspacemacs-startup-buffer-responsive t
-
    ;; Default major mode of the scratch buffer (default `text-mode')
    dotspacemacs-scratch-mode 'text-mode
 
@@ -165,8 +173,10 @@ It should only modify the values of Spacemacs settings."
 
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
    ;; quickly tweak the mode-line size to make separators look not too crappy.
-   dotspacemacs-default-font '("Source Code Pro"
-                               :size 14.0
+   dotspacemacs-default-font `("Source Code Pro"
+                               :size ,(if (string= system-type "gnu/linux")
+                                          14.0
+                                        12.0)
                                :weight normal
                                :width normal
                                :powerline-scale 1.1)
@@ -388,7 +398,7 @@ It should only modify the values of Spacemacs settings."
    ;; %n - Narrow if appropriate
    ;; %z - mnemonics of buffer, terminal, and keyboard coding systems
    ;; %Z - like %z, but including the end-of-line format
-   dotspacemacs-frame-title-format "%I@%S"
+   dotspacemacs-frame-title-format nil
 
    ;; Format specification for setting the icon title format
    ;; (default nil - same as frame-title-format)
@@ -408,8 +418,7 @@ It should only modify the values of Spacemacs settings."
    ;; Run `spacemacs/prettify-org-buffer' when
    ;; visiting README.org files of Spacemacs.
    ;; (default nil)
-   dotspacemacs-pretty-docs nil
-   ))
+   dotspacemacs-pretty-docs nil))
 
 
 (defun dotspacemacs/user-init ()
@@ -418,7 +427,14 @@ This function is called immediately after `dotspacemacs/init', before layer
 configuration.
 It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
-  (require 'parinferlib "~/.emacs.d/private/local/parinfer-elisp/parinferlib"))
+  ;; (require 'parinferlib "~/.emacs.d/private/local/parinfer-elisp/parinferlib"
+  (setq debug-on-error t)
+  (setq use-dialog-box nil)
+  ;; https://github.com/syl20bnr/spacemacs/issues/5435
+  ;; This problem may be related with wid-edit.el and mouse-1-click-follows-link. Now I can avoid automatic yank by putting the following config in spacemacs/user-config.
+  (add-hook 'spacemacs-buffer-mode-hook
+            (lambda ()
+              (set (make-local-variable 'mouse-1-click-follows-link) nil))))
 
 
 (defun dotspacemacs/user-config ()
@@ -428,133 +444,185 @@ configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
 
- ;;; In order of dependencies...
-  (defun my-require-or-quelpa (name)
+;;; In order of dependencies...
+  (defun my-require-or-quelpa (package-symbol)
     "Use a copy of the package in the private/local/ dir, or if it's not there, get it with `quelpa'."
-    (let* ((package-path (concat "~/.emacs.d/private/local/" name "/" name ".el"))
-           (package-symbol (intern name)))
+    (let* ((name (symbol-name package-symbol))
+           (package-path (concat "~/.emacs.d/private/local/"
+                                 name "/" name ".el")))
       (if (file-readable-p package-path)
           (require package-symbol package-path)
-        (quelpa package-symbol :fetcher 'github :repo (concat "wygulmage/" name ".el"))
-        (message "Fetched %s from quelpa." name))))
+        (quelpa package-symbol
+                :fetcher 'github
+                :repo (concat "wygulmage/" name ".el"))
+        (message "Fetched %s with quelpa." name))))
   (mapc #'my-require-or-quelpa
-        ["umr"
-         "miscellaneous"
-         "hook-up"
-         "primary-pane"
-         "fac"])
+        [umr
+         miscellaneous
+         hook-up
+         primary-pane
+         fac
+         statusbar
+         minor-theme])
 
 ;;; Statusbar
-  (my-require-or-quelpa "statusbar")
+  (let ((c (or (plist-get (face-attribute 'mode-line :box) :color)
+               (face-attribute 'shadow :foreground))))
+    (seq-doseq (face [vertical-border border window-divider])
+      (set-face-attribute face nil :foreground c :background c)))
+
+  (set-frame-parameter nil 'bottom-divider-width 1)
+  ;; (add-to-list 'default-frame-alist '(bottom-divider-width 1))
+  ;; (add-to-list 'default-frame-alist '(right-divider-width 1))
+
   (setq-default mode-line-format statusbar-base-layout)
   (setq mode-line-format statusbar-base-layout) ; just in case.
 
-  ;; Faces
-  (my-require-or-quelpa "minor-theme")
+  ;; Statusbar faces
   (defun my-theme-tweaks ()
     "Tweak faces to simplify themes. Requires `fac', `minor-theme', and `statusbar'"
-    (fac-set-attributes
-       ;;; Things that don't do stuff:
-     '(font-lock-comment-face
-       :background unspecified
-       :slant normal)
-     '(font-lock-doc-face
-       :inherit font-lock-comment-face)
-     '(fringe
-       :background unspecified
-       :foreground unspecified
-       :inherit font-lock-comment-face)
-     '(linum
-       :background unspecified
-       :foreground unspecified
-       :inherit font-lock-comment-face)
-       ;;; Things that do stuff:
-     '(font-lock-keyword-face
-       :foreground unspecified
-       :inherit default)
-     '(font-lock-function-name-face
-       :foreground unspecified
-       :inherit default)
-     '(font-lock-variable-name-face
-       :foreground unspecified
-       :inherit default)
+    ;; Faces of things that that don't do stuff:
+    (set-face-attribute 'font-lock-comment-face nil
+                        :background 'unspecified
+                        :slant 'normal)
+    (seq-doseq (face [font-lock-doc-face
+                      fringe
+                      linum])
+      (set-face-attribute face nil
+                          :foreground 'unspecified
+                          :background 'unspecified
+                          :inherit 'font-lock-comment-face))
+    ;; Faces of things that do stuff:
+    (seq-doseq (face [font-lock-keyword-face
+                      font-lock-function-name-face
+                      font-lock-variable-name-face])
+      (set-face-attribute face nil
+                          :foreground 'unspecified
+                          :background 'unspecified
+                          :inherit 'default))
        ;;; Things that look like other things:
-     '(font-lock-string-face
-       :slant italic))
+    (set-face-attribute 'font-lock-string-face nil
+                        :slant 'italic)
 
     (fac-fade-foreground 'shadow 'default)
     (fac-fade-foreground 'font-lock-comment-delimiter-face 'font-lock-comment-face)
     (if (and (display-graphic-p) (fboundp 'minor-theme-flat))
-        (minor-theme-flat)
+        nil ; (minor-theme-flat)
       (minor-theme-laser)))
 
 
-  (my-theme-tweaks)
-  (hook-up [after-load-theme-hook] [my-theme-tweaks])
+(my-theme-tweaks)
+(hook-up [after-load-theme-hook] [my-theme-tweaks])
+
+
+;;; Try to keep to 80 columns.
+;; FIXME: Does not work well with `linum-mode'.
+(defun my-80-column-display ()
+  "Make the text are 80 columns."
+  (interactive)
+  (let ((new-margins
+         (max 1
+              (floor (- (window-total-width)
+                        (or left-fringe-width 0)
+                        (or right-fringe-width 0)
+                        81)
+                     2))))
+    (set-window-margins nil new-margins new-margins)))
+
+;; Somehow this isn't an infinite loop:
+(defun add-local-hook-for-80-column-display ()
+  (add-hook 'window-configuration-change-hook
+            #'my-80-column-display nil t))
+
+;; Use 80 columns in normal editing modes:
+(hook-up [text-mode-hook prog-mode-hook]
+         [add-local-hook-for-80-column-display])
+
+;; Convince `evil' that the window is wide enough to split:
+(defun my-zero-window-margins ()
+  (set-window-margins nil 0 0))
+(hook-up-make-hook :before evil-window-vsplit
+  my-zero-window-margins)
 
 ;;; Miscellaneous Global Stuff
-  (global-hl-line-mode -1) ; Disable current line highlight.
-  (global-visual-line-mode 1) ; Always wrap lines to window.
-  (setq
-   kill-do-not-save-duplicates t ; Don't copy identical text twice.
-   vc-follow-symlinks t) ; Always follow symlinks to version-controlled files.
+(global-hl-line-mode -1) ; Disable current line highlight.
+(global-visual-line-mode 1) ; Always wrap lines to window.
+(setq
+ kill-do-not-save-duplicates t ; Don't copy identical text twice.
+ vc-follow-symlinks t) ; Always follow symlinks to version-controlled files.
 
-  (hook-up
-   [prog-mode-hook]
-   [adaptive-wrap-prefix-mode ; Indent wrapped lines in source code.
-    rainbow-mode ; Color color strings like "#4971af" in source code.
-    statusbar-use-prog-mode-layout])
+(hook-up
+ [prog-mode-hook]
+ [adaptive-wrap-prefix-mode ; Indent wrapped lines in source code.
+  rainbow-mode ; Color color strings like "#4971af" in source code.
+  statusbar-use-prog-mode-layout])
 
+;; Hide the mode-line when not needed useful.
+(hook-up
+ [dired-mode-hook
+  help-mode-hook
+  magit-mode-hook
+  ranger-mode-hook
+  spacemacs-buffer-mode-hook]
+ [statusbar-hide])
 
-  ;; Hide the mode-line when not needed useful.
-  (hook-up
-   [help-mode-hook
-    magit-mode-hook
-    ranger-mode-hook
-    spacemacs-buffer-mode-hook]
-
-   [statusbar-hide])
 
 ;;; Key Maps
-  ;; Ignore mouse-wheel left and right.
-  (misc--def-keys global-map
-    "<mouse-6>" #'ignore
-    "<mouse-7>" #'ignore)
 
-  ;; Navigate help buffers.
-  (unless (string= system-type "gnu/linux")
-    (misc--def-keys help-mode-map
-      "<mouse-4>" #'help-go-back ; Windows mouse back (Linux mouse wheel up)
-      "<mouse-5>" #'help-go-forward)) ; mouse forwards
+ ;; Ignore mouse-wheel left and right.
+ (misc--def-keys global-map
+   "<mouse-6>" #'ignore
+   "<mouse-7>" #'ignore)
 
-  ;; Navigate wrapped lines.
-  (misc--def-keys evil-normal-state-map
-    "j" #'evil-next-visual-line
-    "k" #'evil-previous-visual-line)
+ ;; Navigate help buffers.
+ (when (string= system-type "windows-nt")
+   (misc--def-keys help-mode-map
+     "<mouse-4>" #'help-go-back ; Windows mouse back (Linux mouse wheel up)
+     "<mouse-5>" #'help-go-forward)) ; Windows mouse forwards
 
-  ;; Zoom with Ctrl + mouse wheel.
-  (apply #'misc--def-keys global-map
-         (misc--alternate
-          (if (string= system-type "gnu/linux")
-              '("C-<mouse-4>" "C-<mouse-5>") ; Linux mouse wheel
-            '("C-<wheel-up>" "C-<wheel-down>")) ; Windows mouse wheel
-          '(spacemacs/scale-up-font spacemacs/scale-down-font)))
+ ;; Navigate wrapped lines.
+ (misc--def-keys evil-normal-state-map
+   "j" #'evil-next-visual-line
+   "k" #'evil-previous-visual-line)
+
+ ;; Zoom with Ctrl + mouse wheel.
+ (apply #'misc--def-keys global-map
+        (misc--alternate
+         (if (string= system-type "gnu/linux")
+             '("C-<mouse-4>" "C-<mouse-5>") ; Linux mouse wheel
+           '("C-<wheel-up>" "C-<wheel-down>")) ; Windows mouse wheel
+         '(spacemacs/scale-up-font spacemacs/scale-down-font)))
+
+ ;; Toggle comment with SPC ;.
+ (defun my-comment-dwim ()
+   "If the region is not active, select the current line. Then, if the region is a comment, uncomment it, and otherwise comment it out."
+   (interactive)
+   (let ((start) (end))
+     (if (region-active-p)
+         (setq start (region-beginning)
+               end (region-end))
+       (setq start (line-beginning-position)
+             end (line-end-position)))
+     (comment-or-uncomment-region start end)))
+
+ (spacemacs/set-leader-keys
+   ";" #'my-comment-dwim)
+
 
 ;;; Languages
-  (setq-default lisp-minor-modes
-                [paren-face-mode
-                 parinfer-mode])
-  ;; evil-cleverparens-mode
-  ;; aggressive-indent-mode
 
+;;;; Lisps
+ (setq-default lisp-minor-modes
+               [paren-face-mode ; Dim parentheses.
+                parinfer-mode]) ; Manage parentheses automagically.
 
-  ;; Emacs-Lisp
-  (hook-up
-   [emacs-lisp-mode-hook]
-   lisp-minor-modes)
+;;;; Emacs-Lisp
+ (hook-up
+  [emacs-lisp-mode-hook]
+  lisp-minor-modes)
 
-  ;; Sh
-  (add-to-list 'auto-mode-alist '("\\.zsh$" . sh-mode)))
+;;;; Sh
+ (add-to-list 'auto-mode-alist '("\\.zsh$" . sh-mode)))
 
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.
