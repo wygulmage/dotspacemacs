@@ -64,7 +64,7 @@ This function should only modify configuration layer settings."
                            default-ivy-config)
      (spacemacs-editing :packages
                         (not aggressive-indent
-                             clean-aindent
+                             clean-aindent-mode; should not be needed with `parinfer'
                              lorem-ipsum
                              smartparens))
      (spacemacs-navigation :packages  ; renamed from `spacemacs-ui'
@@ -83,12 +83,17 @@ This function should only modify configuration layer settings."
    dotspacemacs-additional-packages
    '(adaptive-wrap
      paren-face)
+   ;; `ws-butler' trims new whitespace. (in `spacemacs-editing')
+   ;; `winum' numbers windows (panes). (in `spacemacs-navigation')
+   ;; `pcre2el' has different regex syntaxes. Not sure what the point is. (in `spacemacs-base')
 
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
 
    ;; A list of packages that will not be installed and loaded.
-   dotspacemacs-excluded-packages '(helm orgit)
+   dotspacemacs-excluded-packages
+   '(helm ; should not be needed with `ivy'
+     orgit) ; buggy
 
    ;; Defines the behaviour of Spacemacs when installing packages.
    ;; Possible values are `used-only', `used-but-keep-unused' and `all'.
@@ -466,10 +471,6 @@ before packages are loaded."
          minor-theme])
 
 ;;; Statusbar
-  (let ((c (or (plist-get (face-attribute 'mode-line :box) :color)
-               (face-attribute 'shadow :foreground))))
-    (seq-doseq (face [vertical-border border window-divider])
-      (set-face-attribute face nil :foreground c :background c)))
 
   (set-frame-parameter nil 'bottom-divider-width 1)
   ;; (add-to-list 'default-frame-alist '(bottom-divider-width 1))
@@ -506,123 +507,150 @@ before packages are loaded."
 
     (fac-fade-foreground 'shadow 'default)
     (fac-fade-foreground 'font-lock-comment-delimiter-face 'font-lock-comment-face)
+
+    (let ((c (or (plist-get (face-attribute 'mode-line :box) :color)
+                 (face-attribute 'shadow :foreground))))
+      (seq-doseq (face [vertical-border border window-divider])
+        (set-face-attribute face nil :foreground c :background c)))
+
     (if (and (display-graphic-p) (fboundp 'minor-theme-flat))
         nil ; (minor-theme-flat)
       (minor-theme-laser)))
 
 
-(my-theme-tweaks)
-(hook-up [after-load-theme-hook] [my-theme-tweaks])
+  (my-theme-tweaks)
+  (hook-up [after-load-theme-hook] [my-theme-tweaks])
 
 
 ;;; Try to keep to 80 columns.
-;; FIXME: Does not work well with `linum-mode'.
-(defun my-80-column-display ()
-  "Make the text are 80 columns."
-  (interactive)
-  (let ((new-margins
-         (max 1
-              (floor (- (window-total-width)
-                        (or left-fringe-width 0)
-                        (or right-fringe-width 0)
-                        81)
-                     2))))
-    (set-window-margins nil new-margins new-margins)))
+  ;; FIXME: Does not work well with `linum-mode'.
+  (defun my-80-column-display ()
+    "Make the text are 80 columns."
+    (interactive)
+    (let ((new-margins
+           (max 1
+                (floor (- (window-total-width)
+                          (or left-fringe-width 0)
+                          (or right-fringe-width 0)
+                          81)
+                       2))))
+      (set-window-margins nil new-margins new-margins)))
 
-;; Somehow this isn't an infinite loop:
-(defun add-local-hook-for-80-column-display ()
-  (add-hook 'window-configuration-change-hook
-            #'my-80-column-display nil t))
+  ;; Somehow this isn't an infinite loop:
+  (defun add-local-hook-for-80-column-display ()
+    (add-hook 'window-configuration-change-hook
+              #'my-80-column-display nil t))
 
-;; Use 80 columns in normal editing modes:
-(hook-up [text-mode-hook prog-mode-hook]
-         [add-local-hook-for-80-column-display])
+  ;; Use 80 columns in normal editing modes:
+  (hook-up [text-mode-hook prog-mode-hook]
+           [add-local-hook-for-80-column-display])
 
-;; Convince `evil' that the window is wide enough to split:
-(defun my-zero-window-margins ()
-  (set-window-margins nil 0 0))
-(hook-up-make-hook :before evil-window-vsplit
-  my-zero-window-margins)
+  ;; Convince `evil' that the window is wide enough to split:
+  (defun my-zero-window-margins ()
+    (set-window-margins nil 0 0))
+  (hook-up-make-hook :before evil-window-vsplit
+    my-zero-window-margins)
 
 ;;; Miscellaneous Global Stuff
-(global-hl-line-mode -1) ; Disable current line highlight.
-(global-visual-line-mode 1) ; Always wrap lines to window.
-(setq
- kill-do-not-save-duplicates t ; Don't copy identical text twice.
- vc-follow-symlinks t) ; Always follow symlinks to version-controlled files.
+  (global-hl-line-mode -1) ; Disable current line highlight.
+  (global-visual-line-mode 1) ; Always wrap lines to window.
+  (setq
+   mouse-autoselect-window t ; Focus follows mouse.
+   kill-do-not-save-duplicates t ; Don't copy identical text twice.
+   vc-follow-symlinks t) ; Always follow symlinks to version-controlled files.
 
-(hook-up
- [prog-mode-hook]
- [adaptive-wrap-prefix-mode ; Indent wrapped lines in source code.
-  rainbow-mode ; Color color strings like "#4971af" in source code.
-  statusbar-use-prog-mode-layout])
+  (hook-up
+   [prog-mode-hook]
+   [adaptive-wrap-prefix-mode ; Indent wrapped lines in source code.
+    rainbow-mode ; Color color strings like "#4971af" in source code.
+    statusbar-use-prog-mode-layout])
 
-;; Hide the mode-line when not needed useful.
-(hook-up
- [dired-mode-hook
-  help-mode-hook
-  magit-mode-hook
-  ranger-mode-hook
-  spacemacs-buffer-mode-hook]
- [statusbar-hide])
+  ;; Hide the mode-line when not needed useful.
+  (hook-up
+   [dired-mode-hook
+    help-mode-hook
+    magit-mode-hook
+    ranger-mode-hook
+    spacemacs-buffer-mode-hook]
+   [statusbar-hide])
 
 
 ;;; Key Maps
 
- ;; Ignore mouse-wheel left and right.
- (misc--def-keys global-map
-   "<mouse-6>" #'ignore
-   "<mouse-7>" #'ignore)
+  ;; Ignore mouse-wheel left and right.
+  (misc--def-keys global-map
+    "<mouse-6>" #'ignore
+    "<mouse-7>" #'ignore)
 
- ;; Navigate help buffers.
- (when (string= system-type "windows-nt")
-   (misc--def-keys help-mode-map
-     "<mouse-4>" #'help-go-back ; Windows mouse back (Linux mouse wheel up)
-     "<mouse-5>" #'help-go-forward)) ; Windows mouse forwards
+  ;; Navigate help buffers.
+  (when (string= system-type "windows-nt")
+    (misc--def-keys help-mode-map
+      "<mouse-4>" #'help-go-back ; Windows mouse back (Linux mouse wheel up)
+      "<mouse-5>" #'help-go-forward)) ; Windows mouse forwards
 
- ;; Navigate wrapped lines.
- (misc--def-keys evil-normal-state-map
-   "j" #'evil-next-visual-line
-   "k" #'evil-previous-visual-line)
+  ;; Navigate wrapped lines.
+  (misc--def-keys evil-normal-state-map
+    "j" #'evil-next-visual-line
+    "k" #'evil-previous-visual-line)
 
- ;; Zoom with Ctrl + mouse wheel.
- (apply #'misc--def-keys global-map
-        (misc--alternate
-         (if (string= system-type "gnu/linux")
-             '("C-<mouse-4>" "C-<mouse-5>") ; Linux mouse wheel
-           '("C-<wheel-up>" "C-<wheel-down>")) ; Windows mouse wheel
-         '(spacemacs/scale-up-font spacemacs/scale-down-font)))
+  ;; Zoom with Ctrl + mouse wheel.
+  (apply #'misc--def-keys global-map
+         (misc--alternate
+          (if (string= system-type "gnu/linux")
+              '("C-<mouse-4>" "C-<mouse-5>") ; Linux mouse wheel
+            '("C-<wheel-up>" "C-<wheel-down>")) ; Windows mouse wheel
+          '(spacemacs/scale-up-font spacemacs/scale-down-font)))
 
- ;; Toggle comment with SPC ;.
- (defun my-comment-dwim ()
-   "If the region is not active, select the current line. Then, if the region is a comment, uncomment it, and otherwise comment it out."
-   (interactive)
-   (let ((start) (end))
-     (if (region-active-p)
-         (setq start (region-beginning)
-               end (region-end))
-       (setq start (line-beginning-position)
-             end (line-end-position)))
-     (comment-or-uncomment-region start end)))
+  ;; Toggle comment with SPC ;.
+  (defun my-comment-dwim ()
+    "If the region is not active, select the current line. Then, if the region is a comment, uncomment it, and otherwise comment it out."
+    (interactive)
+    (let ((start) (end))
+      (if (region-active-p)
+          (setq start (region-beginning)
+                end (region-end))
+        (setq start (line-beginning-position)
+              end (line-end-position)))
+      (comment-or-uncomment-region start end)))
 
- (spacemacs/set-leader-keys
-   ";" #'my-comment-dwim)
+  (spacemacs/set-leader-keys
+    ";" #'my-comment-dwim)
 
 
 ;;; Languages
 
 ;;;; Lisps
- (setq-default lisp-minor-modes
-               [paren-face-mode ; Dim parentheses.
-                parinfer-mode]) ; Manage parentheses automagically.
+  (setq-default lisp-minor-modes
+                [paren-face-mode ; Dim parentheses.
+                 parinfer-mode]) ; Manage parentheses automagically.
 
 ;;;; Emacs-Lisp
- (hook-up
-  [emacs-lisp-mode-hook]
-  lisp-minor-modes)
+  (hook-up
+   [emacs-lisp-mode-hook]
+   lisp-minor-modes)
 
 ;;;; Sh
- (add-to-list 'auto-mode-alist '("\\.zsh$" . sh-mode)))
+  (add-to-list 'auto-mode-alist '("\\.zsh$" . sh-mode)))
 
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.
+(defun dotspacemacs/emacs-custom-settings ()
+  "Emacs custom settings.
+This is an auto-generated function, do not modify its content directly, use
+Emacs customize menu instead.
+This function is called at the very end of Spacemacs initialization."
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   (quote
+    (counsel evil undo-tree flycheck magit with-editor markdown-mode ws-butler winum which-key wgrep uuidgen use-package swiper string-inflection smex smeargle restart-emacs rainbow-mode popwin pcre2el password-generator parinfer paren-face paradox open-junk-file neotree move-text mmm-mode markdown-toc magit-gitflow macrostep link-hint ivy-hydra info+ hungry-delete hl-todo help-fns+ goto-chg gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gh-md fuzzy flyspell-correct-ivy flycheck-pos-tip flx-ido expand-region evil-visualstar evil-magit evil-escape eval-sexp-fu elisp-slime-nav editorconfig diff-hl counsel-projectile company-statistics clean-aindent-mode browse-at-remote bind-map auto-yasnippet auto-highlight-symbol auto-dictionary auto-compile adaptive-wrap ace-window ace-link ac-ispell))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
+)
