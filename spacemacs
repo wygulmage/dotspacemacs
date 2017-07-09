@@ -33,25 +33,27 @@ This function should only modify configuration layer settings."
 
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '((ivy :packages
+   '(
+;;; Divination
+     (ivy :packages
           (not helm-make)) ; This may be misguided, but why???
      (auto-completion :packages
                       (not helm-company
                            helm-c-yasnippet
                            smartparens))
+     (spacemacs-completion :packages
+                           default-ivy-config)
+     spell-checking
+     syntax-checking
+ ;;; Illusion
      (colors :packages
              rainbow-mode
              :variables
              rainbow-x-colors nil
              rainbow-html-colors nil)
-     emacs-lisp
-     (git :packages
-          (not helm-gitignore))
-     markdown
-     ;; (shell :variables
-     ;;        shell-default-height 30
-     ;;        shell-default-position 'bottom)
-     ;;     evil-cleverparens
+     (spacemacs-visual :packages
+                       (not fill-column-indicator))
+ ;;; Transmutation
      (parinfer :variables
                parinfer-auto-switch-indent-mode t
                parinfer-extensions
@@ -60,28 +62,34 @@ This function should only modify configuration layer settings."
                   paredit
                   smart-yank
                   smart-tab))
-     (spacemacs-completion :packages
-                           default-ivy-config)
      (spacemacs-editing :packages
                         (not aggressive-indent
                              clean-aindent-mode; should not be needed with `parinfer'
                              lorem-ipsum
                              smartparens))
+;;; Necromancy
+     version-control
+     (git :packages
+          (not helm-gitignore))
+;;; Summoning
      (spacemacs-navigation :packages  ; renamed from `spacemacs-ui'
                            (not golden-ratio))
-     (spacemacs-visual :packages
-                       (not fill-column-indicator))
-     spell-checking
-     syntax-checking
-     version-control
-     vinegar) ; Simplified/improved `dired'
+     vinegar ; Simplified/improved `dired'
+;;; Specialization
+     emacs-lisp
+     markdown)
+   ;; (shell :variables
+   ;;        shell-default-height 30
+   ;;        shell-default-position 'bottom)
 
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
    ;; packages, then consider creating a layer. You can also put the
    ;; configuration in `dotspacemacs/user-config'.
    dotspacemacs-additional-packages
-   '(adaptive-wrap
+   '(
+;;; Illusion
+     adaptive-wrap
      paren-face)
    ;; `ws-butler' trims new whitespace. (in `spacemacs-editing')
    ;; `winum' numbers windows (panes). (in `spacemacs-navigation')
@@ -449,7 +457,9 @@ configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
 
-;;; In order of dependencies...
+;;; Universal
+
+;;;; In order of dependencies...
   (defun my-require-or-quelpa (package-symbol)
     "Use a copy of the package in the private/local/ dir, or if it's not there, get it with `quelpa'."
     (let* ((name (symbol-name package-symbol))
@@ -470,7 +480,17 @@ before packages are loaded."
          statusbar
          minor-theme])
 
-;;; Statusbar
+;;;; Miscellaneous Global Stuff
+  (global-hl-line-mode -1) ; Disable current line highlight.
+  (global-visual-line-mode 1) ; Always wrap lines to window.
+  (setq
+   mouse-autoselect-window t ; Focus follows mouse.
+   kill-do-not-save-duplicates t ; Don't copy identical text twice.
+   vc-follow-symlinks t) ; Always follow symlinks to version-controlled files.
+
+;;; Illusion
+
+;;;; Statusbar
 
   (set-frame-parameter nil 'bottom-divider-width 1)
   ;; (add-to-list 'default-frame-alist '(bottom-divider-width 1))
@@ -522,7 +542,7 @@ before packages are loaded."
   (hook-up [after-load-theme-hook] [my-theme-tweaks])
 
 
-;;; Try to keep to 80 columns.
+;;;; Try to keep to 80 columns.
   ;; FIXME: Does not work well with `linum-mode'.
   (defun my-80-column-display ()
     "Make the text are 80 columns."
@@ -551,14 +571,6 @@ before packages are loaded."
   (hook-up-make-hook :before evil-window-vsplit
     my-zero-window-margins)
 
-;;; Miscellaneous Global Stuff
-  (global-hl-line-mode -1) ; Disable current line highlight.
-  (global-visual-line-mode 1) ; Always wrap lines to window.
-  (setq
-   mouse-autoselect-window t ; Focus follows mouse.
-   kill-do-not-save-duplicates t ; Don't copy identical text twice.
-   vc-follow-symlinks t) ; Always follow symlinks to version-controlled files.
-
   (hook-up
    [prog-mode-hook]
    [adaptive-wrap-prefix-mode ; Indent wrapped lines in source code.
@@ -575,7 +587,7 @@ before packages are loaded."
    [statusbar-hide])
 
 
-;;; Key Maps
+;;; Incantations
 
   ;; Ignore mouse-wheel left and right.
   (misc--def-keys global-map
@@ -617,7 +629,7 @@ before packages are loaded."
     ";" #'my-comment-dwim)
 
 
-;;; Languages
+;;; Specialization
 
 ;;;; Lisps
   (setq-default lisp-minor-modes
