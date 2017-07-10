@@ -69,12 +69,8 @@ This function should only modify configuration layer settings."
                          clean-aindent-mode
                          lorem-ipsum)); is not needer ever.
 ;;; Necromancy
-     (version-control :packages
-                      (not git-gutter-fringe
-                           git-gutter-fringe+
-                           git-gutter+)
-                      :variables
-                      git-gutter:visual-line t)
+     (version-control :variables
+                      version-control-diff-tool 'git-gutter)
      (git :packages
           (not helm-gitignore))
 ;;; Summoning
