@@ -72,7 +72,8 @@ This function should only modify configuration layer settings."
      (version-control :variables
                       version-control-diff-tool 'git-gutter)
      (git :packages
-          (not helm-gitignore))
+          (not helm-gitignore
+               orgit)); `orgit' installation is buggy.
 ;;; Summoning
      (spacemacs-navigation :packages; renamed from `spacemacs-ui'
                            (not golden-ratio))
@@ -102,8 +103,7 @@ This function should only modify configuration layer settings."
 
    ;; A list of packages that will not be installed and loaded.
    dotspacemacs-excluded-packages
-   '(helm ; should not be needed with `ivy'
-     orgit) ; buggy
+   '(helm); should not be needed with `ivy'.
 
    ;; Defines the behaviour of Spacemacs when installing packages.
    ;; Possible values are `used-only', `used-but-keep-unused' and `all'.
