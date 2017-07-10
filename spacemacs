@@ -579,7 +579,7 @@ before packages are loaded."
   ;; Convince `evil' that the window is wide enough to split:
   (defun my-zero-window-margins ()
     (set-window-margins nil 0 0))
-  (hook-up-make-hook :before evil-window-vsplit
+  (hook-up-make-hook :before split-window
     my-zero-window-margins)
 
   (hook-up
