@@ -52,7 +52,7 @@ This function should only modify configuration layer settings."
              rainbow-x-colors nil
              rainbow-html-colors nil)
      (spacemacs-visual :packages
-                       (not fill-column-indicator))
+                       (not fill-column-indicator)); Do or do not; don't nag.
  ;;; Transmutation
      (parinfer :variables
                parinfer-auto-switch-indent-mode t
@@ -63,18 +63,24 @@ This function should only modify configuration layer settings."
                   smart-yank
                   smart-tab))
      (spacemacs-editing :packages
-                        (not aggressive-indent
-                             clean-aindent-mode; should not be needed with `parinfer'
-                             lorem-ipsum
-                             smartparens))
+                        (not; Not needed with `parinfer':
+                         aggressive-indent
+                         smartparens
+                         clean-aindent-mode
+                         lorem-ipsum)); is not needer ever.
 ;;; Necromancy
-     version-control
+     (version-control :packages
+                      (not git-gutter-fringe
+                           git-gutter-fringe+
+                           git-gutter+)
+                      :variables
+                      git-gutter:visual-line t)
      (git :packages
           (not helm-gitignore))
 ;;; Summoning
-     (spacemacs-navigation :packages  ; renamed from `spacemacs-ui'
+     (spacemacs-navigation :packages; renamed from `spacemacs-ui'
                            (not golden-ratio))
-     vinegar ; Simplified/improved `dired'
+     vinegar; simplified/improved `dired'
 ;;; Specialization
      emacs-lisp
      markdown)
@@ -457,6 +463,8 @@ configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
 
+;;; Notes
+  ;; If at all possible, avoid using fringes: They don't work in the terminal. With unicode there's rarely a reason to use images as indicators anyway.
 ;;; Universal
 
 ;;;; In order of dependencies...
@@ -487,6 +495,9 @@ before packages are loaded."
    mouse-autoselect-window t ; Focus follows mouse.
    kill-do-not-save-duplicates t ; Don't copy identical text twice.
    vc-follow-symlinks t) ; Always follow symlinks to version-controlled files.
+
+;;; Necromancy
+  (global-git-gutter-mode t)
 
 ;;; Illusion
 
@@ -629,7 +640,7 @@ before packages are loaded."
     ";" #'my-comment-dwim)
 
 
-;;; Specialization
+;;; Specializations
 
 ;;;; Lisps
   (setq-default lisp-minor-modes
