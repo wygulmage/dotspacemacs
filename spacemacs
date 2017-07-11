@@ -70,10 +70,13 @@ This function should only modify configuration layer settings."
                          lorem-ipsum)); is not needer ever.
 ;;; Necromancy
      (version-control :variables)
-                      ;; version-control-diff-tool 'git-gutter); needs diff
+     ;; version-control-diff-tool 'git-gutter); needs diff
      (git :packages
           (not helm-gitignore
-               orgit)); `orgit' installation is buggy.
+               orgit); `orgit' installation is buggy.
+          :variables
+          magit-delete-by-moving-to-trash t
+          magit-no-confirm '(trash resurrect rename discard stage-all-changes abort-rebase abort-merge))
 ;;; Summoning
      (spacemacs-navigation :packages; renamed from `spacemacs-ui'
                            (not golden-ratio))
@@ -459,14 +462,14 @@ configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
 
-  (defun my-inhibit-message (PROCEDURE &rest ARGS)
+  (defun my-squelch-echoes (PROCEDURE &rest ARGS)
     (let ((inhibit-message t))
       (apply PROCEDURE ARGS)))
 
   ;; Squelch update check message.
   (advice-add 'spacemacs/check-for-new-version
               :around
-              #'my-inhibit-message)
+              #'my-squelch-echoes)
 
 ;;; Notes
   ;; If at all possible, avoid using fringes: They don't work in the terminal. With unicode there's rarely a reason to use images as indicators anyway.
@@ -504,7 +507,7 @@ before packages are loaded."
    revert-without-query "*") ; Don't nag.
 
 ;;; Necromancy
-  (global-git-gutter-mode t)
+  ;; (global-git-gutter-mode t); Freaks out without diff.
 
 ;;; Illusion
 
