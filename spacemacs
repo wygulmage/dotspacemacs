@@ -45,7 +45,7 @@ This function should only modify configuration layer settings."
                            default-ivy-config)
      spell-checking
      syntax-checking
- ;;; Illusion
+;;; Illusion
      (colors :packages
              rainbow-mode
              :variables
@@ -53,7 +53,7 @@ This function should only modify configuration layer settings."
              rainbow-html-colors nil)
      (spacemacs-visual :packages
                        (not fill-column-indicator)); Do or do not; don't nag.
- ;;; Transmutation
+;;; Transmutation
      (parinfer :variables
                parinfer-auto-switch-indent-mode t
                parinfer-extensions
@@ -69,8 +69,8 @@ This function should only modify configuration layer settings."
                          clean-aindent-mode
                          lorem-ipsum)); is not needer ever.
 ;;; Necromancy
-     (version-control :variables
-                      version-control-diff-tool 'git-gutter)
+     (version-control :variables)
+                      ;; version-control-diff-tool 'git-gutter); needs diff
      (git :packages
           (not helm-gitignore
                orgit)); `orgit' installation is buggy.
@@ -510,27 +510,25 @@ before packages are loaded."
   (defun my-theme-tweaks ()
     "Tweak faces to simplify themes. Requires `fac', `minor-theme', and `statusbar'"
     ;; Faces of things that that don't do stuff:
-    (set-face-attribute 'font-lock-comment-face nil
-                        :background 'unspecified
-                        :slant 'normal)
-    (seq-doseq (face [font-lock-doc-face
-                      fringe
-                      linum])
-      (set-face-attribute face nil
-                          :foreground 'unspecified
-                          :background 'unspecified
-                          :inherit 'font-lock-comment-face))
+    (fac-set-faces-attributes [font-lock-comment-face]
+                              :background 'unspecified
+                              :slant 'normal)
+    (fac-set-faces-attributes [font-lock-doc-face
+                               fringe
+                               linum]
+                              :foreground 'unspecified
+                              :background 'unspecified
+                              :inherit 'font-lock-comment-face)
     ;; Faces of things that do stuff:
-    (seq-doseq (face [font-lock-keyword-face
-                      font-lock-function-name-face
-                      font-lock-variable-name-face])
-      (set-face-attribute face nil
-                          :foreground 'unspecified
-                          :background 'unspecified
-                          :inherit 'default))
+    (fac-set-faces-attributes [font-lock-keyword-face
+                               font-lock-function-name-face
+                               font-lock-variable-name-face]
+                              :foreground 'unspecified
+                              :background 'unspecified
+                              :inherit 'default)
        ;;; Things that look like other things:
-    (set-face-attribute 'font-lock-string-face nil
-                        :slant 'italic)
+    (fac-set-faces-attributes [font-lock-string-face]
+                              :slant 'italic)
 
     (fac-fade-foreground 'shadow 'default)
     (fac-fade-foreground 'font-lock-comment-delimiter-face 'font-lock-comment-face)
@@ -549,34 +547,34 @@ before packages are loaded."
   (hook-up [after-load-theme-hook] [my-theme-tweaks])
 
 
-;; ;;;; Try to keep to 80 columns.
-;;   ;; FIXME: Does not work well with `linum-mode'.
-;;   (defun my-80-column-display ()
-;;     "Make the text about 80 columns."
-;;     (interactive)
-;;     (let ((new-margins
-;;            (max 1
-;;                 (floor (- (window-total-width)
-;;                           (or left-fringe-width 0)
-;;                           (or right-fringe-width 0)
-;;                           81)
-;;                        2))))
-;;       (set-window-margins nil new-margins new-margins)))
+  ;; ;;;; Try to keep to 80 columns.
+  ;;   ;; FIXME: Does not work well with `linum-mode'.
+  ;;   (defun my-80-column-display ()
+  ;;     "Make the text about 80 columns."
+  ;;     (interactive)
+  ;;     (let ((new-margins
+  ;;            (max 1
+  ;;                 (floor (- (window-total-width)
+  ;;                           (or left-fringe-width 0)
+  ;;                           (or right-fringe-width 0)
+  ;;                           81)
+  ;;                        2))))
+  ;;       (set-window-margins nil new-margins new-margins)))
 
-;;   ;; Somehow this isn't an infinite loop:
-;;   (defun add-local-hook-for-80-column-display ()
-;;     (hook-up [window-configuration-change-hook]
-;;              [my-80-column-display] :local))
+  ;;   ;; Somehow this isn't an infinite loop:
+  ;;   (defun add-local-hook-for-80-column-display ()
+  ;;     (hook-up [window-configuration-change-hook]
+  ;;              [my-80-column-display] :local))
 
-;;   ;; Use 80 columns in normal editing modes:
-;;   (hook-up [text-mode-hook prog-mode-hook]
-;;            [add-local-hook-for-80-column-display])
+  ;;   ;; Use 80 columns in normal editing modes:
+  ;;   (hook-up [text-mode-hook prog-mode-hook]
+  ;;            [add-local-hook-for-80-column-display])
 
-;;   ;; Convince `split-window' that the window is wide enough to split:
-;;   (defun my-zero-window-margins ()
-;;     (set-window-margins nil 0 0))
-;;   (hook-up-make-hook :before split-window
-;;     my-zero-window-margins)
+  ;;   ;; Convince `split-window' that the window is wide enough to split:
+  ;;   (defun my-zero-window-margins ()
+  ;;     (set-window-margins nil 0 0))
+  ;;   (hook-up-make-hook :before split-window
+  ;;     my-zero-window-margins)
 
   (hook-up
    [prog-mode-hook]
