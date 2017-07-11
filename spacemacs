@@ -488,13 +488,7 @@ before packages are loaded."
                 :repo (concat "wygulmage/" name ".el"))
         (message "Fetched %s with quelpa." name))))
   (mapc #'my-require-or-quelpa
-        [umr
-         miscellaneous
-         hook-up
-         primary-pane
-         fac
-         statusbar
-         minor-theme])
+        [let+ miscellaneous hook-up primary-pane fac statusbar minor-theme])
 
 ;;;; Miscellaneous Global Stuff
   (global-hl-line-mode -1) ; Disable current line highlight.
