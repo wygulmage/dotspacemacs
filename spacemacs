@@ -544,8 +544,8 @@ before packages are loaded."
 
     (let ((c (or (plist-get (face-attribute 'mode-line :box) :color)
                  (face-attribute 'shadow :foreground))))
-      (seq-doseq (face [vertical-border border window-divider])
-        (set-face-attribute face nil :foreground c :background c))))
+      (fac-set-faces-attributes [vertical-border border window-divider]
+                                :foreground c :background c)))
 
 
   (my-theme-tweaks)
