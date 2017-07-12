@@ -630,13 +630,12 @@ before packages are loaded."
   (defun my-comment-dwim ()
     "If the region is not active, select the current line. Then, if the region is a comment, uncomment it, and otherwise comment it out."
     (interactive)
-    (let ((start) (end))
-      (if (region-active-p)
-          (setq start (region-beginning)
-                end (region-end))
-        (setq start (line-beginning-position)
-              end (line-end-position)))
-      (comment-or-uncomment-region start end)))
+    (apply #'comment-or-uncomment-region
+           (if (region-active-p)
+               `(,(region-beginning)
+                 ,(region-end))
+             `(,(line-beginning-position)
+               ,(line-end-position)))))
 
   (spacemacs/set-leader-keys
     ";" #'my-comment-dwim)
