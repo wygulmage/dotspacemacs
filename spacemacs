@@ -462,28 +462,29 @@ configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
 
-  (defun my-squelch-echoes (PROCEDURE &rest ARGS)
+  (defun my-silence (PROCEDURE &rest ARGS)
+    "Don't put messages in the echo area."
     (let ((inhibit-message t))
       (apply PROCEDURE ARGS)))
 
   ;; Squelch update check message.
   (advice-add 'spacemacs/check-for-new-version
               :around
-              #'my-squelch-echoes)
+              #'my-silence)
 
 ;;; Notes
   ;; If at all possible, avoid using fringes: They don't work in the terminal. With unicode there's rarely a reason to use images as indicators anyway.
 ;;; Universal
 
 ;;;; In order of dependencies...
-  (defun my-require-or-quelpa (package-symbol)
+  (defun my-require-or-quelpa (package)
     "Use a copy of the package in the private/local/ dir, or if it's not there, get it with `quelpa'."
-    (let* ((name (symbol-name package-symbol))
-           (package-path (concat "~/.emacs.d/private/local/"
-                                 name "/" name ".el")))
-      (if (file-readable-p package-path)
-          (require package-symbol package-path)
-        (quelpa package-symbol
+    (let* ((name (symbol-name package))
+           (local-path (concat "~/.emacs.d/private/local/"
+                               name "/" name ".el")))
+      (if (file-readable-p local-path)
+          (require package local-path)
+        (quelpa package
                 :fetcher 'github
                 :repo (concat "wygulmage/" name ".el"))
         (message "Fetched %s with quelpa." name))))
@@ -544,11 +545,7 @@ before packages are loaded."
     (let ((c (or (plist-get (face-attribute 'mode-line :box) :color)
                  (face-attribute 'shadow :foreground))))
       (seq-doseq (face [vertical-border border window-divider])
-        (set-face-attribute face nil :foreground c :background c)))
-
-    (if (and (display-graphic-p) (fboundp 'minor-theme-flat))
-        nil ; (minor-theme-flat)
-      (minor-theme-laser)))
+        (set-face-attribute face nil :foreground c :background c))))
 
 
   (my-theme-tweaks)
