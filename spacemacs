@@ -491,33 +491,26 @@ before packages are loaded."
   (mapc #'my-require-or-quelpa
         [let+ miscellaneous hook-up primary-pane fac statusbar minor-theme])
 
-;;;; Miscellaneous Global Stuff
-  (global-hl-line-mode -1) ; Disable current line highlight.
-  (global-visual-line-mode 1) ; Always wrap lines to window.
   (setq
    mouse-autoselect-window t ; Focus follows mouse.
    kill-do-not-save-duplicates t ; Don't copy identical text twice.
-   vc-follow-symlinks t ; Always follow symlinks to version-controlled files.
    confirm-nonexistent-file-or-buffer nil ; Don't nag.
    revert-without-query "*") ; Don't nag.
 
 ;;; Necromancy
   ;; (global-git-gutter-mode t); Freaks out without diff.
+  (setq vc-follow-symlinks t) ; Always follow symlinks to version-controlled files.
 
 ;;; Illusion
-
-;;;; Statusbar
+  (global-hl-line-mode -1) ; Disable current line highlight.
+  (global-visual-line-mode 1) ; Always wrap lines to window.
 
   (set-frame-parameter nil 'bottom-divider-width 1)
   ;; (add-to-list 'default-frame-alist '(bottom-divider-width 1))
   ;; (add-to-list 'default-frame-alist '(right-divider-width 1))
 
-  (setq-default mode-line-format statusbar-base-layout)
-  (setq mode-line-format statusbar-base-layout) ; just in case.
-
-  ;; Statusbar faces
   (defun my-theme-tweaks ()
-    "Tweak faces to simplify themes. Requires `fac', `minor-theme', and `statusbar'"
+    "Tweak faces to simplify themes."
     ;; Faces of things that that don't do stuff:
     (fac-set-faces-attributes [font-lock-comment-face]
                               :background 'unspecified
@@ -580,6 +573,9 @@ before packages are loaded."
   ;;     (set-window-margins nil 0 0))
   ;;   (hook-up-make-hook :before split-window
   ;;     my-zero-window-margins)
+
+  (setq-default mode-line-format statusbar-base-layout)
+  (setq mode-line-format statusbar-base-layout) ; just in case.
 
   (hook-up
    [prog-mode-hook]
