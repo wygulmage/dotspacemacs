@@ -446,8 +446,8 @@ configuration.
 It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
   ;; (require 'parinferlib "~/.emacs.d/private/local/parinfer-elisp/parinferlib"
-  (setq debug-on-error t)
-  (setq use-dialog-box nil)
+  (setq debug-on-error t
+        use-dialog-box nil)
   ;; https://github.com/syl20bnr/spacemacs/issues/5435
   ;; This problem may be related with wid-edit.el and mouse-1-click-follows-link. Now I can avoid automatic yank by putting the following config in spacemacs/user-config.
   (add-hook 'spacemacs-buffer-mode-hook
@@ -517,7 +517,8 @@ before packages are loaded."
    mouse-autoselect-window t ; Focus follows mouse.
    kill-do-not-save-duplicates t ; Don't copy identical text twice.
    confirm-nonexistent-file-or-buffer nil ; Don't nag.
-   revert-without-query "*") ; Don't nag.
+   revert-without-query "*" ; Don't nag.
+   truncate-string-ellipsis "…"); Use a real ellipsis.
 
 ;;; Necromancy
   ;; (global-git-gutter-mode t); Freaks out without diff.
