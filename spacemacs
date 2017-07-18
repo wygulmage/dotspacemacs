@@ -253,7 +253,7 @@ It should only modify the values of Spacemacs settings."
 
    ;; If non-nil then the last auto saved layouts are resumed automatically upon
    ;; start. (default nil)
-   dotspacemacs-auto-resume-layouts nil
+   dotspacemacs-auto-resume-layouts t
 
    ;; If non-nil, auto-generate layout name when creating new layouts. Only has
    ;; effect when using the "jump to layout by number" commands.
@@ -679,18 +679,18 @@ before packages are loaded."
 This is an auto-generated function, do not modify its content directly, use
 Emacs customize menu instead.
 This function is called at the very end of Spacemacs initialization."
-  (custom-set-variables
-   ;; custom-set-variables was added by Custom.
-   ;; If you edit it by hand, you could mess it up, so be careful.
-   ;; Your init file should contain only one such instance.
-   ;; If there is more than one, they won't work right.
-   '(package-selected-packages
-     (quote
-      (magit-popup counsel evil undo-tree flycheck magit with-editor markdown-mode ws-butler winum which-key wgrep uuidgen use-package swiper string-inflection smex smeargle restart-emacs rainbow-mode popwin pcre2el password-generator parinfer paren-face paradox open-junk-file neotree move-text mmm-mode markdown-toc magit-gitflow macrostep link-hint ivy-hydra info+ hungry-delete hl-todo help-fns+ goto-chg gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gh-md fuzzy flyspell-correct-ivy flycheck-pos-tip flx-ido expand-region evil-visualstar evil-magit evil-escape eval-sexp-fu elisp-slime-nav editorconfig diff-hl counsel-projectile company-statistics clean-aindent-mode browse-at-remote bind-map auto-yasnippet auto-highlight-symbol auto-dictionary auto-compile adaptive-wrap ace-window ace-link ac-ispell))))
-  (custom-set-faces
-   ;; custom-set-faces was added by Custom.
-   ;; If you edit it by hand, you could mess it up, so be careful.
-   ;; Your init file should contain only one such instance.
-   ;; If there is more than one, they won't work right.
-   )
-  )
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   (quote
+    (yasnippet company ivy magit-popup counsel evil undo-tree flycheck magit with-editor markdown-mode ws-butler winum which-key wgrep uuidgen use-package swiper string-inflection smex smeargle restart-emacs rainbow-mode popwin pcre2el password-generator parinfer paren-face paradox open-junk-file neotree move-text mmm-mode markdown-toc magit-gitflow macrostep link-hint ivy-hydra info+ hungry-delete hl-todo help-fns+ goto-chg gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gh-md fuzzy flyspell-correct-ivy flycheck-pos-tip flx-ido expand-region evil-visualstar evil-magit evil-escape eval-sexp-fu elisp-slime-nav editorconfig diff-hl counsel-projectile company-statistics clean-aindent-mode browse-at-remote bind-map auto-yasnippet auto-highlight-symbol auto-dictionary auto-compile adaptive-wrap ace-window ace-link ac-ispell))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
+)
