@@ -511,7 +511,7 @@ before packages are loaded."
                 :repo (concat "wygulmage/" (my-safer-name name) ".el"))
         (message "Fetched %s with quelpa." name))))
   (mapc #'my-require-or-quelpa
-        [let+ miscellaneous hook-up primary-pane fac statusbar minor-theme])
+        [let+ miscellaneous mop hook-up primary-pane fac statusbar minor-theme])
 
   (setq
    mouse-autoselect-window t ; Focus follows mouse.
