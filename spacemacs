@@ -464,7 +464,7 @@ configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
 
-  (add-to-list 'custom-theme-load-path "~/.emacs.d/private/local/print/")
+  (add-to-list 'custom-theme-load-path "~/.emacs.d/private/local/print-theme/")
   (defun my-silence (PROCEDURE &rest ARGS)
     "Don't put messages in the echo area."
     (let ((inhibit-message t))
