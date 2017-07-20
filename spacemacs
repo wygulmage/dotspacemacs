@@ -82,7 +82,9 @@ This function should only modify configuration layer settings."
                            (not golden-ratio))
      vinegar; simplified/improved `dired'
 ;;; Specialization
-     emacs-lisp
+     (emacs-lisp :variables
+                 ielm-header ""
+                 ielm-prompt ">")
      markdown)
    ;; (shell :variables
    ;;        shell-default-height 30
@@ -462,6 +464,7 @@ configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
 
+  (add-to-list 'custom-theme-load-path "~/.emacs.d/private/local/print/")
   (defun my-silence (PROCEDURE &rest ARGS)
     "Don't put messages in the echo area."
     (let ((inhibit-message t))
@@ -511,7 +514,7 @@ before packages are loaded."
                 :repo (concat "wygulmage/" (my-safer-name name) ".el"))
         (message "Fetched %s with quelpa." name))))
   (mapc #'my-require-or-quelpa
-        [let+ miscellaneous hook-up primary-pane fac statusbar minor-theme])
+        [let+ miscellaneous mop hook-up primary-pane fac statusbar minor-theme])
 
   (setq
    mouse-autoselect-window t ; Focus follows mouse.
