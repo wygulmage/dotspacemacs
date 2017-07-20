@@ -471,6 +471,10 @@ before packages are loaded."
   (advice-add 'spacemacs/check-for-new-version
               :around
               #'my-silence)
+  ;; Squelch scrolling nags
+  (advice-add 'mwheel-scroll
+              :around
+              #'my-silence)
 
 ;;; Notes
   ;; If at all possible, avoid using fringes: They don't work in the terminal. With unicode there's rarely a reason to use images as indicators anyway.
