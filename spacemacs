@@ -448,6 +448,7 @@ configuration.
 It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
   ;; (require 'parinferlib "~/.emacs.d/private/local/parinfer-elisp/parinferlib"
+  (defalias 'eql #'equal) ; I have yet to find a single advantage of eql. Let's see if this breaks things.
   (setq debug-on-error t
         use-dialog-box nil)
   ;; https://github.com/syl20bnr/spacemacs/issues/5435
