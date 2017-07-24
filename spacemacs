@@ -611,8 +611,7 @@ before packages are loaded."
   (hook-up
    [prog-mode-hook]
    [adaptive-wrap-prefix-mode ; Indent wrapped lines in source code.
-    rainbow-mode ; Color color strings like "#4971af" in source code.
-    statusbar-use-prog-mode-layout])
+    rainbow-mode]) ; Color color strings like "#4971af" in source code.
 
   ;; Hide the mode-line when not needed useful.
   (hook-up
