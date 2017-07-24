@@ -448,13 +448,13 @@ configuration.
 It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
   ;; (require 'parinferlib "~/.emacs.d/private/local/parinfer-elisp/parinferlib"
-  (defalias 'eql #'equal) ; I have yet to find a single advantage of eql. Let's see if this breaks things.
+  (defalias 'eql #'equal "I have yet to find a single advantage of eql. Let's see if this breaks things.")
   (setq debug-on-error t
         use-dialog-box nil)
   ;; https://github.com/syl20bnr/spacemacs/issues/5435
-  ;; This problem may be related with wid-edit.el and mouse-1-click-follows-link. Now I can avoid automatic yank by putting the following config in spacemacs/user-config.
+  ;; This problem may be related to `wid-edit.el' and `mouse-1-click-follows-link'. Now I can avoid automatic yank by putting the following config in spacemacs/user-config.
   (add-hook 'spacemacs-buffer-mode-hook
-            (lambda ()
+            (lambda () "'Disable' `mouse-1-click-follows-link' in `*spacemacs*' buffer to avoid phantom middle-click. (One click still follows link...)"
               (set (make-local-variable 'mouse-1-click-follows-link) nil))))
 
 
@@ -693,7 +693,7 @@ This function is called at the very end of Spacemacs initialization."
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (yasnippet company ivy magit-popup counsel evil undo-tree flycheck magit with-editor markdown-mode ws-butler winum which-key wgrep uuidgen use-package swiper string-inflection smex smeargle restart-emacs rainbow-mode popwin pcre2el password-generator parinfer paren-face paradox open-junk-file neotree move-text mmm-mode markdown-toc magit-gitflow macrostep link-hint ivy-hydra info+ hungry-delete hl-todo help-fns+ goto-chg gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gh-md fuzzy flyspell-correct-ivy flycheck-pos-tip flx-ido expand-region evil-visualstar evil-magit evil-escape eval-sexp-fu elisp-slime-nav editorconfig diff-hl counsel-projectile company-statistics clean-aindent-mode browse-at-remote bind-map auto-yasnippet auto-highlight-symbol auto-dictionary auto-compile adaptive-wrap ace-window ace-link ac-ispell))))
+    (projectile hydra yasnippet company ivy magit-popup counsel evil undo-tree flycheck magit with-editor markdown-mode ws-butler winum which-key wgrep uuidgen use-package swiper string-inflection smex smeargle restart-emacs rainbow-mode popwin pcre2el password-generator parinfer paren-face paradox open-junk-file neotree move-text mmm-mode markdown-toc magit-gitflow macrostep link-hint ivy-hydra info+ hungry-delete hl-todo help-fns+ goto-chg gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gh-md fuzzy flyspell-correct-ivy flycheck-pos-tip flx-ido expand-region evil-visualstar evil-magit evil-escape eval-sexp-fu elisp-slime-nav editorconfig diff-hl counsel-projectile company-statistics clean-aindent-mode browse-at-remote bind-map auto-yasnippet auto-highlight-symbol auto-dictionary auto-compile adaptive-wrap ace-window ace-link ac-ispell))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
