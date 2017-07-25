@@ -38,8 +38,8 @@ This function should only modify configuration layer settings."
      (ivy :packages
           (not helm-make)) ; This may be misguided, but why???
      (auto-completion :packages
-                      (not helm-company
-                           helm-c-yasnippet
+                      (not ;; helm-company
+                           ;; helm-c-yasnippet
                            smartparens))
      (spacemacs-completion :packages
                            default-ivy-config)
@@ -85,10 +85,17 @@ This function should only modify configuration layer settings."
      (emacs-lisp :variables
                  ielm-header ""
                  ielm-prompt ">")
-     markdown)
-   ;; (shell :variables
-   ;;        shell-default-height 30
-   ;;        shell-default-position 'bottom)
+     markdown
+     (shell :variables
+            shell-default-shell 'eshell
+            shell-default-height 30
+            shell-default-position 'bottom
+            shell-enable-smart-eshell t
+            epe-git-dirty-char "◆"))
+            ;; eshell-where-to-jump 'begin
+            ;; eshell-review-quick-commands nil
+            ;; eshell-smart-space-goes-to-end t
+
 
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
@@ -693,7 +700,7 @@ This function is called at the very end of Spacemacs initialization."
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (projectile hydra yasnippet company ivy magit-popup counsel evil undo-tree flycheck magit with-editor markdown-mode ws-butler winum which-key wgrep uuidgen use-package swiper string-inflection smex smeargle restart-emacs rainbow-mode popwin pcre2el password-generator parinfer paren-face paradox open-junk-file neotree move-text mmm-mode markdown-toc magit-gitflow macrostep link-hint ivy-hydra info+ hungry-delete hl-todo help-fns+ goto-chg gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gh-md fuzzy flyspell-correct-ivy flycheck-pos-tip flx-ido expand-region evil-visualstar evil-magit evil-escape eval-sexp-fu elisp-slime-nav editorconfig diff-hl counsel-projectile company-statistics clean-aindent-mode browse-at-remote bind-map auto-yasnippet auto-highlight-symbol auto-dictionary auto-compile adaptive-wrap ace-window ace-link ac-ispell))))
+    (smartparens fill-column-indicator xterm-color shell-pop multi-term eshell-z eshell-prompt-extras esh-help projectile hydra yasnippet company ivy magit-popup counsel evil undo-tree flycheck magit with-editor markdown-mode ws-butler winum which-key wgrep uuidgen use-package swiper string-inflection smex smeargle restart-emacs rainbow-mode popwin pcre2el password-generator parinfer paren-face paradox open-junk-file neotree move-text mmm-mode markdown-toc magit-gitflow macrostep link-hint ivy-hydra info+ hungry-delete hl-todo help-fns+ goto-chg gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gh-md fuzzy flyspell-correct-ivy flycheck-pos-tip flx-ido expand-region evil-visualstar evil-magit evil-escape eval-sexp-fu elisp-slime-nav editorconfig diff-hl counsel-projectile company-statistics clean-aindent-mode browse-at-remote bind-map auto-yasnippet auto-highlight-symbol auto-dictionary auto-compile adaptive-wrap ace-window ace-link ac-ispell))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
