@@ -39,8 +39,8 @@ This function should only modify configuration layer settings."
           (not helm-make)) ; This may be misguided, but why???
      (auto-completion :packages
                       (not ;; helm-company
-                           ;; helm-c-yasnippet
-                           smartparens))
+                       ;; helm-c-yasnippet
+                       smartparens))
      (spacemacs-completion :packages
                            default-ivy-config)
      spell-checking
@@ -69,7 +69,9 @@ This function should only modify configuration layer settings."
                          clean-aindent-mode
                          lorem-ipsum)); is not needer ever.
 ;;; Necromancy
-     (version-control :variables)
+     (version-control :variables
+                      git-gutter:modified-sign "±"
+                      git-gutter+-modified-sign "±")
      ;; version-control-diff-tool 'git-gutter); needs diff
      (git :packages
           (not helm-gitignore
@@ -91,10 +93,13 @@ This function should only modify configuration layer settings."
             shell-default-height 30
             shell-default-position 'bottom
             shell-enable-smart-eshell t
+            eshell-cmpl-cycle-completions nil
+            eshell-history-size 1000
+            eshell-save-history-on-exit t
             epe-git-dirty-char "◆"))
-            ;; eshell-where-to-jump 'begin
-            ;; eshell-review-quick-commands nil
-            ;; eshell-smart-space-goes-to-end t
+   ;; eshell-where-to-jump 'begin
+   ;; eshell-review-quick-commands nil
+   ;; eshell-smart-space-goes-to-end t
 
 
    ;; List of additional packages that will be installed without being
@@ -674,14 +679,22 @@ before packages are loaded."
 ;;; Specializations
 
 ;;;; Lisps
-  (setq-default lisp-minor-modes
+  (setq-default my-lisp-setup
                 [paren-face-mode ; Dim parentheses.
-                 parinfer-mode]) ; Manage parentheses automagically.
+                 parinfer-mode ; Manage parentheses automagically.
+                 my-greek-lambdas])
+
+  ;; Inspired by https://github.com/eschulte/emacs24-starter-kit/blob/master/starter-kit-misc.org
+  (defun my-greek-lambdas ()
+    "Present `lambda' as 'λ'."
+    (font-lock-add-keywords
+     nil '(("(\\(lambda\\>\\)"
+            1 (compose-region (match-beginning 1) (match-end 1) "λ")))))
 
 ;;;; Emacs-Lisp
   (hook-up
    [emacs-lisp-mode-hook]
-   lisp-minor-modes)
+   my-lisp-setup)
 
 ;;;; Sh
   (add-to-list 'auto-mode-alist '("\\.zsh$" . sh-mode)))
@@ -693,18 +706,18 @@ before packages are loaded."
 This is an auto-generated function, do not modify its content directly, use
 Emacs customize menu instead.
 This function is called at the very end of Spacemacs initialization."
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   (quote
-    (smartparens fill-column-indicator xterm-color shell-pop multi-term eshell-z eshell-prompt-extras esh-help projectile hydra yasnippet company ivy magit-popup counsel evil undo-tree flycheck magit with-editor markdown-mode ws-butler winum which-key wgrep uuidgen use-package swiper string-inflection smex smeargle restart-emacs rainbow-mode popwin pcre2el password-generator parinfer paren-face paradox open-junk-file neotree move-text mmm-mode markdown-toc magit-gitflow macrostep link-hint ivy-hydra info+ hungry-delete hl-todo help-fns+ goto-chg gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gh-md fuzzy flyspell-correct-ivy flycheck-pos-tip flx-ido expand-region evil-visualstar evil-magit evil-escape eval-sexp-fu elisp-slime-nav editorconfig diff-hl counsel-projectile company-statistics clean-aindent-mode browse-at-remote bind-map auto-yasnippet auto-highlight-symbol auto-dictionary auto-compile adaptive-wrap ace-window ace-link ac-ispell))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
-)
+  (custom-set-variables
+   ;; custom-set-variables was added by Custom.
+   ;; If you edit it by hand, you could mess it up, so be careful.
+   ;; Your init file should contain only one such instance.
+   ;; If there is more than one, they won't work right.
+   '(package-selected-packages
+     (quote
+      (smartparens fill-column-indicator xterm-color shell-pop multi-term eshell-z eshell-prompt-extras esh-help projectile hydra yasnippet company ivy magit-popup counsel evil undo-tree flycheck magit with-editor markdown-mode ws-butler winum which-key wgrep uuidgen use-package swiper string-inflection smex smeargle restart-emacs rainbow-mode popwin pcre2el password-generator parinfer paren-face paradox open-junk-file neotree move-text mmm-mode markdown-toc magit-gitflow macrostep link-hint ivy-hydra info+ hungry-delete hl-todo help-fns+ goto-chg gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gh-md fuzzy flyspell-correct-ivy flycheck-pos-tip flx-ido expand-region evil-visualstar evil-magit evil-escape eval-sexp-fu elisp-slime-nav editorconfig diff-hl counsel-projectile company-statistics clean-aindent-mode browse-at-remote bind-map auto-yasnippet auto-highlight-symbol auto-dictionary auto-compile adaptive-wrap ace-window ace-link ac-ispell))))
+  (custom-set-faces
+   ;; custom-set-faces was added by Custom.
+   ;; If you edit it by hand, you could mess it up, so be careful.
+   ;; Your init file should contain only one such instance.
+   ;; If there is more than one, they won't work right.
+   )
+  )
