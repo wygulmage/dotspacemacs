@@ -78,7 +78,9 @@ This function should only modify configuration layer settings."
                orgit); `orgit' installation is buggy.
           :variables
           magit-delete-by-moving-to-trash t
-          magit-no-confirm '(trash resurrect rename discard stage-all-changes abort-rebase abort-merge))
+          magit-no-confirm '(trash resurrect rename discard stage-all-changes abort-rebase abort-merge)
+          magit-save-some-buffers nil
+          magit-ellipsis ?…)
 ;;; Summoning
      (spacemacs-navigation :packages; renamed from `spacemacs-ui'
                            (not golden-ratio))
@@ -108,6 +110,7 @@ This function should only modify configuration layer settings."
    ;; configuration in `dotspacemacs/user-config'.
    dotspacemacs-additional-packages
    '(
+     names
 ;;; Illusion
      adaptive-wrap
      paren-face)
@@ -536,17 +539,23 @@ before packages are loaded."
   (setq
    mouse-autoselect-window t ; Focus follows mouse.
    kill-do-not-save-duplicates t ; Don't copy identical text twice.
+   truncate-string-ellipsis "…"; Use a real ellipsis.
    confirm-nonexistent-file-or-buffer nil ; Don't nag.
-   revert-without-query "*" ; Don't nag.
-   truncate-string-ellipsis "…"); Use a real ellipsis.
+   revert-without-query "*") ; Don't nag.
 
 ;;; Necromancy
   ;; (global-git-gutter-mode t); Freaks out without diff.
   (setq vc-follow-symlinks t) ; Always follow symlinks to version-controlled files.
 
 ;;; Illusion
+  ;; Fallback font:
+  (set-fontset-font "fontset-default" nil
+                    (font-spec :size 18 :name "Symbola"))
+
+  (global-prettify-symbols-mode t); Make everything pretty. Don't go crazy with this; it can throw things out of alignment. E.g. using it for 'lambda' is good because that will be split or on one line, but using it for '>=' is bad because its arguments will often be aligned vertically.
   (global-hl-line-mode -1) ; Disable current line highlight.
   (global-visual-line-mode 1) ; Always wrap lines to window.
+  (setq-default split-height-threshold nil)
 
   (set-frame-parameter nil 'bottom-divider-width 1)
   ;; (add-to-list 'default-frame-alist '(bottom-divider-width 1))
@@ -635,6 +644,11 @@ before packages are loaded."
    [statusbar-hide])
 
 
+  ;;; `smart-mode-line'
+  ;; (add-to-list 'sml/replacer-regexp-list '("/Settings/" "⚙") t); or 🔧
+  ;; (add-to-list 'sml/replacer-regexp-list '("/Files/" "📂") t); or 🗄
+  ;; (add-to-list 'sml/replacer-regexp-list '("/Files/Music" "🎵") t)
+
 ;;; Incantations
 
   ;; Ignore mouse-wheel left and right.
@@ -682,21 +696,31 @@ before packages are loaded."
   (setq-default my-lisp-setup
                 [paren-face-mode ; Dim parentheses.
                  parinfer-mode ; Manage parentheses automagically.
-                 my-greek-lambdas])
+                 (lambda ()
+                   (push '("lambda" . ?λ) prettify-symbols-alist))])
 
-  ;; Inspired by https://github.com/eschulte/emacs24-starter-kit/blob/master/starter-kit-misc.org
-  (defun my-greek-lambdas ()
-    "Present `lambda' as 'λ'."
-    (font-lock-add-keywords
-     nil '(("(\\(lambda\\>\\)"
-            1 (compose-region (match-beginning 1) (match-end 1) "λ")))))
+  ;; ;; Inspired by https://github.com/eschulte/emacs24-starter-kit/blob/master/starter-kit-misc.org
+  ;; (defun my-greek-lambdas ()
+  ;;   "Present `lambda' as 'λ'."
+  ;;   (font-lock-add-keywords
+  ;;    nil '(("(\\(lambda\\>\\)"
+  ;;           1 (compose-region (match-beginning 1) (match-end 1) "λ")))))
 
 ;;;; Emacs-Lisp
   (hook-up
    [emacs-lisp-mode-hook]
    my-lisp-setup)
 
-;;;; Sh
+;;; Interned Shells
+  (setenv "PAGER" "cat")
+  (custom-set-variables
+   '(comint-scroll-to-bottom-on-input t); Insert at the bottom.
+   '(comint-scroll-to-bottom-on-output nil); Add output below.
+   '(comint-input-ignoredups t); Clear duplicate entries from history.
+   '(comint-completion-addsuffix t); Add space or slash to file completion.
+   '(comint-prompt-read-only nil)); Magic
+
+;;;; Shell script editing
   (add-to-list 'auto-mode-alist '("\\.zsh$" . sh-mode)))
 
 ;; Do not write anything past this comment. This is where Emacs will
@@ -706,18 +730,23 @@ before packages are loaded."
 This is an auto-generated function, do not modify its content directly, use
 Emacs customize menu instead.
 This function is called at the very end of Spacemacs initialization."
-  (custom-set-variables
-   ;; custom-set-variables was added by Custom.
-   ;; If you edit it by hand, you could mess it up, so be careful.
-   ;; Your init file should contain only one such instance.
-   ;; If there is more than one, they won't work right.
-   '(package-selected-packages
-     (quote
-      (smartparens fill-column-indicator xterm-color shell-pop multi-term eshell-z eshell-prompt-extras esh-help projectile hydra yasnippet company ivy magit-popup counsel evil undo-tree flycheck magit with-editor markdown-mode ws-butler winum which-key wgrep uuidgen use-package swiper string-inflection smex smeargle restart-emacs rainbow-mode popwin pcre2el password-generator parinfer paren-face paradox open-junk-file neotree move-text mmm-mode markdown-toc magit-gitflow macrostep link-hint ivy-hydra info+ hungry-delete hl-todo help-fns+ goto-chg gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gh-md fuzzy flyspell-correct-ivy flycheck-pos-tip flx-ido expand-region evil-visualstar evil-magit evil-escape eval-sexp-fu elisp-slime-nav editorconfig diff-hl counsel-projectile company-statistics clean-aindent-mode browse-at-remote bind-map auto-yasnippet auto-highlight-symbol auto-dictionary auto-compile adaptive-wrap ace-window ace-link ac-ispell))))
-  (custom-set-faces
-   ;; custom-set-faces was added by Custom.
-   ;; If you edit it by hand, you could mess it up, so be careful.
-   ;; Your init file should contain only one such instance.
-   ;; If there is more than one, they won't work right.
-   )
-  )
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(comint-completion-addsuffix t)
+ '(comint-input-ignoredups t)
+ '(comint-move-point-for-output nil)
+ '(comint-prompt-read-only nil)
+ '(comint-scroll-to-bottom-on-input t)
+ '(package-selected-packages
+   (quote
+    (names smartparens fill-column-indicator xterm-color shell-pop multi-term eshell-z eshell-prompt-extras esh-help projectile hydra yasnippet company ivy magit-popup counsel evil undo-tree flycheck magit with-editor markdown-mode ws-butler winum which-key wgrep uuidgen use-package swiper string-inflection smex smeargle restart-emacs rainbow-mode popwin pcre2el password-generator parinfer paren-face paradox open-junk-file neotree move-text mmm-mode markdown-toc magit-gitflow macrostep link-hint ivy-hydra info+ hungry-delete hl-todo help-fns+ goto-chg gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gh-md fuzzy flyspell-correct-ivy flycheck-pos-tip flx-ido expand-region evil-visualstar evil-magit evil-escape eval-sexp-fu elisp-slime-nav editorconfig diff-hl counsel-projectile company-statistics clean-aindent-mode browse-at-remote bind-map auto-yasnippet auto-highlight-symbol auto-dictionary auto-compile adaptive-wrap ace-window ace-link ac-ispell))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
+)
