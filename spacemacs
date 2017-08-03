@@ -479,6 +479,7 @@ This function is called at the very end of Spacemacs startup, after layer
 configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
+ ;;; Remember to use `setq-default' to set variables that are automatically buffer-local.
 
   (add-to-list 'custom-theme-load-path "~/.emacs.d/private/local/print-theme/")
   (defun my-silence (PROCEDURE &rest ARGS)
@@ -644,12 +645,25 @@ before packages are loaded."
    [statusbar-hide])
 
 
-  ;;; `smart-mode-line'
+  ;;; I'm not going to use `smart-mode-line', but if I were, I'd do this:
   ;; (add-to-list 'sml/replacer-regexp-list '("/Settings/" "⚙") t); or 🔧
-  ;; (add-to-list 'sml/replacer-regexp-list '("/Files/" "📂") t); or 🗄
   ;; (add-to-list 'sml/replacer-regexp-list '("/Files/Music" "🎵") t)
+  ;; (add-to-list 'sml/replacer-regexp-list '("/Files/" "📂") t); or 🗄
 
 ;;; Incantations
+
+;;; Evil toggles:
+;;; `evil-auto-indent' -> auto-indent when entering insert state.
+;;; `evil-move-cursor-back' -> cursor is moved left when exiting insert state.
+;;; `evil-move-beyond-eol' -> cursor can move past the last character of a line.
+;;; `evil-want-change-word-to-end' -> 'cw' behaves like 'ce'.
+
+  ;; ;; Live
+  ;; (custom-set-variables
+  ;;  '(evil-move-beyond-eol t)
+  ;;  '(evil-move-cursor-back nil))
+  ;; (advice-add 'evil-forward-word-end :after (lambda (&optional COUNT _)
+  ;;                                             (evil-forward-char COUNT t)])
 
   ;; Ignore mouse-wheel left and right.
   (misc--def-keys global-map
@@ -696,8 +710,12 @@ before packages are loaded."
   (setq-default my-lisp-setup
                 [paren-face-mode ; Dim parentheses.
                  parinfer-mode ; Manage parentheses automagically.
-                 (lambda ()
-                   (push '("lambda" . ?λ) prettify-symbols-alist))])
+                 my/prettify-glyphs])
+
+  (defun my/prettify-glyphs ()
+    "Prettify some symbols."
+    (seq-doseq (ass [("lambda" . ?λ)])
+      (push ass prettify-symbols-alist)))
 
   ;; ;; Inspired by https://github.com/eschulte/emacs24-starter-kit/blob/master/starter-kit-misc.org
   ;; (defun my-greek-lambdas ()
@@ -742,7 +760,7 @@ This function is called at the very end of Spacemacs initialization."
  '(comint-scroll-to-bottom-on-input t)
  '(package-selected-packages
    (quote
-    (names smartparens fill-column-indicator xterm-color shell-pop multi-term eshell-z eshell-prompt-extras esh-help projectile hydra yasnippet company ivy magit-popup counsel evil undo-tree flycheck magit with-editor markdown-mode ws-butler winum which-key wgrep uuidgen use-package swiper string-inflection smex smeargle restart-emacs rainbow-mode popwin pcre2el password-generator parinfer paren-face paradox open-junk-file neotree move-text mmm-mode markdown-toc magit-gitflow macrostep link-hint ivy-hydra info+ hungry-delete hl-todo help-fns+ goto-chg gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gh-md fuzzy flyspell-correct-ivy flycheck-pos-tip flx-ido expand-region evil-visualstar evil-magit evil-escape eval-sexp-fu elisp-slime-nav editorconfig diff-hl counsel-projectile company-statistics clean-aindent-mode browse-at-remote bind-map auto-yasnippet auto-highlight-symbol auto-dictionary auto-compile adaptive-wrap ace-window ace-link ac-ispell))))
+    (smart-mode-line rich-minority dash names smartparens fill-column-indicator xterm-color shell-pop multi-term eshell-z eshell-prompt-extras esh-help projectile hydra yasnippet company ivy magit-popup counsel evil undo-tree flycheck magit with-editor markdown-mode ws-butler winum which-key wgrep uuidgen use-package swiper string-inflection smex smeargle restart-emacs rainbow-mode popwin pcre2el password-generator parinfer paren-face paradox open-junk-file neotree move-text mmm-mode markdown-toc magit-gitflow macrostep link-hint ivy-hydra info+ hungry-delete hl-todo help-fns+ goto-chg gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gh-md fuzzy flyspell-correct-ivy flycheck-pos-tip flx-ido expand-region evil-visualstar evil-magit evil-escape eval-sexp-fu elisp-slime-nav editorconfig diff-hl counsel-projectile company-statistics clean-aindent-mode browse-at-remote bind-map auto-yasnippet auto-highlight-symbol auto-dictionary auto-compile adaptive-wrap ace-window ace-link ac-ispell))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
