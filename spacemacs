@@ -482,7 +482,7 @@ before packages are loaded."
  ;;; Remember to use `setq-default' to set variables that are automatically buffer-local.
 
   (add-to-list 'custom-theme-load-path "~/.emacs.d/private/local/print-theme/")
-  (defun my-silence (PROCEDURE &rest ARGS)
+  (defun my/silence (PROCEDURE &rest ARGS)
     "Don't put messages in the echo area."
     (let ((inhibit-message t))
       (apply PROCEDURE ARGS)))
@@ -490,18 +490,18 @@ before packages are loaded."
   ;; Squelch update check message.
   (advice-add 'spacemacs/check-for-new-version
               :around
-              #'my-silence)
+              #'my/silence)
   ;; Squelch scrolling nags
   (advice-add 'mwheel-scroll
               :around
-              #'my-silence)
+              #'my/silence)
 
 ;;; Notes
   ;; If at all possible, avoid using fringes: They don't work in the terminal. With unicode there's rarely a reason to use images as indicators anyway.
 ;;; Universal
-  (setq my-nonalphanumeric-names (make-hash-table :test #'equal))
+  (setq my/nonalphanumeric-names (make-hash-table :test #'equal))
   (mapc (lambda (pair)
-          (puthash (elt pair 0) (elt pair 1) my-nonalphanumeric-names))
+          (puthash (elt pair 0) (elt pair 1) my/nonalphanumeric-names))
         [("+" "plus")
          ("@" "at")
          ("#" "hash")
@@ -512,18 +512,18 @@ before packages are loaded."
          ("%" "percent")
          ("\\" "backslash")
          ("|" "bar")])
-  (defun my-safer-name (NAME)
+  (defun my/safer-name (NAME)
     (apply #'concat
            (seq-map (lambda (c)
                       (let* ((old (char-to-string c))
-                             (new (gethash old my-nonalphanumeric-names)))
+                             (new (gethash old my/nonalphanumeric-names)))
                         (if new
                             (concat "-" new)
                           old)))
                     NAME)))
 
 ;;;; In order of dependencies...
-  (defun my-require-or-quelpa (package)
+  (defun my/require-or-quelpa (package)
     "Use a copy of the package in the private/local/ dir, or if it's not there, get it with `quelpa'."
     (let* ((name (symbol-name package))
            (local-path (concat "~/.emacs.d/private/local/"
@@ -532,9 +532,9 @@ before packages are loaded."
           (require package local-path)
         (quelpa package
                 :fetcher 'github
-                :repo (concat "wygulmage/" (my-safer-name name) ".el"))
+                :repo (concat "wygulmage/" (my/safer-name name) ".el"))
         (message "Fetched %s with quelpa." name))))
-  (mapc #'my-require-or-quelpa
+  (mapc #'my/require-or-quelpa
         [let+ miscellaneous mop hook-up primary-pane fac statusbar minor-theme])
 
   (setq
@@ -562,7 +562,7 @@ before packages are loaded."
   ;; (add-to-list 'default-frame-alist '(bottom-divider-width 1))
   ;; (add-to-list 'default-frame-alist '(right-divider-width 1))
 
-  (defun my-theme-tweaks ()
+  (defun my/theme-tweaks ()
     "Tweak faces to simplify themes."
     ;; Faces of things that that don't do stuff:
     (fac-set-faces-attributes [font-lock-comment-face]
@@ -594,13 +594,13 @@ before packages are loaded."
                                 :foreground c :background c)))
 
 
-  (my-theme-tweaks)
-  (hook-up [after-load-theme-hook] [my-theme-tweaks])
+  (my/theme-tweaks)
+  (hook-up [after-load-theme-hook] [my/theme-tweaks])
 
 
   ;; ;;;; Try to keep to 80 columns.
   ;;   ;; FIXME: Does not work well with `linum-mode'.
-  ;;   (defun my-80-column-display ()
+  ;;   (defun my/80-column-display ()
   ;;     "Make the text about 80 columns."
   ;;     (interactive)
   ;;     (let ((new-margins
@@ -615,17 +615,17 @@ before packages are loaded."
   ;;   ;; Somehow this isn't an infinite loop:
   ;;   (defun add-local-hook-for-80-column-display ()
   ;;     (hook-up [window-configuration-change-hook]
-  ;;              [my-80-column-display] :local))
+  ;;              [my/80-column-display] :local))
 
   ;;   ;; Use 80 columns in normal editing modes:
   ;;   (hook-up [text-mode-hook prog-mode-hook]
   ;;            [add-local-hook-for-80-column-display])
 
   ;;   ;; Convince `split-window' that the window is wide enough to split:
-  ;;   (defun my-zero-window-margins ()
+  ;;   (defun my/zero-window-margins ()
   ;;     (set-window-margins nil 0 0))
   ;;   (hook-up-make-hook :before split-window
-  ;;     my-zero-window-margins)
+  ;;     my/zero-window-margins)
 
   (setq-default mode-line-format statusbar-base-layout)
   (setq mode-line-format statusbar-base-layout) ; just in case.
@@ -690,7 +690,7 @@ before packages are loaded."
           '(spacemacs/scale-up-font spacemacs/scale-down-font)))
 
   ;; Toggle comment with SPC ;.
-  (defun my-comment-dwim ()
+  (defun my/comment-dwim ()
     "If the region is not active, select the current line. Then, if the region is a comment, uncomment it, and otherwise comment it out."
     (interactive)
     (apply #'comment-or-uncomment-region
@@ -701,7 +701,7 @@ before packages are loaded."
                ,(line-end-position)))))
 
   (spacemacs/set-leader-keys
-    ";" #'my-comment-dwim)
+    ";" #'my/comment-dwim)
 
   ;; Insert unicode with CTRL+SHIFT+u. (Ubuntu binding.)
   (misc--def-keys global-map
@@ -710,7 +710,7 @@ before packages are loaded."
 ;;; Specializations
 
 ;;;; Lisps
-  (setq-default my-lisp-setup
+  (setq-default my/lisp-setup
                 [paren-face-mode ; Dim parentheses.
                  parinfer-mode ; Manage parentheses automagically.
                  my/prettify-glyphs])
@@ -721,7 +721,7 @@ before packages are loaded."
       (push ass prettify-symbols-alist)))
 
   ;; ;; Inspired by https://github.com/eschulte/emacs24-starter-kit/blob/master/starter-kit-misc.org
-  ;; (defun my-greek-lambdas ()
+  ;; (defun my/greek-lambdas ()
   ;;   "Present `lambda' as 'λ'."
   ;;   (font-lock-add-keywords
   ;;    nil '(("(\\(lambda\\>\\)"
@@ -730,7 +730,7 @@ before packages are loaded."
 ;;;; Emacs-Lisp
   (hook-up
    [emacs-lisp-mode-hook]
-   my-lisp-setup)
+   my/lisp-setup)
 
 ;;; Interned Shells
   (setenv "PAGER" "cat")
