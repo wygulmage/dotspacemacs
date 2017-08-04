@@ -621,14 +621,13 @@ before packages are loaded."
   ;;   (hook-up [text-mode-hook prog-mode-hook]
   ;;            [add-local-hook-for-80-column-display])
 
-  ;;   ;; Convince `split-window' that the window is wide enough to split:
+  ;;   ;; Try to convince `split-window' that the window is wide enough to split:
   ;;   (defun my/zero-window-margins ()
   ;;     (set-window-margins nil 0 0))
   ;;   (hook-up-make-hook :before split-window
   ;;     my/zero-window-margins)
 
   (setq-default mode-line-format statusbar-base-layout)
-  (setq mode-line-format statusbar-base-layout) ; just in case.
 
   (hook-up
    [prog-mode-hook]
@@ -644,7 +643,6 @@ before packages are loaded."
     spacemacs-buffer-mode-hook]
    [statusbar-hide])
 
-
   ;;; I'm not going to use `smart-mode-line', but if I were, I'd do this:
   ;; (add-to-list 'sml/replacer-regexp-list '("/Settings/" "⚙") t); or 🔧
   ;; (add-to-list 'sml/replacer-regexp-list '("/Files/Music" "🎵") t)
@@ -653,17 +651,16 @@ before packages are loaded."
 ;;; Incantations
 
 ;;; Evil toggles:
-;;; `evil-auto-indent' -> auto-indent when entering insert state.
-;;; `evil-move-cursor-back' -> cursor is moved left when exiting insert state.
-;;; `evil-move-beyond-eol' -> cursor can move past the last character of a line.
-;;; `evil-want-change-word-to-end' -> 'cw' behaves like 'ce'.
-
-  ;; ;; Live
+  ;; ;;; Live
   ;; (custom-set-variables
-  ;;  '(evil-move-beyond-eol t)
-  ;;  '(evil-move-cursor-back nil))
-  ;; (advice-add 'evil-forward-word-end :after (lambda (&optional COUNT _)
-  ;;                                             (evil-forward-char COUNT t)])
+  ;;  '(evil-auto-indent t) ;-> auto-indent when entering insert state.
+  ;;  '(evil-move-beyond-eol t) ;-> cursor can move past the last character of a line.
+  ;;  '(evil-move-cursor-back nil)) ;-> cursor is moved left when exiting insert state.
+
+  ;; (advice-add 'evil-forward-word-end
+  ;;  :after
+  ;;  (lambda (&optional COUNT _)
+  ;;      (evil-forward-char COUNT t)])
 
   ;; Ignore mouse-wheel left and right.
   (misc--def-keys global-map
