@@ -653,9 +653,9 @@ before packages are loaded."
 ;;; Evil toggles:
   ;; ;;; Live
   ;; (custom-set-variables
-  ;;  '(evil-auto-indent t) ;-> auto-indent when entering insert state.
-  ;;  '(evil-move-beyond-eol t) ;-> cursor can move past the last character of a line.
-  ;;  '(evil-move-cursor-back nil)) ;-> cursor is moved left when exiting insert state.
+  ;;  '(evil-auto-indent t) ; auto-indent when entering insert state.
+  ;;  '(evil-move-beyond-eol t) ; cursor can move past the last character of a line.
+  ;;  '(evil-move-cursor-back nil)) ; cursor is moved left when exiting insert state.
 
   ;; (advice-add 'evil-forward-word-end
   ;;  :after
@@ -696,6 +696,16 @@ before packages are loaded."
                  ,(region-end))
              `(,(line-beginning-position)
                ,(line-end-position)))))
+  (defun my/comment-dwim ()
+    "If the region is not active, select the current line. Then, if the region is a comment, uncomment it, and otherwise comment it out."
+    (interactive)
+    (if (region-active-p)
+        (comment-or-uncomment-region
+         (region-beginning)
+         (region-end))
+      (comment-or-uncomment-region
+       (line-beginning-position)
+       (line-end-position))))
 
   (spacemacs/set-leader-keys
     ";" #'my/comment-dwim)
