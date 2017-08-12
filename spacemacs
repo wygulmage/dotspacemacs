@@ -86,10 +86,12 @@ This function should only modify configuration layer settings."
                            (not golden-ratio))
      vinegar; simplified/improved `dired'
 ;;; Specialization
+     elm
      (emacs-lisp :variables
                  ielm-header ""
                  ielm-prompt ">")
      markdown
+     rust
      (shell :variables
             shell-default-shell 'eshell
             shell-default-height 30
@@ -98,7 +100,8 @@ This function should only modify configuration layer settings."
             eshell-cmpl-cycle-completions nil
             eshell-history-size 1000
             eshell-save-history-on-exit t
-            epe-git-dirty-char "◆"))
+            epe-git-dirty-char "◆")
+     yaml)
    ;; eshell-where-to-jump 'begin
    ;; eshell-review-quick-commands nil
    ;; eshell-smart-space-goes-to-end t
@@ -688,25 +691,18 @@ before packages are loaded."
           '(spacemacs/scale-up-font spacemacs/scale-down-font)))
 
   ;; Toggle comment with SPC ;.
+  (defun my/region-or-line-coordinates ()
+    "If the region is active, the pair (`region-beginning' `region-end'); otherwise, the pair (`line-beginning-position' `line-end-position')."
+    (if (region-active-p)
+        `(,(region-beginning)
+          ,(region-end))
+      `(,(line-beginning-position)
+        ,(line-end-position))))
   (defun my/comment-dwim ()
     "If the region is not active, select the current line. Then, if the region is a comment, uncomment it, and otherwise comment it out."
     (interactive)
     (apply #'comment-or-uncomment-region
-           (if (region-active-p)
-               `(,(region-beginning)
-                 ,(region-end))
-             `(,(line-beginning-position)
-               ,(line-end-position)))))
-  (defun my/comment-dwim ()
-    "If the region is not active, select the current line. Then, if the region is a comment, uncomment it, and otherwise comment it out."
-    (interactive)
-    (if (region-active-p)
-        (comment-or-uncomment-region
-         (region-beginning)
-         (region-end))
-      (comment-or-uncomment-region
-       (line-beginning-position)
-       (line-end-position))))
+           (my/region-or-line-coordinates)))
 
   (spacemacs/set-leader-keys
     ";" #'my/comment-dwim)
@@ -771,7 +767,7 @@ This function is called at the very end of Spacemacs initialization."
  '(comint-scroll-to-bottom-on-input t)
  '(package-selected-packages
    (quote
-    (async smart-mode-line rich-minority dash names smartparens fill-column-indicator xterm-color shell-pop multi-term eshell-z eshell-prompt-extras esh-help projectile hydra yasnippet company ivy magit-popup counsel evil undo-tree flycheck magit with-editor markdown-mode ws-butler winum which-key wgrep uuidgen use-package swiper string-inflection smex smeargle restart-emacs rainbow-mode popwin pcre2el password-generator parinfer paren-face paradox open-junk-file neotree move-text mmm-mode markdown-toc magit-gitflow macrostep link-hint ivy-hydra info+ hungry-delete hl-todo help-fns+ goto-chg gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gh-md fuzzy flyspell-correct-ivy flycheck-pos-tip flx-ido expand-region evil-visualstar evil-magit evil-escape eval-sexp-fu elisp-slime-nav editorconfig diff-hl counsel-projectile company-statistics clean-aindent-mode browse-at-remote bind-map auto-yasnippet auto-highlight-symbol auto-dictionary auto-compile adaptive-wrap ace-window ace-link ac-ispell))))
+    (yaml-mode flycheck-elm elm-mode async smart-mode-line rich-minority dash names smartparens fill-column-indicator xterm-color shell-pop multi-term eshell-z eshell-prompt-extras esh-help projectile hydra yasnippet company ivy magit-popup counsel evil undo-tree flycheck magit with-editor markdown-mode ws-butler winum which-key wgrep uuidgen use-package swiper string-inflection smex smeargle restart-emacs rainbow-mode popwin pcre2el password-generator parinfer paren-face paradox open-junk-file neotree move-text mmm-mode markdown-toc magit-gitflow macrostep link-hint ivy-hydra info+ hungry-delete hl-todo help-fns+ goto-chg gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gh-md fuzzy flyspell-correct-ivy flycheck-pos-tip flx-ido expand-region evil-visualstar evil-magit evil-escape eval-sexp-fu elisp-slime-nav editorconfig diff-hl counsel-projectile company-statistics clean-aindent-mode browse-at-remote bind-map auto-yasnippet auto-highlight-symbol auto-dictionary auto-compile adaptive-wrap ace-window ace-link ac-ispell))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
