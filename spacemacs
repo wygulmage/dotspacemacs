@@ -90,6 +90,7 @@ This function should only modify configuration layer settings."
      (emacs-lisp :variables
                  ielm-header ""
                  ielm-prompt ">")
+     haskell
      html
      markdown
      spacemacs-org ; For whatever reason, the `org' layer spectacularly fails to install.
@@ -160,6 +161,10 @@ It should only modify the values of Spacemacs settings."
    ;; (default 5)
    dotspacemacs-elpa-timeout 5
 
+   ;; If non-nil then verify the signature for downloaded Spacelpa archives.
+   ;; (default nil)
+   dotspacemacs-verify-spacelpa-archives nil
+
    ;; If non-nil then spacemacs will check for updates at startup
    ;; when the current branch is not `develop'. Note that checking for
    ;; new versions works via git commands, thus it calls GitHub services
@@ -168,8 +173,8 @@ It should only modify the values of Spacemacs settings."
 
    ;; If non-nil, a form that evaluates to a package directory. For example, to
    ;; use different package directories for different Emacs versions, set this
-   ;; to `emacs-version'.
-   dotspacemacs-elpa-subdirectory emacs-version
+   ;; to `emacs-version'. (default 'emacs-version)
+   dotspacemacs-elpa-subdirectory 'emacs-version
 
    ;; One of `vim', `emacs' or `hybrid'.
    ;; `hybrid' is like `vim' except that `insert state' is replaced by the
@@ -765,14 +770,9 @@ This function is called at the very end of Spacemacs initialization."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(comint-completion-addsuffix t)
- '(comint-input-ignoredups t)
- '(comint-move-point-for-output nil)
- '(comint-prompt-read-only nil)
- '(comint-scroll-to-bottom-on-input t)
  '(package-selected-packages
    (quote
-    (avy simple-httpd dash company with-editor markdown-mode toc-org org-bullets org-plus-contrib projectile goto-chg magit-popup git-commit async counsel swiper evil flycheck ivy magit hydra s yaml-mode toml-mode racer flycheck-rust seq cargo rust-mode xterm-color ws-butler winum which-key wgrep web-mode uuidgen use-package tagedit string-inflection smex smeargle smartparens smart-mode-line slim-mode shell-pop scss-mode sass-mode restart-emacs rainbow-mode pug-mode popwin pcre2el password-generator parinfer paren-face paradox open-junk-file neotree names multi-term move-text mmm-mode markdown-toc magit-gitflow macrostep link-hint less-css-mode ivy-hydra info+ impatient-mode hungry-delete hl-todo help-fns+ helm-css-scss gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gh-md fuzzy flyspell-correct-ivy flycheck-pos-tip flycheck-elm flx-ido fill-column-indicator expand-region evil-visualstar evil-matchit evil-magit evil-escape eval-sexp-fu eshell-z eshell-prompt-extras esh-help emmet-mode elm-mode elisp-slime-nav editorconfig diff-hl counsel-projectile company-web company-statistics clean-aindent-mode browse-at-remote bind-map auto-yasnippet auto-highlight-symbol auto-dictionary auto-compile add-node-modules-path adaptive-wrap ace-window ace-link ac-ispell))))
+    (yaml-mode xterm-color ws-butler winum which-key wgrep web-mode uuidgen use-package toml-mode toc-org tagedit string-inflection smex smeargle slim-mode shell-pop scss-mode sass-mode restart-emacs rainbow-mode racer pug-mode popwin pcre2el password-generator parinfer paren-face paradox spinner org-plus-contrib org-bullets open-junk-file names multi-term move-text mmm-mode markdown-toc magit-gitflow macrostep link-hint less-css-mode ivy-hydra intero info+ impatient-mode hungry-delete hlint-refactor hl-todo hindent help-fns+ haskell-snippets haml-mode gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gh-md fuzzy flyspell-correct-ivy flycheck-rust flycheck-pos-tip flycheck-haskell flycheck-elm flx-ido expand-region evil-visualstar evil-magit evil-escape eval-sexp-fu eshell-z eshell-prompt-extras esh-help emmet-mode elm-mode elisp-slime-nav editorconfig diminish diff-hl dante counsel-projectile company-web company-statistics company-ghci company-ghc company-cabal cmm-mode cargo browse-at-remote bind-map bind-key auto-yasnippet auto-highlight-symbol auto-dictionary auto-compile adaptive-wrap ace-window ace-link ac-ispell))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
