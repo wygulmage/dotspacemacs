@@ -161,6 +161,11 @@ It should only modify the values of Spacemacs settings."
    ;; (default 5)
    dotspacemacs-elpa-timeout 5
 
+   ;; If non-nil then Spacelpa repository is the primary source to install
+   ;; a locked version of packages. If nil then Spacemacs will install the lastest
+   ;; version of packages from MELPA. (default nil)
+   dotspacemacs-use-spacelpa nil
+
    ;; If non-nil then verify the signature for downloaded Spacelpa archives.
    ;; (default nil)
    dotspacemacs-verify-spacelpa-archives nil
@@ -446,7 +451,7 @@ It should only modify the values of Spacemacs settings."
    ;; %n - Narrow if appropriate
    ;; %z - mnemonics of buffer, terminal, and keyboard coding systems
    ;; %Z - like %z, but including the end-of-line format
-   dotspacemacs-frame-title-format nil
+   dotspacemacs-frame-title-format "%a | Spacemacs"
 
    ;; Format specification for setting the icon title format
    ;; (default nil - same as frame-title-format)
@@ -677,19 +682,19 @@ before packages are loaded."
 
   ;; Ignore mouse-wheel left and right.
   (misc--def-keys global-map
-    "<mouse-6>" #'ignore
-    "<mouse-7>" #'ignore)
+                  "<mouse-6>" #'ignore
+                  "<mouse-7>" #'ignore)
 
   ;; Navigate help buffers.
   (when (string= system-type "windows-nt")
     (misc--def-keys help-mode-map
-      "<mouse-4>" #'help-go-back ; Windows mouse back (Linux mouse wheel up)
-      "<mouse-5>" #'help-go-forward)) ; Windows mouse forwards
+                    "<mouse-4>" #'help-go-back ; Windows mouse back (Linux mouse wheel up)
+                    "<mouse-5>" #'help-go-forward)) ; Windows mouse forwards
 
   ;; Navigate wrapped lines.
   (misc--def-keys evil-normal-state-map
-    "j" #'evil-next-visual-line
-    "k" #'evil-previous-visual-line)
+                  "j" #'evil-next-visual-line
+                  "k" #'evil-previous-visual-line)
 
   ;; Zoom with Ctrl + mouse wheel.
   (apply #'misc--def-keys global-map
@@ -719,7 +724,7 @@ before packages are loaded."
 
   ;; Insert unicode with CTRL+SHIFT+u. (Ubuntu binding.)
   (misc--def-keys global-map
-    "C-S-u" #'insert-char)
+                  "C-S-u" #'insert-char)
 
 ;;; Specializations
 
@@ -760,6 +765,20 @@ before packages are loaded."
 
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   (quote
+    (yaml-mode xterm-color ws-butler which-key wgrep web-mode uuidgen use-package toml-mode toc-org tagedit smex smeargle slim-mode shell-pop scss-mode sass-mode rainbow-mode racer pug-mode pcre2el paren-face org-plus-contrib org-bullets names multi-term move-text mmm-mode markdown-toc magit-gitflow macrostep link-hint less-css-mode ivy-hydra intero hungry-delete hlint-refactor hindent help-fns+ haskell-snippets haml-mode gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gh-md fuzzy flyspell-correct-ivy flycheck-rust flycheck-pos-tip flycheck-haskell flycheck-elm flx expand-region exec-path-from-shell evil-visualstar evil-magit evil-escape eval-sexp-fu eshell-z eshell-prompt-extras esh-help emmet-mode elm-mode elisp-slime-nav diminish diff-hl counsel-projectile company-web company-statistics company-ghci company-ghc company-cabal cmm-mode cargo bind-map bind-key auto-yasnippet auto-dictionary auto-compile adaptive-wrap ace-window ac-ispell))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
 (defun dotspacemacs/emacs-custom-settings ()
   "Emacs custom settings.
 This is an auto-generated function, do not modify its content directly, use
@@ -772,7 +791,7 @@ This function is called at the very end of Spacemacs initialization."
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (yaml-mode xterm-color ws-butler winum which-key wgrep web-mode uuidgen use-package toml-mode toc-org tagedit string-inflection smex smeargle slim-mode shell-pop scss-mode sass-mode restart-emacs rainbow-mode racer pug-mode popwin pcre2el password-generator parinfer paren-face paradox spinner org-plus-contrib org-bullets open-junk-file names multi-term move-text mmm-mode markdown-toc magit-gitflow macrostep link-hint less-css-mode ivy-hydra intero info+ impatient-mode hungry-delete hlint-refactor hl-todo hindent help-fns+ haskell-snippets haml-mode gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gh-md fuzzy flyspell-correct-ivy flycheck-rust flycheck-pos-tip flycheck-haskell flycheck-elm flx-ido expand-region evil-visualstar evil-magit evil-escape eval-sexp-fu eshell-z eshell-prompt-extras esh-help emmet-mode elm-mode elisp-slime-nav editorconfig diminish diff-hl dante counsel-projectile company-web company-statistics company-ghci company-ghc company-cabal cmm-mode cargo browse-at-remote bind-map bind-key auto-yasnippet auto-highlight-symbol auto-dictionary auto-compile adaptive-wrap ace-window ace-link ac-ispell))))
+    (winum string-inflection restart-emacs popwin password-generator parinfer paradox spinner overseer yaml-mode xterm-color ws-butler which-key wgrep web-mode uuidgen use-package toml-mode toc-org tagedit smex smeargle slim-mode shell-pop scss-mode sass-mode rainbow-mode racer pug-mode pcre2el paren-face org-plus-contrib org-bullets names multi-term move-text mmm-mode markdown-toc magit-gitflow macrostep link-hint less-css-mode ivy-hydra intero hungry-delete hlint-refactor hindent help-fns+ haskell-snippets haml-mode gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gh-md fuzzy flyspell-correct-ivy flycheck-rust flycheck-pos-tip flycheck-haskell flycheck-elm flx expand-region exec-path-from-shell evil-visualstar evil-magit evil-escape eval-sexp-fu eshell-z eshell-prompt-extras esh-help emmet-mode elm-mode elisp-slime-nav diminish diff-hl counsel-projectile company-web company-statistics company-ghci company-ghc company-cabal cmm-mode cargo bind-map bind-key auto-yasnippet auto-dictionary auto-compile adaptive-wrap ace-window ac-ispell))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
