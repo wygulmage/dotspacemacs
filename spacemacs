@@ -42,7 +42,7 @@ This function should only modify configuration layer settings."
                        ;; helm-c-yasnippet
                        smartparens))
      (spacemacs-completion :packages
-                           default-ivy-config)
+                    default-ivy-config)
      spell-checking
      syntax-checking
 ;;; Illusion
@@ -52,7 +52,7 @@ This function should only modify configuration layer settings."
              rainbow-x-colors nil
              rainbow-html-colors nil)
      (spacemacs-visual :packages
-                       (not fill-column-indicator)); Do or do not; don't nag.
+                (not fill-column-indicator)); Do or do not; don't nag.
 ;;; Transmutation
      (parinfer :variables
                parinfer-auto-switch-indent-mode t
@@ -63,11 +63,11 @@ This function should only modify configuration layer settings."
                   smart-yank
                   smart-tab))
      (spacemacs-editing :packages
-                        (not; Not needed with `parinfer':
-                         aggressive-indent
-                         smartparens
-                         clean-aindent-mode
-                         lorem-ipsum)); is not needer ever.
+                 (not; Not needed with `parinfer':
+                  aggressive-indent
+                  smartparens
+                  clean-aindent-mode
+                  lorem-ipsum)); is not needer ever.
 ;;; Necromancy
      (version-control :variables
                       git-gutter:modified-sign "±"
@@ -82,8 +82,10 @@ This function should only modify configuration layer settings."
           magit-save-some-buffers nil
           magit-ellipsis ?…)
 ;;; Summoning
+     spacemacs-layouts
      (spacemacs-navigation :packages; renamed from `spacemacs-ui'
-                           (not golden-ratio))
+                    (not golden-ratio))
+     spacemacs-purpose
      vinegar; simplified/improved `dired'
 ;;; Specialization
      elm
@@ -129,7 +131,7 @@ This function should only modify configuration layer settings."
 
    ;; A list of packages that will not be installed and loaded.
    dotspacemacs-excluded-packages
-   '(helm); should not be needed with `ivy'.
+   '(helm) ; should not be needed with `ivy'.
 
    ;; Defines the behaviour of Spacemacs when installing packages.
    ;; Possible values are `used-only', `used-but-keep-unused' and `all'.
@@ -471,7 +473,7 @@ It should only modify the values of Spacemacs settings."
    ;; Run `spacemacs/prettify-org-buffer' when
    ;; visiting README.org files of Spacemacs.
    ;; (default nil)
-   dotspacemacs-pretty-docs nil))
+   dotspacemacs-pretty-docs t))
 
 
 (defun dotspacemacs/user-init ()
@@ -517,28 +519,28 @@ before packages are loaded."
 ;;; Notes
   ;; If at all possible, avoid using fringes: They don't work in the terminal. With unicode there's rarely a reason to use images as indicators anyway.
 ;;; Universal
-  (setq my/nonalphanumeric-names (make-hash-table :test #'equal))
+  (setq my/nonalphanumeric-names (make-hash-table :test #'eq))
   (mapc (lambda (pair)
           (puthash (elt pair 0) (elt pair 1) my/nonalphanumeric-names))
-        [("+" "plus")
-         ("@" "at")
-         ("#" "hash")
-         ("!" "bang")
-         ("^" "hat")
-         ("&" "and")
-         ("*" "star")
-         ("%" "percent")
-         ("\\" "backslash")
-         ("|" "bar")])
+        [(?+ "plus")
+         (?@ "at")
+         (?# "hash")
+         (?! "bang")
+         (?^ "hat")
+         (?& "and")
+         (?* "star")
+         (?% "percent")
+         (?\\ "backslash")
+         (?| "bar")])
   (defun my/safer-name (NAME)
-    (apply #'concat
-           (mapcar (lambda (c)
-                     (let* ((old (char-to-string c))
-                            (new (gethash old my/nonalphanumeric-names)))
-                       (if new
-                           (concat "-" new)
-                         old)))
-                   NAME)))
+    "Spell out common glyphs in NAME."
+    (mapconcat (lambda (c)
+                 (let ((new (gethash c my/nonalphanumeric-names)))
+                   (if new
+                       (concat "-" new)
+                     (char-to-string c))))
+               NAME
+               ""))
 
 ;;;; In order of dependencies...
   (defun my/require-or-quelpa (package)
@@ -553,7 +555,7 @@ before packages are loaded."
                 :repo (concat "wygulmage/" (my/safer-name name) ".el"))
         (message "Fetched %s with quelpa." name))))
   (mapc #'my/require-or-quelpa
-        [let+ miscellaneous mop hook-up primary-pane fac statusbar minor-theme])
+        [let+ miscellaneous hook-up primary-pane fac statusbar minor-theme])
 
   (setq
    mouse-autoselect-window t ; Focus follows mouse.
@@ -682,19 +684,19 @@ before packages are loaded."
 
   ;; Ignore mouse-wheel left and right.
   (misc--def-keys global-map
-                  "<mouse-6>" #'ignore
-                  "<mouse-7>" #'ignore)
+    "<mouse-6>" #'ignore
+    "<mouse-7>" #'ignore)
 
   ;; Navigate help buffers.
   (when (string= system-type "windows-nt")
     (misc--def-keys help-mode-map
-                    "<mouse-4>" #'help-go-back ; Windows mouse back (Linux mouse wheel up)
-                    "<mouse-5>" #'help-go-forward)) ; Windows mouse forwards
+      "<mouse-4>" #'help-go-back ; Windows mouse back (Linux mouse wheel up)
+      "<mouse-5>" #'help-go-forward)) ; Windows mouse forwards
 
   ;; Navigate wrapped lines.
   (misc--def-keys evil-normal-state-map
-                  "j" #'evil-next-visual-line
-                  "k" #'evil-previous-visual-line)
+    "j" #'evil-next-visual-line
+    "k" #'evil-previous-visual-line)
 
   ;; Zoom with Ctrl + mouse wheel.
   (apply #'misc--def-keys global-map
@@ -724,7 +726,7 @@ before packages are loaded."
 
   ;; Insert unicode with CTRL+SHIFT+u. (Ubuntu binding.)
   (misc--def-keys global-map
-                  "C-S-u" #'insert-char)
+    "C-S-u" #'insert-char)
 
 ;;; Specializations
 
@@ -738,13 +740,6 @@ before packages are loaded."
     "Prettify some symbols."
     (seq-doseq (ass [("lambda" . ?λ)])
       (push ass prettify-symbols-alist)))
-
-  ;; ;; Inspired by https://github.com/eschulte/emacs24-starter-kit/blob/master/starter-kit-misc.org
-  ;; (defun my/greek-lambdas ()
-  ;;   "Present `lambda' as 'λ'."
-  ;;   (font-lock-add-keywords
-  ;;    nil '(("(\\(lambda\\>\\)"
-  ;;           1 (compose-region (match-beginning 1) (match-end 1) "λ")))))
 
 ;;;; Emacs-Lisp
   (hook-up
@@ -765,37 +760,3 @@ before packages are loaded."
 
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   (quote
-    (yaml-mode xterm-color ws-butler which-key wgrep web-mode uuidgen use-package toml-mode toc-org tagedit smex smeargle slim-mode shell-pop scss-mode sass-mode rainbow-mode racer pug-mode pcre2el paren-face org-plus-contrib org-bullets names multi-term move-text mmm-mode markdown-toc magit-gitflow macrostep link-hint less-css-mode ivy-hydra intero hungry-delete hlint-refactor hindent help-fns+ haskell-snippets haml-mode gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gh-md fuzzy flyspell-correct-ivy flycheck-rust flycheck-pos-tip flycheck-haskell flycheck-elm flx expand-region exec-path-from-shell evil-visualstar evil-magit evil-escape eval-sexp-fu eshell-z eshell-prompt-extras esh-help emmet-mode elm-mode elisp-slime-nav diminish diff-hl counsel-projectile company-web company-statistics company-ghci company-ghc company-cabal cmm-mode cargo bind-map bind-key auto-yasnippet auto-dictionary auto-compile adaptive-wrap ace-window ac-ispell))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
-(defun dotspacemacs/emacs-custom-settings ()
-  "Emacs custom settings.
-This is an auto-generated function, do not modify its content directly, use
-Emacs customize menu instead.
-This function is called at the very end of Spacemacs initialization."
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   (quote
-    (winum string-inflection restart-emacs popwin password-generator parinfer paradox spinner overseer yaml-mode xterm-color ws-butler which-key wgrep web-mode uuidgen use-package toml-mode toc-org tagedit smex smeargle slim-mode shell-pop scss-mode sass-mode rainbow-mode racer pug-mode pcre2el paren-face org-plus-contrib org-bullets names multi-term move-text mmm-mode markdown-toc magit-gitflow macrostep link-hint less-css-mode ivy-hydra intero hungry-delete hlint-refactor hindent help-fns+ haskell-snippets haml-mode gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gh-md fuzzy flyspell-correct-ivy flycheck-rust flycheck-pos-tip flycheck-haskell flycheck-elm flx expand-region exec-path-from-shell evil-visualstar evil-magit evil-escape eval-sexp-fu eshell-z eshell-prompt-extras esh-help emmet-mode elm-mode elisp-slime-nav diminish diff-hl counsel-projectile company-web company-statistics company-ghci company-ghc company-cabal cmm-mode cargo bind-map bind-key auto-yasnippet auto-dictionary auto-compile adaptive-wrap ace-window ac-ispell))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
-)
