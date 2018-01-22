@@ -42,7 +42,7 @@ This function should only modify configuration layer settings."
                        ;; helm-c-yasnippet
                        smartparens))
      (spacemacs-completion :packages
-                    default-ivy-config)
+                           default-ivy-config)
      spell-checking
      syntax-checking
 ;;; Illusion
@@ -52,7 +52,7 @@ This function should only modify configuration layer settings."
              rainbow-x-colors nil
              rainbow-html-colors nil)
      (spacemacs-visual :packages
-                (not fill-column-indicator)); Do or do not; don't nag.
+                       (not fill-column-indicator)); Do or do not; don't nag.
 ;;; Transmutation
      (parinfer :variables
                parinfer-auto-switch-indent-mode t
@@ -63,11 +63,11 @@ This function should only modify configuration layer settings."
                   smart-yank
                   smart-tab))
      (spacemacs-editing :packages
-                 (not; Not needed with `parinfer':
-                  aggressive-indent
-                  smartparens
-                  clean-aindent-mode
-                  lorem-ipsum)); is not needer ever.
+                        (not; Not needed with `parinfer':
+                         aggressive-indent
+                         smartparens
+                         clean-aindent-mode
+                         lorem-ipsum)); is not needer ever.
 ;;; Necromancy
      (version-control :variables
                       git-gutter:modified-sign "±"
@@ -82,10 +82,11 @@ This function should only modify configuration layer settings."
           magit-save-some-buffers nil
           magit-ellipsis ?…)
 ;;; Summoning
-     spacemacs-layouts
+     ;; spacemacs-layouts
      (spacemacs-navigation :packages; renamed from `spacemacs-ui'
-                    (not golden-ratio))
+                           (not golden-ratio))
      spacemacs-purpose
+     neotree
      vinegar; simplified/improved `dired'
 ;;; Specialization
      elm
@@ -116,6 +117,9 @@ This function should only modify configuration layer settings."
    ;; wrapped in a layer. If you need some configuration for these
    ;; packages, then consider creating a layer. You can also put the
    ;; configuration in `dotspacemacs/user-config'.
+   ;; To use a local version of a package, use the `:location' property:
+   ;; '(your-package :location "~/path/to/your-package/")
+   ;; Also include the dependencies as they will not be resolved automatically.
    dotspacemacs-additional-packages
    '(
      names
@@ -216,10 +220,23 @@ It should only modify the values of Spacemacs settings."
    ;; Default major mode of the scratch buffer (default `text-mode')
    dotspacemacs-scratch-mode 'text-mode
 
+   ;; Initial message in the scratch buffer, such as "Welcome to Spacemacs!"
+   ;; (default nil)
+   dotspacemacs-initial-scratch-message nil
+
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press `SPC T n' to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
    dotspacemacs-themes '(spacemacs-dark leuven)
+
+   ;; Set the theme for the Spaceline. Supported themes are `spacemacs',
+   ;; `all-the-icons', `custom', `vim-powerline' and `vanilla'. The first three
+   ;; are spaceline themes. `vanilla' is default Emacs mode-line. `custom' is a
+   ;; user defined themes, refer to the DOCUMENTATION.org for more info on how
+   ;; to create your own spaceline theme. Value can be a symbol or list with\
+   ;; additional properties.
+   ;; (default '(spacemacs :separator wave :separator-scale 1.5))
+   dotspacemacs-mode-line-theme 'vanilla
 
    ;; If non-nil the cursor color matches the state color in GUI Emacs.
    ;; (default t)
@@ -522,14 +539,14 @@ before packages are loaded."
   (setq my/nonalphanumeric-names (make-hash-table :test #'eq))
   (mapc (lambda (pair)
           (puthash (elt pair 0) (elt pair 1) my/nonalphanumeric-names))
-        [(?+ "plus")
-         (?@ "at")
+        [(?! "bang")
          (?# "hash")
-         (?! "bang")
-         (?^ "hat")
+         (?% "percent")
          (?& "and")
          (?* "star")
-         (?% "percent")
+         (?+ "plus")
+         (?@ "at")
+         (?^ "hat")
          (?\\ "backslash")
          (?| "bar")])
   (defun my/safer-name (NAME)
