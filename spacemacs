@@ -167,9 +167,15 @@ It should only modify the values of Spacemacs settings."
    ;; (default 5)
    dotspacemacs-elpa-timeout 5
 
+   ;; Set `gc-cons-threshold' and `gc-cons-percentage' when startup finishes.
+   ;; This is an advanced option and should not be changed unless you suspect
+   ;; performance issues due to garbage collection operations.
+   ;; (default '(100000000 0.1))
+   dotspacemacs-gc-cons '(100000000 0.1)
+
    ;; If non-nil then Spacelpa repository is the primary source to install
-   ;; a locked version of packages. If nil then Spacemacs will install the lastest
-   ;; version of packages from MELPA. (default nil)
+   ;; a locked version of packages. If nil then Spacemacs will install the
+   ;; lastest version of packages from MELPA. (default nil)
    dotspacemacs-use-spacelpa nil
 
    ;; If non-nil then verify the signature for downloaded Spacelpa archives.
@@ -249,8 +255,7 @@ It should only modify the values of Spacemacs settings."
                                           14.0
                                         12.0)
                                :weight normal
-                               :width normal
-                               :powerline-scale 1.1)
+                               :width normal)
 
    ;; The leader key (default "SPC")
    dotspacemacs-leader-key "SPC"
