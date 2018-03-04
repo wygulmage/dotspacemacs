@@ -175,7 +175,7 @@ It should only modify the values of Spacemacs settings."
 
    ;; If non-nil then Spacelpa repository is the primary source to install
    ;; a locked version of packages. If nil then Spacemacs will install the
-   ;; lastest version of packages from MELPA. (default nil)
+   ;; latest version of packages from MELPA. (default nil)
    dotspacemacs-use-spacelpa nil
 
    ;; If non-nil then verify the signature for downloaded Spacelpa archives.
@@ -445,6 +445,9 @@ It should only modify the values of Spacemacs settings."
    ;; emphasis the current one). (default 'all)
    dotspacemacs-highlight-delimiters 'any
 
+   ;; If non-nil, start an Emacs server if one is not already running.
+   dotspacemacs-enable-server t
+
    ;; If non-nil, advise quit functions to keep server open when quitting.
    ;; (default nil)
    dotspacemacs-persistent-server nil
@@ -453,11 +456,6 @@ It should only modify the values of Spacemacs settings."
    ;; tool of the list. Supported tools are `rg', `ag', `pt', `ack' and `grep'.
    ;; (default '("rg" "ag" "pt" "ack" "grep"))
    dotspacemacs-search-tools '("rg" "ag" "pt" "ack" "grep")
-
-   ;; The default package repository used if no explicit repository has been
-   ;; specified with an installed package.
-   ;; Not used for now. (default nil)
-   dotspacemacs-default-package-repository nil
 
    ;; Format specification for setting the frame title.
    ;; %a - the `abbreviated-file-name', or `buffer-name'
