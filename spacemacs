@@ -89,6 +89,7 @@ This function should only modify configuration layer settings."
      neotree
      vinegar; simplified/improved `dired'
 ;;; Specialization
+     erc
      elm
      (emacs-lisp :variables
                  ielm-header ""
