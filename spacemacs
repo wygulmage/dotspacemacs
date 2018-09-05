@@ -33,7 +33,7 @@ This function should only modify configuration layer settings."
 
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(
+   '(python
 ;;; Divination
      (ivy :packages
           (not helm-make)) ; This may be misguided, but why???
@@ -54,19 +54,19 @@ This function should only modify configuration layer settings."
      (spacemacs-visual :packages
                        (not fill-column-indicator)); Do or do not; don't nag.
 ;;; Transmutation
-     (parinfer :variables
-               parinfer-auto-switch-indent-mode t
-               parinfer-extensions
-               '(defaults
-                  evil
-                  paredit
-                  smart-yank
-                  smart-tab))
+     ;; (parinfer :variables
+     ;;           parinfer-auto-switch-indent-mode t
+     ;;           parinfer-extensions
+     ;;           '(defaults
+     ;;              evil
+     ;;              paredit
+     ;;              smart-yank
+     ;;              smart-tab))
      (spacemacs-editing :packages
                         (not; Not needed with `parinfer':
-                         aggressive-indent
-                         smartparens
-                         clean-aindent-mode
+                         ;; aggressive-indent
+                         ;; smartparens
+                         ;; clean-aindent-mode
                          lorem-ipsum)); is not needer ever.
 ;;; Necromancy
      (version-control :variables
@@ -256,11 +256,11 @@ It should only modify the values of Spacemacs settings."
    dotspacemacs-themes '(spacemacs-dark leuven)
 
    ;; Set the theme for the Spaceline. Supported themes are `spacemacs',
-   ;; `all-the-icons', `custom', `vim-powerline' and `vanilla'. The first three
-   ;; are spaceline themes. `vanilla' is default Emacs mode-line. `custom' is a
-   ;; user defined themes, refer to the DOCUMENTATION.org for more info on how
-   ;; to create your own spaceline theme. Value can be a symbol or list with\
-   ;; additional properties.
+   ;; `all-the-icons', `custom', `doom', `vim-powerline' and `vanilla'. The
+   ;; first three are spaceline themes. `doom' is the doom-emacs mode-line.
+   ;; `vanilla' is default Emacs mode-line. `custom' is a user defined themes,
+   ;; refer to the DOCUMENTATION.org for more info on how to create your own
+   ;; spaceline theme. Value can be a symbol or list with additional properties.
    ;; (default '(spacemacs :separator wave :separator-scale 1.5))
    dotspacemacs-mode-line-theme 'vanilla
 
@@ -351,9 +351,9 @@ It should only modify the values of Spacemacs settings."
    ;; Maximum number of rollback slots to keep in the cache. (default 5)
    dotspacemacs-max-rollback-slots 5
 
-   ;; If non-nil, the paste transient-state is enabled. While enabled, pressing
-   ;; `p' several times cycles through the elements in the `kill-ring'.
-   ;; (default nil)
+   ;; If non-nil, the paste transient-state is enabled. While enabled, after you
+   ;; paste something, pressing `C-j' and `C-k' several times cycles through the
+   ;; elements in the `kill-ring'. (default nil)
    dotspacemacs-enable-paste-transient-state nil
 
    ;; Which-key delay in seconds. The which-key buffer is the popup listing
@@ -616,8 +616,8 @@ before packages are loaded."
 
 ;;; Illusion
   ;; Fallback font:
-  (set-fontset-font "fontset-default" nil
-                    (font-spec :size 18 :name "Symbola"))
+  (when (fontp 'symbola) (set-fontset-font "fontset-default" nil
+                                           (font-spec :size 18 :name "Symbola")))
 
   (global-prettify-symbols-mode t); Make everything pretty. Don't go crazy with this; it can throw things out of alignment. E.g. using it for 'lambda' is good because that will be split or on one line, but using it for '>=' is bad because its arguments will often be aligned vertically.
   (global-hl-line-mode -1) ; Disable current line highlight.
@@ -780,7 +780,7 @@ before packages are loaded."
 ;;;; Lisps
   (setq-default my/lisp-setup
                 [paren-face-mode ; Dim parentheses.
-                 parinfer-mode ; Manage parentheses automagically.
+                 ;; parinfer-mode ; Manage parentheses automagically.
                  my/prettify-glyphs])
 
   (defun my/prettify-glyphs ()
@@ -807,3 +807,23 @@ before packages are loaded."
 
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.
+(defun dotspacemacs/emacs-custom-settings ()
+  "Emacs custom settings.
+This is an auto-generated function, do not modify its content directly, use
+Emacs customize menu instead.
+This function is called at the very end of Spacemacs initialization."
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   (quote
+    (clean-aindent-mode aggressive-indent yasnippet-snippets yapfify yaml-mode xterm-color ws-butler winum which-key wgrep web-mode web-beautify uuidgen use-package toml-mode toc-org tagedit string-inflection stickyfunc-enhance smex smeargle smartparens slim-mode shell-pop scss-mode sass-mode restart-emacs rainbow-mode racer pyvenv pytest pyenv-mode py-isort pug-mode prettier-js popwin pippel pipenv pip-requirements pcre2el password-generator parinfer paren-face paradox overseer org-present org-pomodoro org-mime org-download org-bullets org-brain open-junk-file neotree names nameless multi-term move-text mmm-mode markdown-toc magit-svn magit-gitflow macrostep lsp-python live-py-mode link-hint ivy-yasnippet ivy-xref ivy-purpose ivy-hydra intero importmagic impatient-mode hungry-delete hlint-refactor hl-todo hindent helm-pydoc helm-gtags helm-cscope haskell-snippets gnuplot gitignore-templates gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gh-md ggtags fuzzy flyspell-correct-ivy flycheck-rust flycheck-pos-tip flycheck-haskell flycheck-elm flx-ido expand-region exec-path-from-shell evil-org evil-matchit evil-magit eval-sexp-fu eshell-z eshell-prompt-extras esh-help erc-yt erc-view-log erc-social-graph erc-image erc-hl-nicks emmet-mode elm-test-runner elm-mode elisp-slime-nav editorconfig dotenv-mode diminish diff-hl dante cython-mode counsel-gtags counsel-css company-web company-statistics company-ghci company-ghc company-cabal company-anaconda cmm-mode centered-cursor-mode cargo browse-at-remote bind-map auto-yasnippet auto-highlight-symbol auto-dictionary auto-compile adaptive-wrap ace-window ace-link ac-ispell))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
+)
