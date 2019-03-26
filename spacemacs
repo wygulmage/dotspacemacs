@@ -86,7 +86,8 @@ This function should only modify configuration layer settings."
      (spacemacs-navigation :packages; renamed from `spacemacs-ui'
                            (not golden-ratio))
      spacemacs-purpose
-     neotree
+     treemacs
+     ;; neotree
      vinegar; simplified/improved `dired'
 ;;; Specialization
      erc
@@ -807,23 +808,3 @@ before packages are loaded."
 
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.
-(defun dotspacemacs/emacs-custom-settings ()
-  "Emacs custom settings.
-This is an auto-generated function, do not modify its content directly, use
-Emacs customize menu instead.
-This function is called at the very end of Spacemacs initialization."
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   (quote
-    (clean-aindent-mode aggressive-indent yasnippet-snippets yapfify yaml-mode xterm-color ws-butler winum which-key wgrep web-mode web-beautify uuidgen use-package toml-mode toc-org tagedit string-inflection stickyfunc-enhance smex smeargle smartparens slim-mode shell-pop scss-mode sass-mode restart-emacs rainbow-mode racer pyvenv pytest pyenv-mode py-isort pug-mode prettier-js popwin pippel pipenv pip-requirements pcre2el password-generator parinfer paren-face paradox overseer org-present org-pomodoro org-mime org-download org-bullets org-brain open-junk-file neotree names nameless multi-term move-text mmm-mode markdown-toc magit-svn magit-gitflow macrostep lsp-python live-py-mode link-hint ivy-yasnippet ivy-xref ivy-purpose ivy-hydra intero importmagic impatient-mode hungry-delete hlint-refactor hl-todo hindent helm-pydoc helm-gtags helm-cscope haskell-snippets gnuplot gitignore-templates gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gh-md ggtags fuzzy flyspell-correct-ivy flycheck-rust flycheck-pos-tip flycheck-haskell flycheck-elm flx-ido expand-region exec-path-from-shell evil-org evil-matchit evil-magit eval-sexp-fu eshell-z eshell-prompt-extras esh-help erc-yt erc-view-log erc-social-graph erc-image erc-hl-nicks emmet-mode elm-test-runner elm-mode elisp-slime-nav editorconfig dotenv-mode diminish diff-hl dante cython-mode counsel-gtags counsel-css company-web company-statistics company-ghci company-ghc company-cabal company-anaconda cmm-mode centered-cursor-mode cargo browse-at-remote bind-map auto-yasnippet auto-highlight-symbol auto-dictionary auto-compile adaptive-wrap ace-window ace-link ac-ispell))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
-)
