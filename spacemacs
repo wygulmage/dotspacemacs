@@ -43,7 +43,9 @@ This function should only modify configuration layer settings."
                        smartparens))
      (spacemacs-completion :packages
                            default-ivy-config)
-     spell-checking
+     (spell-checking :variables
+                     syntax-checking-enable-tooltips nil) ; tooltips move mouse and therefore focus.
+
      syntax-checking
 ;;; Illusion
      (colors :packages
@@ -62,6 +64,7 @@ This function should only modify configuration layer settings."
      ;;              paredit
      ;;              smart-yank
      ;;              smart-tab))
+     multiple-cursors
      (spacemacs-editing :packages
                         (not; Not needed with `parinfer':
                          ;; aggressive-indent
@@ -86,8 +89,7 @@ This function should only modify configuration layer settings."
      (spacemacs-navigation :packages; renamed from `spacemacs-ui'
                            (not golden-ratio))
      spacemacs-purpose
-     treemacs
-     ;; neotree
+     treemacs ;; neotree
      vinegar; simplified/improved `dired'
 ;;; Specialization
      erc
@@ -95,7 +97,8 @@ This function should only modify configuration layer settings."
      (emacs-lisp :variables
                  ielm-header ""
                  ielm-prompt ">")
-     haskell
+     (haskell :variables
+              haskell-completion-backend 'company-ghci)
      html
      markdown
      spacemacs-org ; For whatever reason, the `org' layer spectacularly fails to install.
@@ -547,6 +550,7 @@ configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
  ;;; Remember to use `setq-default' to set variables that are automatically buffer-local.
+  ;; (defun pos-tip-avoid-mouse (&rest ARGS) nil) ; poorly named function; rather than avoiding mouse it moves the move into another frame, losing frame focus and immediately closing popup.
 
   (add-to-list 'custom-theme-load-path "~/.emacs.d/private/local/print-theme/")
   (defun my/silence (PROCEDURE &rest ARGS)
@@ -700,6 +704,7 @@ before packages are loaded."
   (hook-up
    [prog-mode-hook]
    [adaptive-wrap-prefix-mode ; Indent wrapped lines in source code.
+    ;; [adaptive-wrap-mode ; Indent wrapped lines in source code.
     rainbow-mode]) ; Color color strings like "#4971af" in source code.
 
   ;; Hide the mode-line when not needed useful.
