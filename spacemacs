@@ -401,7 +401,7 @@ It should only modify the values of Spacemacs settings."
    ;; If non-nil the frame is undecorated when Emacs starts up. Combine this
    ;; variable with `dotspacemacs-maximized-at-startup' in OSX to obtain
    ;; borderless fullscreen. (default nil)
-   dotspacemacs-undecorated-at-startup t
+   dotspacemacs-undecorated-at-startup nil
 
    ;; A value from the range (0..100), in increasing opacity, which describes
    ;; the transparency level of a frame when it's active or selected.
@@ -566,7 +566,7 @@ before packages are loaded."
  ;;; Remember to use `setq-default' to set variables that are automatically buffer-local.
   ;; (defun pos-tip-avoid-mouse (&rest ARGS) nil) ; poorly named function; rather than avoiding mouse it moves the move into another frame, losing frame focus and immediately closing popup.
 
-  (add-to-list 'custom-theme-load-path "~/.emacs.d/private/local/print-theme/")
+  ;; (add-to-list 'custom-theme-load-path "~/.emacs.d/private/local/print-theme/")
   (defun my/silence (PROCEDURE &rest ARGS)
     "Don't put messages in the echo area."
     (let ((inhibit-message t))
@@ -767,10 +767,10 @@ before packages are loaded."
   ;; Zoom with Ctrl + mouse wheel.
   (apply #'misc--def-keys global-map
          (misc--alternate
-          (if (string= system-type "gnu/linux")
-              '("C-<mouse-4>" "C-<mouse-5>") ; Linux mouse wheel
-            '("C-<wheel-up>" "C-<wheel-down>")) ; Windows mouse wheel
-          '(spacemacs/scale-up-font spacemacs/scale-down-font)))
+          (if (string= system-type "windows-nt")
+              '("<wheel-up>" "<wheel-down>" "C-<wheel-up>" "C-<wheel-down>") ; Windows mouse wheel
+            '("<mouse-4>" "<mouse-5>" "C-<mouse-4>" "C-<mouse-5>")) ; Linux mouse wheel
+          '(scroll-down-line scroll-up-line spacemacs/scale-up-font spacemacs/scale-down-font)))
 
   ;; Toggle comment with SPC ;.
   (defun my/region-or-line-coordinates ()
