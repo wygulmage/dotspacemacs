@@ -34,8 +34,8 @@ This function should only modify configuration layer settings."
    dotspacemacs-configuration-layers
    '(python
 ;;; Divination
-     (ivy :packages
-          (not helm-make)) ; This may be misguided, but why???
+     ivy ;; (ivy :packages
+          ;; (not helm-make)) ; This may be misguided, but why???
      (auto-completion :packages
                       (not ;; helm-company
                        ;; helm-c-yasnippet
@@ -142,7 +142,7 @@ This function should only modify configuration layer settings."
 
    ;; A list of packages that will not be installed and loaded.
    dotspacemacs-excluded-packages
-   '(helm) ; should not be needed with `ivy'.
+   nil ;; '(helm) ; should not be needed with `ivy'.
 
    ;; Defines the behaviour of Spacemacs when installing packages.
    ;; Possible values are `used-only', `used-but-keep-unused' and `all'.
@@ -539,6 +539,7 @@ This function is called immediately after `dotspacemacs/init', before layer
 configuration.
 It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
+  (setq ispell-program-name "aspell")
   ;; (require 'parinferlib "~/.emacs.d/private/local/parinfer-elisp/parinferlib"
   (defalias 'eql #'equal "I have yet to find a single advantage of eql. Let's see if this breaks things.")
   (setq debug-on-error t
@@ -717,7 +718,6 @@ before packages are loaded."
   (hook-up
    [prog-mode-hook]
    [adaptive-wrap-prefix-mode ; Indent wrapped lines in source code.
-    ;; [adaptive-wrap-mode ; Indent wrapped lines in source code.
     rainbow-mode]) ; Color color strings like "#4971af" in source code.
 
   ;; Hide the mode-line when not needed useful.
