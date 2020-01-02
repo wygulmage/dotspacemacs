@@ -34,8 +34,8 @@ This function should only modify configuration layer settings."
    dotspacemacs-configuration-layers
    '(python
 ;;; Divination
-     (ivy :packages
-          (not helm-make)) ; This may be misguided, but why???
+     ivy ;; (ivy :packages
+          ;; (not helm-make)) ; This may be misguided, but why???
      (auto-completion :packages
                       (not ;; helm-company
                        ;; helm-c-yasnippet
@@ -129,6 +129,7 @@ This function should only modify configuration layer settings."
    ;; Also include the dependencies as they will not be resolved automatically.
    dotspacemacs-additional-packages
    '(
+     f
      names
 ;;; Illusion
      adaptive-wrap
@@ -142,7 +143,7 @@ This function should only modify configuration layer settings."
 
    ;; A list of packages that will not be installed and loaded.
    dotspacemacs-excluded-packages
-   '(helm) ; should not be needed with `ivy'.
+   nil ;; '(helm) ; should not be needed with `ivy'.
 
    ;; Defines the behaviour of Spacemacs when installing packages.
    ;; Possible values are `used-only', `used-but-keep-unused' and `all'.
@@ -317,15 +318,15 @@ It should only modify the values of Spacemacs settings."
 
    ;; If non-nil, the shift mappings `<' and `>' retain visual state if used
    ;; there. (default t)
-   dotspacemacs-retain-visual-state-on-shift t
+   ;; dotspacemacs-retain-visual-state-on-shift t ; depreciated?
 
    ;; If non-nil, `J' and `K' move lines up and down when in visual mode.
    ;; (default nil)
-   dotspacemacs-visual-line-move-text nil
+   dotspacemacs-visual-line-move-text nil ; depreciated?
 
    ;; If non-nil, inverse the meaning of `g' in `:substitute' Evil ex-command.
    ;; (default nil)
-   dotspacemacs-ex-substitute-global nil
+   dotspacemacs-ex-substitute-global nil ; depreciated?
 
    ;; Name of the default layout (default "Default")
    dotspacemacs-default-layout-name "Default"
@@ -463,7 +464,7 @@ It should only modify the values of Spacemacs settings."
    ;; Select a scope to highlight delimiters. Possible values are `any',
    ;; `current', `all' or `nil'. Default is `all' (highlight any scope and
    ;; emphasis the current one). (default 'all)
-   dotspacemacs-highlight-delimiters 'any
+   dotspacemacs-highlight-delimiters 'all
 
    ;; If non-nil, start an Emacs server if one is not already running.
    ;; (default nil)
@@ -537,6 +538,7 @@ This function is called immediately after `dotspacemacs/init', before layer
 configuration.
 It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
+  (setq ispell-program-name "aspell")
   ;; (require 'parinferlib "~/.emacs.d/private/local/parinfer-elisp/parinferlib"
   (defalias 'eql #'equal "I have yet to find a single advantage of eql. Let's see if this breaks things.")
   (setq debug-on-error t
@@ -715,7 +717,6 @@ before packages are loaded."
   (hook-up
    [prog-mode-hook]
    [adaptive-wrap-prefix-mode ; Indent wrapped lines in source code.
-    ;; [adaptive-wrap-mode ; Indent wrapped lines in source code.
     rainbow-mode]) ; Color color strings like "#4971af" in source code.
 
   ;; Hide the mode-line when not needed useful.
