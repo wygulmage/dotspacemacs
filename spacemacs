@@ -91,6 +91,7 @@ This function should only modify configuration layer settings."
      treemacs ;; neotree
      vinegar; simplified/improved `dired'
 ;;; Specialization
+     c-c++
      erc
      elm
      (emacs-lisp :variables
@@ -100,7 +101,7 @@ This function should only modify configuration layer settings."
               haskell-completion-backend 'company-ghci
               haskell-enable-hindent t)
      html
-     lsp
+     ;; lsp
      markdown
      spacemacs-org ; For whatever reason, the `org' layer spectacularly fails to install.
      org
@@ -541,8 +542,8 @@ If you are unsure, try setting them in `dotspacemacs/user-config' first."
   (setq ispell-program-name "aspell")
   ;; (require 'parinferlib "~/.emacs.d/private/local/parinfer-elisp/parinferlib"
   (defalias 'eql #'equal "I have yet to find a single advantage of eql. Let's see if this breaks things.")
-  (setq debug-on-error t
-        use-dialog-box nil)
+  ;; (setq debug-on-error t
+  ;;       use-dialog-box nil) ; emacs has been erroring out way too much.
   ;; https://github.com/syl20bnr/spacemacs/issues/5435
   ;; This problem may be related to `wid-edit.el' and `mouse-1-click-follows-link'. Now I can avoid automatic yank by putting the following config in spacemacs/user-config.
   (add-hook 'spacemacs-buffer-mode-hook
