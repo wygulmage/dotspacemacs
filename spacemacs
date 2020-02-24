@@ -91,7 +91,7 @@ This function should only modify configuration layer settings."
      treemacs ;; neotree
      vinegar; simplified/improved `dired'
 ;;; Specialization
-     c-c++
+     ;; c-c++
      erc
      elm
      (emacs-lisp :variables
@@ -143,8 +143,7 @@ This function should only modify configuration layer settings."
    dotspacemacs-frozen-packages '()
 
    ;; A list of packages that will not be installed and loaded.
-   dotspacemacs-excluded-packages
-   nil ;; '(helm) ; should not be needed with `ivy'.
+   dotspacemacs-excluded-packages '()
 
    ;; Defines the behaviour of Spacemacs when installing packages.
    ;; Possible values are `used-only', `used-but-keep-unused' and `all'.
@@ -227,6 +226,11 @@ It should only modify the values of Spacemacs settings."
    ;; section of the documentation for details on available variables.
    ;; (default 'vim)
    dotspacemacs-editing-style 'vim
+
+   ;; If non-nil show the version string in the Spacemacs buffer. It will
+   ;; appear as (spacemacs version)@(emacs version)
+   ;; (default t)
+   dotspacemacs-startup-buffer-show-version t
 
    ;; Specify the startup banner. Default value is `official', it displays
    ;; the official spacemacs logo. An integer value is the index of text
@@ -323,7 +327,7 @@ It should only modify the values of Spacemacs settings."
 
    ;; If non-nil, `J' and `K' move lines up and down when in visual mode.
    ;; (default nil)
-   dotspacemacs-visual-line-move-text nil ; depreciated?
+   dotspacemacs-visual-line-move-text nil ; deprecated?
 
    ;; If non-nil, inverse the meaning of `g' in `:substitute' Evil ex-command.
    ;; (default nil)
